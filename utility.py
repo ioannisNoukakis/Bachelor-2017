@@ -1,7 +1,7 @@
 import math
 import threading
-import copy
 from PIL import Image
+
 
 class ImageFilter:
     def __init__(self, image):
@@ -51,7 +51,6 @@ class ImageFilter:
                     except IndexError:
                         print("OUT OF RANGE! : ", str(i), " ", str(j))
 
-    # TODO: CHECK IF THERE IS NO OVERFLOW
     def getRGBfromI(self, RGBint):
         blue = RGBint & 255
         green = (RGBint >> 8) & 255

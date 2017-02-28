@@ -1,4 +1,3 @@
-from PIL import Image
 from utility import *
 import numpy as ny
 
