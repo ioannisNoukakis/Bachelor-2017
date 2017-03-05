@@ -1,22 +1,18 @@
 import math
 import threading
-from PIL import Image
-
 
 class ImageFilter:
     def __init__(self, image):
         self.image = image
-        self.newImage = Image.new("RGB", image.size)
-        self.pix = self.newImage.load()
-        self.refPix = self.image.load()
+        self.pix = self.image.load()
 
     def applyFilterOnImage(self, filtre, nb_threads):
-        previous_slice = 1
+        previous_slice = 0
         slice = math.floor(self.image.size[0] / nb_threads)
 
         threads = []
         for i in range(nb_threads):
-            t = threading.Thread(name=str(i), target=self.workerThread, args=(filtre, previous_slice, slice))
+            t = threading.Thread(name=str(i), target=self.workerThread, args=(filtre, previous_slice+1, slice))
             threads.append(t)
             previous_slice = slice
             slice += math.floor(self.image.size[0] / nb_threads)
@@ -28,7 +24,7 @@ class ImageFilter:
             t.join()
 
         print("FINISHED! saving...")
-        self.newImage.save('out.jpg')
+        self.image.save('out.jpg')
 
     def workerThread(self, filtre, begin, end):
         print("starting", begin, "-", end)
@@ -47,10 +43,11 @@ class ImageFilter:
                     a = x + i - math.floor(len(filtre) / 2)
                     b = y + j - math.floor(len(filtre) / 2)
                     try:
-                        self.pix[x, y] = self.getRGBfromI(self.getIfromRGB(self.refPix[a, b]) * filtre[i, j])
+                        self.pix[x, y] = self.getRGBfromI(self.getIfromRGB(self.pix[a, b]) * filtre[i, j])
                     except IndexError:
                         print("OUT OF RANGE! : ", str(i), " ", str(j))
 
+    # TODO: CHECK IF THERE IS NO OVERFLOW
     def getRGBfromI(self, RGBint):
         blue = RGBint & 255
         green = (RGBint >> 8) & 255
