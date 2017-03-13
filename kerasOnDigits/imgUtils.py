@@ -1,6 +1,7 @@
 import os
 import random
 import cv2
+import numpy as np
 
 class ImgUtils:
     """ Image loading class into a readable format for keras.
@@ -15,21 +16,39 @@ class ImgUtils:
 
     def load_and_shuffle_dataset(self):
         directories = next(os.walk(self.baseDirectory))[1]
+        print("Loading datasets. ", len(directories), " classes found")
         dataX = []
         dataY = []
 
+        i = 0
         for directory in directories:
             files_names = next(os.walk(self.baseDirectory + "/" + directory))[2]
-            # image = cv2.imread(argv[1], CV_LOAD_IMAGE_COLOR);
             for file_name in files_names:
                 img = cv2.imread(self.baseDirectory + "/" + directory + "/" +file_name, 0)
                 dataX.append(img)
-                cv2.imshow('image', img)
+                dataY.append(i)
 
-        print(dataX)
+            i += 1
 
-        return len(directories),  # Returns the number of classes
+        dataX, dataY = self.shuffle_lists(dataX, dataY)
+        print("Loading completed!")
 
-    def split_list(a_list):
-        half = len(a_list) / 2
-        return a_list[:half], a_list[half:]
+        testX, trainX = self.split_list(dataX, 4)
+        testY, trainY = self.split_list(dataY, 4)
+
+        return len(directories), (np.array(trainX), np.array(trainY)), (np.array(testX), np.array(testY))  # Returns the number of classes
+
+    def split_list(self, a_list, number):
+        split = int(len(a_list) / number)
+        return a_list[:split], a_list[split:]
+
+    def shuffle_lists(self, a_list, b_list):
+        list1_shuf = []
+        list2_shuf = []
+        index_shuf = list(range(len(a_list)))
+        random.shuffle(index_shuf)
+        for i in index_shuf:
+            list1_shuf.append(a_list[i])
+            list2_shuf.append(b_list[i])
+
+        return list1_shuf, list2_shuf
