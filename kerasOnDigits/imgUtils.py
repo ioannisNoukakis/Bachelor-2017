@@ -16,7 +16,7 @@ class ImgUtils:
 
     def load_and_shuffle_dataset(self):
         directories = next(os.walk(self.baseDirectory))[1]
-        print("Loading datasets. ", len(directories), " classes found")
+        print("Loading dataset.", len(directories), "classes found")
         dataX = []
         dataY = []
 
@@ -28,6 +28,7 @@ class ImgUtils:
                 dataX.append(img)
                 dataY.append(i)
 
+            print("Class", i, "loaded")
             i += 1
 
         dataX, dataY = self.shuffle_lists(dataX, dataY)
@@ -36,7 +37,7 @@ class ImgUtils:
         testX, trainX = self.split_list(dataX, 4)
         testY, trainY = self.split_list(dataY, 4)
 
-        return len(directories), (np.array(trainX), np.array(trainY)), (np.array(testX), np.array(testY))  # Returns the number of classes
+        return len(directories), (np.asarray(trainX), np.array(trainY)), (np.asarray(testX), np.array(testY))
 
     def split_list(self, a_list, number):
         split = int(len(a_list) / number)
