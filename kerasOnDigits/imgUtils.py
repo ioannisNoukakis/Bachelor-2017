@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 
 
+#TODO GENERALISER la fonction à n layout
 def split_list(a_list, number, layout):
     print(layout)
     if layout == 0:
@@ -23,7 +24,7 @@ def split_list(a_list, number, layout):
         return test, train1 + train2
     elif layout == 3:
         split = int(len(a_list) / number)
-        return a_list[split:], a_list[:split]
+        return a_list[3*split:], a_list[:3*split]
 
 
 def shuffle_lists(a_list, b_list):
