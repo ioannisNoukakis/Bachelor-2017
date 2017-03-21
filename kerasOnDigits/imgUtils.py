@@ -6,7 +6,6 @@ import numpy as np
 
 #TODO GENERALISER la fonction à n layout
 def split_list(a_list, number, layout):
-    print(layout)
     if layout == 0:
         split = int(len(a_list) / number)
         return a_list[:split], a_list[split:]
@@ -56,6 +55,9 @@ class ImgUtils:
         self.already_computed = []
         self.threshold = threshold
 
+    def reset_loader(self):
+        self.already_computed = []
+
     def load_and_shuffle_dataset(self, layout):
 
         redo = False
@@ -94,4 +96,4 @@ class ImgUtils:
         test_x, train_x = split_list(data_x, 4, layout)
         test_y, train_y = split_list(data_y, 4, layout)
 
-        return redo, len(directories), (np.asarray(train_x), np.array(train_y)), (np.asarray(test_x), np.array(test_y))
+        return redo, len(directories), np.asarray(train_x), np.array(train_y), np.asarray(test_x), np.array(test_y)
