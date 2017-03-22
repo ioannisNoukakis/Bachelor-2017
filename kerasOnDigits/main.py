@@ -62,7 +62,7 @@ def main():
         imgU.reset_loader()
         redo = True
 
-    with open('log.txt', 'wr') as f:
+    with open('log.txt', 'w') as f:
         sys.stdout = f
         print("Classes:", nb_classes)
         print("Model:")
@@ -72,8 +72,9 @@ def main():
         print("Training ended at:", time.strftime("%c"))
         sys.stdout = sys.__stdout__
 
-        # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
-        # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
+        # with open('log.txt', 'r') as f:
+            # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
+            # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
 
 if __name__ == "__main__":
     main()

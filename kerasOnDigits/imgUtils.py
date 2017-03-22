@@ -70,6 +70,7 @@ class ImgUtils:
         j = 0
         for directory in directories:
             if any(directory in s for s in self.already_computed):
+                i += 1
                 continue
 
             files_names = next(os.walk(self.baseDirectory + "/" + directory))[2]
