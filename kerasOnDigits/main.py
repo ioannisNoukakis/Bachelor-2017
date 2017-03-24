@@ -59,7 +59,7 @@ def main():
         theTrueScore.append(model.evaluate(x_test, y_test, verbose=0))
         print(model.evaluate(x_test, y_test, verbose=0))
 
-    with open('log.txt', 'wr') as f:
+    with open('log.txt', 'w') as f:
         sys.stdout = f
         print("Classes:", nb_classes)
         print("Model:")
@@ -69,6 +69,7 @@ def main():
         print("Training ended at:", time.strftime("%c"))
         sys.stdout = sys.__stdout__
 
+    # with open('log.txt', 'r') as f:
         # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
         # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
 
