@@ -50,17 +50,11 @@ class ImgUtils:
         layout: paramètre entre 0 et 3 qui définit la position de la coupe dans le dataset
     """
 
-    def __init__(self, base_directory, threshold):
+    def __init__(self, base_directory):
         self.baseDirectory = base_directory
-        self.already_computed = []
-        self.threshold = threshold
-
-    def reset_loader(self):
-        self.already_computed = []
 
     def load_and_shuffle_dataset(self, layout):
 
-        redo = False
         directories = next(os.walk(self.baseDirectory))[1]
         print("Loading dataset.", len(directories), "classes found")
         data_x = []
@@ -69,24 +63,13 @@ class ImgUtils:
         i = 0
         j = 0
         for directory in directories:
-            if any(directory in s for s in self.already_computed):
-                continue
-
             files_names = next(os.walk(self.baseDirectory + "/" + directory))[2]
             for file_name in files_names:
-                img = cv2.imread(self.baseDirectory + "/" + directory + "/" +file_name, 0)
+                img = cv2.imread(self.baseDirectory + "/" + directory + "/" + file_name, 0).reshape(1, 256, 256)
                 data_x.append(img)
                 data_y.append(i)
                 j += 1
-                if j >= self.threshold:
-                    break
 
-            if j >= self.threshold:
-                redo = True
-                print("Threshold reached! Will load the rest of the data after the training...")
-                break
-
-            self.already_computed.append(directory)
             print("Class", i, "loaded")
             i += 1
 
@@ -96,4 +79,4 @@ class ImgUtils:
         test_x, train_x = split_list(data_x, 4, layout)
         test_y, train_y = split_list(data_y, 4, layout)
 
-        return redo, len(directories), np.asarray(train_x), np.array(train_y), np.asarray(test_x), np.array(test_y)
+        return len(directories), np.asarray(train_x), np.array(train_y), np.asarray(test_x), np.array(test_y)

@@ -11,56 +11,53 @@ import sys
 
 def main():
 
-    redo = True
     np.random.seed(123)  # for reproducibility
-    imgU = ImgUtils("./dataset", 10000)
+    imgU = ImgUtils("./dataset")
     start = time.strftime("%c")
     theTrueScore = []
 
     for layout in range(0, 4):
-        while redo:
-            redo, nb_classes, x_train, y_train, x_test, y_test = imgU.load_and_shuffle_dataset(layout)
-            # Preprocessing
-            x_train = x_train.reshape(x_train.shape[0], 1, 256, 256)
-            x_test = x_test.reshape(x_test.shape[0], 1, 256, 256)
-            x_train = x_train.astype('float32')
-            x_test = x_test.astype('float32')
-            x_train /= 255
-            x_test /= 255
+        nb_classes, x_train, y_train, x_test, y_test = imgU.load_and_shuffle_dataset(layout)
+        print(x_train.shape)
+        # Preprocessing
+        x_train = x_train.astype('float32')
+        x_test = x_test.astype('float32')
+        x_train /= 255
+        x_test /= 255
 
-            y_train = np_utils.to_categorical(y_train, nb_classes)
-            y_test = np_utils.to_categorical(y_test, nb_classes)
+        y_train = np_utils.to_categorical(y_train, nb_classes)
+        y_test = np_utils.to_categorical(y_test, nb_classes)
 
-            # Define model architecture
-            model = Sequential()
+        print(x_train.shape)
 
-            model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu', input_shape=(1, 256, 256),
-                                    dim_ordering='th'))
-            model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu'))
-            model.add(MaxPooling2D(pool_size=(2, 2)))
-            model.add(Dropout(0.25))
+        # Define model architecture
+        model = Sequential()
 
-            model.add(Convolution2D(64, 3, 3, border_mode='valid', activation='relu'))
-            model.add(Convolution2D(64, 3, 3, activation='relu'))
-            model.add(MaxPooling2D(pool_size=(2, 2)))
-            model.add(Dropout(0.25))
+        model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu', input_shape=(1, 256, 256),
+                                dim_ordering='th'))
+        model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
 
-            model.add(Flatten())
-            model.add(Dense(128, activation='relu'))
-            model.add(Dropout(0.5))
-            model.add(Dense(2, activation='softmax'))
+        model.add(Convolution2D(64, 3, 3, border_mode='valid', activation='relu'))
+        model.add(Convolution2D(64, 3, 3, activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
 
-            # Compile model
-            model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.add(Flatten())
+        model.add(Dense(128, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(nb_classes, activation='softmax'))
 
-            # Fit model on training data
-            model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0)
+        # Compile model
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+        # Fit model on training data
+        model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0)
 
         # Evaluate model on test data
         theTrueScore.append(model.evaluate(x_test, y_test, verbose=0))
         print(model.evaluate(x_test, y_test, verbose=0))
-        imgU.reset_loader()
-        redo = True
 
     with open('log.txt', 'wr') as f:
         sys.stdout = f
