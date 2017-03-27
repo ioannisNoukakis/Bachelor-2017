@@ -59,6 +59,9 @@ class FolderReader:
     def get_directory_name(self):
         return self.directory_name
 
+    def get_number_of_img_in_directory(self):
+        return len(self.files_array)
+
 
 class ImgUtils:
     """ Image loading class into a readable format for keras.
@@ -75,18 +78,22 @@ class ImgUtils:
     def __init__(self, base_directory, max_img_loaded):
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
+        self.number_of_image_read = 0
 
     def load_and_shuffle_dataset(self, layout):
 
         redo = False
+        number_of_imgs = 0
         directories = next(os.walk(self.baseDirectory))[1]
         print("Loading dataset.", len(directories), "classes found")
 
         folder_readers = []
         i = 0
         for directory in directories:
-            folder_readers.append(FolderReader(next(os.walk(self.baseDirectory + "/" + directory))[2], i, directory))
+            fr = FolderReader(next(os.walk(self.baseDirectory + "/" + directory))[2], i, directory)
+            folder_readers.append(fr)
             i += 1
+            number_of_imgs += fr.get_number_of_img_in_directory()
 
         data_x = []
         data_y = []
@@ -99,7 +106,7 @@ class ImgUtils:
                 if not folder_reader.has_next():
                     continue
                 if j+1 >= self.max_img_loaded :
-                    print("Max img loaded! Will train an resume the loading after the training...")
+                    print("Max img loaded! Will train an resume the loading after the training...", self.number_of_image_read, "/", number_of_imgs)
                     redo = True
                     break
                 stop = False
@@ -109,6 +116,7 @@ class ImgUtils:
                 data_x.append(img)
                 data_y.append(folder_reader.get_id())
                 j += 1
+                self.number_of_image_read += 1
                 # print(folder_reader.get_id())
 
         print("Loading completed!")

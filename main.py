@@ -57,10 +57,10 @@ def main():
 
         # Fit model on training data
         print("Starting...")
-        model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
+        model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0)
 
     # Evaluate model on test data
-    theTrueScore.append(model.evaluate(x_test, y_test, verbose=1))
+    theTrueScore.append(model.evaluate(x_test, y_test, verbose=0))
 
     with open('log.txt', 'w') as f:
         sys.stdout = f
