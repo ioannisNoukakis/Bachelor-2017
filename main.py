@@ -16,7 +16,7 @@ def main():
     imgU = ImgUtils("./dataset", 7000)
     start = time.strftime("%c")
     theTrueScore = []
-    redo = True
+    nb_classes = imgU.discover_and_make_order()
 
     # Define model architecture
     model = Sequential()
@@ -35,33 +35,38 @@ def main():
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(38, activation='softmax'))
+    model.add(Dense(nb_classes, activation='softmax'))
 
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    # for layout in range(0, 4):
+    # Train
+    redo = True
     while redo:
-        redo, nb_classes, x_train, y_train, x_test, y_test = imgU.load_and_shuffle_dataset(0)
-        print(x_train.shape)
+        redo, x_train, y_train = imgU.load_dataset()
         # Preprocessing
         x_train = x_train.astype('float32')
-        x_test = x_test.astype('float32')
         x_train /= 255
-        x_test /= 255
 
         y_train = np_utils.to_categorical(y_train, nb_classes)
-        y_test = np_utils.to_categorical(y_test, nb_classes)
-
-        print(x_train.shape)
 
         # Fit model on training data
         print("Starting...")
         model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0)
 
-    # Evaluate model on test data
-    theTrueScore.append(model.evaluate(x_test, y_test, verbose=0))
+    # Evaluate
+    redo = True
+    while redo:
+        redo, x_test, y_test = imgU.load_dataset()
+        # Preprocessing
+        x_test = x_test.astype('float32')
+        x_test /= 255
 
+        y_test = np_utils.to_categorical(y_test, nb_classes)
+        # Evaluate model on test data
+        theTrueScore.append(model.evaluate(x_test, y_test, verbose=0))
+
+    # Log
     with open('log.txt', 'w') as f:
         sys.stdout = f
         print("Classes:", nb_classes)

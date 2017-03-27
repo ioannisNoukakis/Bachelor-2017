@@ -2,6 +2,7 @@ import os
 import random
 import cv2
 import numpy as np
+import math
 
 
 #TODO GENERALISER la fonction à n layout
@@ -38,29 +39,20 @@ def shuffle_lists(a_list, b_list):
     return list1_shuf, list2_shuf
 
 
-class FolderReader:
-    def __init__(self, files_array, id, directory_name):
-        self.files_array = files_array
-        self.counter = 0
-        self.id = id
-        self.directory_name = directory_name
+class Image:
+    def __init__(self, name, directory, img_class):
+        self.name = name
+        self.directory = directory
+        self.img_class = img_class
 
-    def has_next(self):
-        return self.counter+1 <= len(self.files_array)
+    def get_name(self):
+        return self.name
 
-    def next(self):
-        file = self.files_array[self.counter]
-        self.counter += 1
-        return file
+    def get_img_class(self):
+        return self.img_class
 
-    def get_id(self):
-        return self.id
-
-    def get_directory_name(self):
-        return self.directory_name
-
-    def get_number_of_img_in_directory(self):
-        return len(self.files_array)
+    def get_directory(self):
+        return self.directory
 
 
 class ImgUtils:
@@ -79,53 +71,66 @@ class ImgUtils:
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
         self.number_of_image_read = 0
+        self.imgDataArray = []
+        self.number_of_imgs = 0
+        self.number_of_imgs_for_train = 0
+        self.number_of_imgs_for_test = 0
 
-    def load_and_shuffle_dataset(self, layout):
+        self.train_loaded = False
 
-        redo = False
-        number_of_imgs = 0
+    def discover_and_make_order(self):
+        print("Discovering dataset...")
         directories = next(os.walk(self.baseDirectory))[1]
-        print("Loading dataset.", len(directories), "classes found")
 
-        folder_readers = []
         i = 0
         for directory in directories:
-            fr = FolderReader(next(os.walk(self.baseDirectory + "/" + directory))[2], i, directory)
-            folder_readers.append(fr)
+            for file_name in next(os.walk(self.baseDirectory + "/" + directory))[2]:
+                self.imgDataArray.append(Image(file_name, directory, i))
+                self.number_of_imgs += 1
             i += 1
-            number_of_imgs += fr.get_number_of_img_in_directory()
+
+        print(len(directories), "classes found.\n", self.number_of_imgs, "images found.")
+
+        print("Shuffling order...")
+        random.shuffle(self.imgDataArray)
+
+        # TODO: faire de sorte d'être sur que on oublie pas une image ou deux
+        self.number_of_imgs_for_train = math.floor((self.number_of_imgs/4)*3)
+        self.number_of_imgs_for_test = math.floor(self.number_of_imgs/4)
+
+        print("Ready for loading!\n", self.number_of_imgs_for_train, "for training and", self.number_of_imgs_for_test, "for testing")
+        return len(directories)
+
+    def load_dataset(self):
 
         data_x = []
         data_y = []
-
-        stop = False
+        redo = False
         j = 0
-        while not stop:
-            stop = True
-            for folder_reader in folder_readers:
-                if not folder_reader.has_next():
-                    continue
-                if j+1 >= self.max_img_loaded :
-                    print("Max img loaded! Will train an resume the loading after the training...", self.number_of_image_read, "/", number_of_imgs)
-                    redo = True
-                    break
-                stop = False
+        for img_data in self.imgDataArray:
+            if not self.train_loaded and self.number_of_image_read == self.number_of_imgs_for_train:
+                print("Loaded all imgs for training. Next call will load test data...")
+                redo = False
+                self.train_loaded = True
+                break
+            if self.number_of_image_read == self.number_of_imgs:
+                print("Loaded all imgs for test. Done! Next call will load train data")
+                redo = False
+                self.train_loaded = False
+                break
+            if j+1 >= self.max_img_loaded:
+                print("Max img loaded!", self.number_of_image_read, "/", self.number_of_imgs)
+                redo = True
+                break
 
-                img = cv2.imread(self.baseDirectory + "/" + folder_reader.get_directory_name() + "/" + folder_reader.next(), 0)
-                img = np.expand_dims(img, axis=0)
-                data_x.append(img)
-                data_y.append(folder_reader.get_id())
-                j += 1
-                self.number_of_image_read += 1
-                # print(folder_reader.get_id())
+            img = cv2.imread(self.baseDirectory + "/" + img_data.get_directory() + "/" + img_data.get_name(), 0)
+            img = np.expand_dims(img, axis=0)
+            data_x.append(img)
+            data_y.append(img_data.get_img_class())
+            j += 1
+            self.number_of_image_read += 1
+            # print(img_data.get_name())
 
         print("Loading completed!")
 
-        data_x, data_y = shuffle_lists(data_x, data_y)
-        print("shuffle completed!")
-
-        test_x, train_x = split_list(data_x, 4, layout)
-        test_y, train_y = split_list(data_y, 4, layout)
-        print("Split completed")
-
-        return redo, len(directories), np.asarray(train_x), np.asarray(train_y), np.asarray(test_x), np.asarray(test_y)
+        return redo, np.asarray(data_x), np.asarray(data_y)
