@@ -13,7 +13,7 @@ import gc
 def main():
 
     np.random.seed(123)  # for reproducibility
-    imgU = ImgUtils("./dataset", 7000)
+    imgU = ImgUtils("./dataset", 2500)
     start = time.strftime("%c")
     theTrueScore = []
     nb_classes = imgU.discover_and_make_order()
@@ -52,7 +52,9 @@ def main():
 
         # Fit model on training data
         print("Starting...")
-        model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0)
+        model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
+
+    print("Train completed! Will now evalutate...")
 
     # Evaluate
     redo = True
@@ -64,7 +66,9 @@ def main():
 
         y_test = np_utils.to_categorical(y_test, nb_classes)
         # Evaluate model on test data
-        theTrueScore.append(model.evaluate(x_test, y_test, verbose=0))
+        theTrueScore.append(model.evaluate(x_test, y_test, batch_size=10, verbose=1))
+
+    print("Evaluation completed!")
 
     # Log
     with open('log.txt', 'w') as f:
