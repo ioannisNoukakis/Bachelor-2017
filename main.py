@@ -21,8 +21,8 @@ def main():
     # Define model architecture
     model = Sequential()
 
-    model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu', input_shape=(1, 256, 256),
-                            dim_ordering='th'))
+    model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu', input_shape=(256, 256, 3),
+                            dim_ordering='tf'))
     model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))

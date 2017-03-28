@@ -5,40 +5,6 @@ import numpy as np
 import math
 
 
-#TODO GENERALISER la fonction à n layout
-def split_list(a_list, number, layout):
-    if layout == 0:
-        split = int(len(a_list) / number)
-        return a_list[:split], a_list[split:]
-    elif layout == 1:
-        split = int(len(a_list) / number)
-        train1 = a_list[:split]
-        test = a_list[split:2*split]
-        train2 = a_list[2*split:]
-        return test, train1 + train2
-    elif layout == 2:
-        split = int(len(a_list) / number)
-        train1 = a_list[:2 * split]
-        test = a_list[2 * split:3 * split]
-        train2 = a_list[3 * split:]
-        return test, train1 + train2
-    elif layout == 3:
-        split = int(len(a_list) / number)
-        return a_list[3*split:], a_list[:3*split]
-
-
-def shuffle_lists(a_list, b_list):
-    list1_shuf = []
-    list2_shuf = []
-    index_shuf = list(range(len(a_list)))
-    random.shuffle(index_shuf)
-    for i in index_shuf:
-        list1_shuf.append(a_list[i])
-        list2_shuf.append(b_list[i])
-
-    return list1_shuf, list2_shuf
-
-
 class Image:
     def __init__(self, name, directory, img_class):
         self.name = name
@@ -123,13 +89,15 @@ class ImgUtils:
                 redo = True
                 break
 
-            img = cv2.imread(self.baseDirectory + "/" + img_data.get_directory() + "/" + img_data.get_name(), 0)
-            img = np.expand_dims(img, axis=0)
-            data_x.append(img)
+            img = cv2.imread(self.baseDirectory + "/" + img_data.get_directory() + "/" + img_data.get_name(), cv2.IMREAD_COLOR)
+            lab_img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+            # cv2.imshow('image', lab_img)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            data_x.append(lab_img)
             data_y.append(img_data.get_img_class())
             j += 1
             self.number_of_image_read += 1
-            # print(img_data.get_name())
 
         print("Loading completed!")
 
