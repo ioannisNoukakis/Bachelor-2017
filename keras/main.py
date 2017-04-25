@@ -16,13 +16,20 @@ def main():
     start = time.strftime("%c")
     theTrueScore = []
     nb_classes = imgU.discover_and_make_order()
-    N_EPOCHS = 1
+    N_EPOCHS = 10
 
     # Define model architecture
     model = Sequential()
 
     model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu', input_shape=(256, 256, 3),
                             dim_ordering='tf'))
+    model.add(Convolution2D(nb_filter=32, nb_row=3, nb_col=3, activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Convolution2D(nb_filter=32, nb_row=3, nb_col=3, activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
     model.add(Convolution2D(nb_filter=32, nb_row=3, nb_col=3, activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
@@ -34,6 +41,8 @@ def main():
 
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    model.summary()
 
     # Train
     redo = True
@@ -48,7 +57,7 @@ def main():
 
         # Fit model on training data
         print("Starting...")
-        model.fit(x_train, y_train, batch_size=32, nb_epoch=N_EPOCHS, verbose=1)
+        model.fit(x_train, y_train, batch_size=10, nb_epoch=N_EPOCHS, verbose=1)
         # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
         # redo = True
 
@@ -64,13 +73,10 @@ def main():
 
         y_test_2 = np_utils.to_categorical(y_test, nb_classes)
         # Evaluate model on test data
-        theTrueScore.append(model.evaluate(x_test, y_test_2, batch_size=32, verbose=1))
+        theTrueScore.append(model.evaluate(x_test, y_test_2, batch_size=10, verbose=1))
 
         # y_hat = model.predict_classes(x_test)
         # print(pd.crosstab(y_hat, y_test))
-
-    server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
-
     # Log
     # with open('log.txt', 'w') as f:
     #   sys.stdout = f
@@ -86,6 +92,10 @@ def main():
     # with open('log.txt', 'r') as f:
     #    send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "HEIG-VDkeras2017", f.read())
     # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
+
+    server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
+
+
 
 if __name__ == "__main__":
     main()
