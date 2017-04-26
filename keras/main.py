@@ -5,6 +5,10 @@ from imgUtils import *
 from quiver_engine import server
 import time
 
+from keras.preprocessing.image import img_to_array
+from vis.utils import utils
+from vis.visualization import visualize_cam
+
 import pandas as pd
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 
@@ -16,7 +20,7 @@ def main():
     start = time.strftime("%c")
     theTrueScore = []
     nb_classes = imgU.discover_and_make_order()
-    N_EPOCHS = 10
+    N_EPOCHS = 4
 
     # Define model architecture
     model = Sequential()
@@ -37,7 +41,7 @@ def main():
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(nb_classes, activation='softmax'))
+    model.add(Dense(nb_classes, activation='linear', name='predictions'))
 
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -77,9 +81,7 @@ def main():
 
         # y_hat = model.predict_classes(x_test)
         # print(pd.crosstab(y_hat, y_test))
-    # Log
-    # with open('log.txt', 'w') as f:
-    #   sys.stdout = f
+
     print("Model:")
     model.summary()
     print("Obtained the score:", theTrueScore)
@@ -87,15 +89,24 @@ def main():
     print("Training ended at:", time.strftime("%c"))
     print("Classes:", nb_classes)
     print("Nb_epoch:", 10)
-    # sys.stdout = sys.__stdout__
 
-    # with open('log.txt', 'r') as f:
-    #    send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "HEIG-VDkeras2017", f.read())
-    # send_mail("ioannisbachelorbot@gmail.com", "inoukakis@gmail.com", "<mdp>", f.read())
+    # PART 2 HEATMAPS
+    layer_name = 'predictions'
+    layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]
 
-    server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
+    heatmaps = []
+    for path in next(os.walk('./visual'))[2]:
+        # Predict the corresponding class for use in `visualize_cam`.
+        seed_img = utils.load_img('./visual/' + path, target_size=(256, 256))
+        pred_class = np.argmax(model.predict(np.array([img_to_array(seed_img)])))
 
+        # Here we are asking it to show attention such that prob of `pred_class` is maximized.
+        heatmap = visualize_cam(model, layer_idx, [pred_class], seed_img, text=path, overlay=False)
+        heatmaps.append(heatmap)
 
+    cv2.imwrite("./grad-CAM visualization.jpg", utils.stitch_images(heatmaps))
+
+    # server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
 
 if __name__ == "__main__":
     main()
