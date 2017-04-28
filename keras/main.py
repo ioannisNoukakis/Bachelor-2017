@@ -13,6 +13,18 @@ import pandas as pd
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 
 
+def print_leaf(model, leaf, name):
+    leaf = np.expand_dims(leaf, axis=0)
+    pred_leaf = model.predict(leaf)
+    pred_leaf = np.squeeze(pred_leaf, axis=0)
+
+    print(pred_leaf)
+
+    pred_leaf = pred_leaf.reshape(pred_leaf.shape[:2])
+
+    cv2.imwrite("./heatmaps/" + name + ".jpg", pred_leaf)
+
+
 def main():
 
     np.random.seed(123)  # for reproducibility
@@ -41,7 +53,7 @@ def main():
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(nb_classes, activation='linear', name='predictions'))
+    model.add(Dense(nb_classes, activation='softmax', name='predictions'))
 
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -91,6 +103,11 @@ def main():
     print("Nb_epoch:", 10)
 
     # PART 2 HEATMAPS
+    predicted_outputs = []
+    for i in range(0, 10):
+        print_leaf(model, x_test[i], str(i))
+
+    """
     layer_name = 'predictions'
     layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]
 
@@ -106,7 +123,7 @@ def main():
 
     cv2.imwrite("./grad-CAM visualization.jpg", utils.stitch_images(heatmaps))
 
-    # server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
+    # server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)"""
 
 if __name__ == "__main__":
     main()
