@@ -32,7 +32,7 @@ def main():
     start = time.strftime("%c")
     theTrueScore = []
     nb_classes = imgU.discover_and_make_order()
-    N_EPOCHS = 10
+    N_EPOCHS = 5
 
     # Define model architecture
     model = Sequential()
