@@ -2,7 +2,7 @@ from keras.models import Sequential
 from keras.layers import *
 from keras.utils import np_utils
 from imgUtils import *
-# from quiver_engine import server
+from quiver_engine import server
 import time
 
 from keras.preprocessing.image import img_to_array
@@ -32,7 +32,7 @@ def main():
     start = time.strftime("%c")
     theTrueScore = []
     nb_classes = imgU.discover_and_make_order()
-    N_EPOCHS = 1
+    N_EPOCHS = 10
 
     # Define model architecture
     model = Sequential()
@@ -107,23 +107,7 @@ def main():
     for i in range(0, 10):
         print_leaf(model, x_test[i], str(i))
 
-    """
-    layer_name = 'predictions'
-    layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]
-
-    heatmaps = []
-    for path in next(os.walk('./visual'))[2]:
-        # Predict the corresponding class for use in `visualize_cam`.
-        seed_img = utils.load_img('./visual/' + path, target_size=(256, 256))
-        pred_class = np.argmax(model.predict(np.array([img_to_array(seed_img)])))
-
-        # Here we are asking it to show attention such that prob of `pred_class` is maximized.
-        heatmap = visualize_cam(model, layer_idx, [pred_class], seed_img, text=path, overlay=False)
-        heatmaps.append(heatmap)
-
-    cv2.imwrite("./grad-CAM visualization.jpg", utils.stitch_images(heatmaps))
-
-    # server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)"""
+    server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
 
 if __name__ == "__main__":
     main()

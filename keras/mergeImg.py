@@ -1,7 +1,7 @@
 from PIL import Image
 import numpy
 import os
-
+from random_art_img_generator import Art
 
 def simple_load_images(dataset_directory, outfolder):
     print("converting dataset...")
@@ -18,6 +18,7 @@ def merge_images(filepath, filename, outfolder, classe):
     foreground = Image.open(filepath)
     imarray = numpy.random.rand(256, 256, 3) * 255
     background = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
+    background2 = Art().redraw()
     foreground = foreground.convert("RGBA")
     datas = foreground.getdata()
 
@@ -30,7 +31,10 @@ def merge_images(filepath, filename, outfolder, classe):
 
     foreground.putdata(newData)
     background.paste(foreground, (0, 0), foreground)
-    background.save(outfolder + "/" + classe + "/" + filename, "JPEG")
+    background.save(outfolder + "/" + classe + "/" + "rand_" + filename, "JPEG")
+
+    background2.paste(foreground, (0, 0), foreground)
+    background2.save(outfolder + "/" + classe + "/" + "art_" + filename, "JPEG")
 
 
 def main():
