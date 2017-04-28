@@ -2,7 +2,7 @@ from keras.models import Sequential
 from keras.layers import *
 from keras.utils import np_utils
 from imgUtils import *
-from quiver_engine import server
+# from quiver_engine import server
 import time
 
 from keras.preprocessing.image import img_to_array
@@ -16,11 +16,11 @@ import pandas as pd
 def main():
 
     np.random.seed(123)  # for reproducibility
-    imgU = ImgUtils("./dataset", 10000)
+    imgU = ImgUtils("./datasetNoBiais", 10000)
     start = time.strftime("%c")
     theTrueScore = []
     nb_classes = imgU.discover_and_make_order()
-    N_EPOCHS = 4
+    N_EPOCHS = 1
 
     # Define model architecture
     model = Sequential()
