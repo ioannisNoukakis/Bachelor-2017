@@ -15,17 +15,6 @@ import pandas as pd
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 
 
-def print_leaf(model, leaf, name):
-    leaf = np.expand_dims(leaf, axis=0)
-    pred_leaf = model.predict(leaf)
-    pred_leaf = np.squeeze(pred_leaf, axis=0)
-
-    print(pred_leaf)
-
-    pred_leaf = pred_leaf.reshape(pred_leaf.shape[:2])
-
-    cv2.imwrite("./heatmaps/" + name + ".jpg", pred_leaf)
-
 def get_model(name):
     if name == "custom":
         imgU = ImgUtils("./datasetNoBiais", 10000)

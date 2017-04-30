@@ -5,7 +5,7 @@ import os
 from keras.preprocessing.image import img_to_array
 from vis.utils import utils
 from vis.utils.vggnet import VGG16
-from vis.visualization import  visualize_cam
+from vis.visualization import visualize_cam
 
 def main():
     # Build the VGG16 network with ImageNet weights
