@@ -3,6 +3,7 @@ import numpy
 import os
 from random_art_img_generator import Art
 
+
 def simple_load_images(dataset_directory, outfolder):
     print("converting dataset...")
     directories = next(os.walk(dataset_directory))[1]
@@ -39,5 +40,7 @@ def merge_images(filepath, filename, outfolder, classe):
 
 def main():
     simple_load_images("./segmentedDB", "./datasetNoBiais")
+
+
 if __name__ == "__main__":
     main()
