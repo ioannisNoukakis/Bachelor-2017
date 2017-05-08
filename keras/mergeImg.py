@@ -4,16 +4,17 @@ import os
 from random_art_img_generator import Art
 
 
-def simple_load_images(dataset_directory, outfolder):
+def simple_load_images(dataset_directory, outfolder_random, outfolder_art):
     print("converting dataset...")
     directories = next(os.walk(dataset_directory))[1]
     for directory in directories:
         for i, file_name in enumerate(next(os.walk(dataset_directory + "/" + directory))[2]):
-            merge_images(dataset_directory + "/" + directory + "/" + file_name, file_name, outfolder, directory)
+            merge_images(dataset_directory + "/" + directory + "/" + file_name, file_name, outfolder_random,
+                         outfolder_art, directory)
             print("Treated", file_name, "successfully.")
 
 
-def merge_images(filepath, filename, outfolder, classe):
+def merge_images(filepath, filename, outfolder_random, outfolder_art, classe):
     size = 256, 256
 
     foreground = Image.open(filepath)
@@ -32,14 +33,14 @@ def merge_images(filepath, filename, outfolder, classe):
 
     foreground.putdata(new_data)
     background.paste(foreground, (0, 0), foreground)
-    background.save(outfolder + "/" + classe + "/" + "rand_" + filename, "JPEG")
+    background.save(outfolder_random + "/" + classe + "/" + "rand_" + filename, "JPEG")
 
     background2.paste(foreground, (0, 0), foreground)
-    background2.save(outfolder + "/" + classe + "/" + "art_" + filename, "JPEG")
+    background2.save(outfolder_art + "/" + classe + "/" + "art_" + filename, "JPEG")
 
 
 def main():
-    simple_load_images("./segmentedDB", "./datasetNoBiais")
+    simple_load_images("./segmentedDB", "./dataset_rand", "./dataset_art")
 
 
 if __name__ == "__main__":

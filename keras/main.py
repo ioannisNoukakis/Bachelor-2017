@@ -32,7 +32,7 @@ import pandas as pd
 
 def get_model(name, mode):
     if name == "custom":
-        img_u = ImgUtils("./dataset", 10000)
+        img_u = ImgUtils("./dataset_rand", 10000)
         start = time.strftime("%c")
         the_true_score = []
         nb_classes = img_u.discover_and_make_order()
@@ -176,7 +176,7 @@ def main():
 
         heatmaps.append(heatmap)
 
-    cv2.imwrite("./grad-CAM CUSTOM.jpg", utils.stitch_images(heatmaps))
+    cv2.imwrite("./grad-CAM CUSTOM_rand.jpg", utils.stitch_images(heatmaps))
     # server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
 if __name__ == "__main__":
     main()
