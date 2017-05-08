@@ -23,14 +23,14 @@ def merge_images(filepath, filename, outfolder, classe):
     foreground = foreground.convert("RGBA")
     datas = foreground.getdata()
 
-    newData = []
+    new_data = []
     for item in datas:
         if item[0] < 10 and item[1] < 10 and item[2] < 10:
-            newData.append((0, 0, 0, 0))
+            new_data.append((0, 0, 0, 0))
         else:
-            newData.append(item)
+            new_data.append(item)
 
-    foreground.putdata(newData)
+    foreground.putdata(new_data)
     background.paste(foreground, (0, 0), foreground)
     background.save(outfolder + "/" + classe + "/" + "rand_" + filename, "JPEG")
 

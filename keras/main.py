@@ -4,15 +4,16 @@ from keras.utils import np_utils
 from quiver_engine.layer_result_generators import get_outputs_generator
 from quiver_engine.server import get_evaluation_context_getter
 from quiver_engine.util import *
+from sklearn.preprocessing import MinMaxScaler
 
 from imgUtils import *
 from quiver_engine import server
 import time
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageOps
 from pathlib import Path
 from vis.utils.vggnet import VGG16
 import keras
-from scipy.misc import imsave, imshow
+import scipy.misc
 
 from keras.preprocessing.image import img_to_array
 from vis.utils import utils
@@ -31,7 +32,7 @@ import pandas as pd
 
 def get_model(name, mode):
     if name == "custom":
-        img_u = ImgUtils("./datasetNoBiais", 10000)
+        img_u = ImgUtils("./dataset", 10000)
         start = time.strftime("%c")
         the_true_score = []
         nb_classes = img_u.discover_and_make_order()
@@ -117,36 +118,65 @@ def get_model(name, mode):
         return VGG16(weights='imagenet', include_top=True)
 
 
-def get_heatmap(input_img, model, layer_name):
+def reduce_opacity(im, opacity):
+    """
+    Returns an image with reduced opacity.
+    Taken from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/362879
+    """
+    assert 0 <= opacity <= 1
+    if im.mode != 'RGBA':
+        im = im.convert('RGBA')
+    else:
+        im = im.copy()
+    alpha = im.split()[3]
+    alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
+    im.putalpha(alpha)
+    return im
+
+
+def get_heatmap(input_img, model, layer_name, image_name=None):
     output_generator = get_outputs_generator(model, layer_name)
     layer_outputs = output_generator(input_img)[0]
-    heatmap = Image.new("RGB", (256, 256))
+    heatmap = Image.new("RGBA", (256, 256), color=0)
+    w = MinMaxScaler((0, 0.9)).fit_transform((model.get_layer("W").get_weights()[0]).flatten())
 
     for z in range(0, layer_outputs.shape[2]):
         img = layer_outputs[:, :, z]
-        deprocessed = Image.fromarray(deprocess_image(img)).resize((256, 256))
-        deprocessed.show()
 
-        bands = list(deprocessed.split())
-        if len(bands) == 4:
-            # Assuming alpha is the last band
-            bands[3] = bands[3].point(lambda x: x * model.get_layer("W").get_weights()[0][z])
-            deprocessed = Image.merge(deprocessed.mode, bands)
-
-       #  heatmap.paste(deprocessed, (0, 0), deprocessed)
-    return heatmap
+        deprocessed = scipy.misc.toimage(img).resize((256, 256)).convert("RGBA")
+        datas = deprocessed.getdata()
+        new_data = []
+        for item in datas:
+            if item[0] < 16 and item[1] < 16 and item[2] < 16:
+                new_data.append((0, 0, 0, 0))
+            else:
+                new_data.append(item)
+        deprocessed.putdata(new_data)
+        deprocessed = reduce_opacity(deprocessed, w[z])
+        heatmap.paste(deprocessed, (0, 0), deprocessed)
+    ImageOps.invert(heatmap.convert("RGB")).save("TMP.jpg", "JPEG")
+    heatmap = cv2.imread("TMP.jpg", cv2.CV_8UC3)
+    heatmap_colored = cv2.applyColorMap(np.uint8(255 * np.asarray(heatmap)), cv2.COLORMAP_JET)
+    heatmap_colored[np.where(heatmap <= 0.2)] = 0
+    if image_name is not None:
+        heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
+                                      2)
+    return heatmap_colored
 
 
 def main():
     np.random.seed(123)  # for reproducibility
 
     model = get_model("custom", "GAP")
-    im = Image.open("./dataset/Apple___Apple_scab/0a769a71-052a-4f19-a4d8-b0f0cb75541c___FREC_Scab 3165.JPG")
-    im = np.expand_dims(im, axis=0)
-    get_heatmap(im, model, "Conv4").show("Heatmap")
+    heatmaps = []
+    for path in next(os.walk('./visual'))[2]:
+        im = Image.open('./visual/' + path)
+        im = preprocess_input(np.expand_dims(image.img_to_array(im), axis=0), dim_ordering='default')
+        heatmap = get_heatmap(im, model, "Conv4", path)
 
+        heatmaps.append(heatmap)
+
+    cv2.imwrite("./grad-CAM CUSTOM.jpg", utils.stitch_images(heatmaps))
     # server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
-
-
 if __name__ == "__main__":
     main()

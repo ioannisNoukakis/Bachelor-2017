@@ -5,16 +5,17 @@ import os
 from keras.preprocessing.image import img_to_array
 from vis.utils import utils
 from vis.utils.vggnet import VGG16
+from main import get_model
 from vis.visualization import visualize_cam
 
 
 def main():
-    # Build the VGG16 network with ImageNet weights
-    model = VGG16(weights='imagenet', include_top=True)
+
+    model = get_model("custom", "GAP")
     print('Model loaded.')
 
-    print(model.get_layer("block1_conv1").get_weights()[1])
-    print(len(model.get_layer("block1_conv1").get_weights()[1]))
+    print(model.get_layer("W").get_weights()[0])
+    print(len(model.get_layer("W").get_weights()[0]))
 
 
 if __name__ == "__main__":
