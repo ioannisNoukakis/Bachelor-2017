@@ -167,7 +167,8 @@ def get_heatmap(input_img, model, layer_name, image_name=None):
 def main():
     np.random.seed(123)  # for reproducibility
 
-    model = get_model("custom", "GAP")
+    model = get_model("custom", "dense")
+    server.launch(model, temp_folder='./tmp', input_folder='./visual', port=5000)
     heatmaps = []
     for path in next(os.walk('./visual'))[2]:
         im = Image.open('./visual/' + path)
@@ -177,6 +178,6 @@ def main():
         heatmaps.append(heatmap)
 
     cv2.imwrite("./grad-CAM CUSTOM_rand.jpg", utils.stitch_images(heatmaps))
-    # server.launch(model, temp_folder='./tmp', input_folder='./visual',  port=5000)
+
 if __name__ == "__main__":
     main()
