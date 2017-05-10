@@ -5,7 +5,19 @@ import numpy as np
 import math
 
 
-class Image:
+def mse(imageA, imageB):
+    # the 'Mean Squared Error' between the two images is the
+    # sum of the squared difference between the two images;
+    # NOTE: the two images must have the same dimension
+    err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
+    err /= float(imageA.shape[0] * imageA.shape[1])
+
+    # return the MSE, the lower the error, the more "similar"
+    # the two images are
+    return err
+
+
+class ImagePath:
     def __init__(self, name, directory, img_class):
         self.name = name
         self.directory = directory
@@ -21,37 +33,41 @@ class Image:
         return self.directory
 
 
-class ImgUtils:
-    """ Image loading class into a readable format for keras.
-        The folder layout must be as such:
-        main Directory
-        |_Classes Directory
-          |_Classe files
-
-    PARAMS:
-        threshold: the number of image to load between trainings
-        layout: paramètre entre 0 et 3 qui définit la position de la coupe dans le dataset
-    """
+class DatasetLoader:
+    """ Utility image loading class """
 
     def __init__(self, base_directory, max_img_loaded):
+        """
+        This utility expects you to have the following folder pattern:
+
+        base_directory
+        |__Class1
+            |__Data1_class1
+            |__Data2_class1
+        |__Class2
+
+        :param base_directory: The base directory
+        :param max_img_loaded: The number of maximum images the utility can load at the same time.
+        """
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
+
         self.number_of_image_read = 0
-        self.imgDataArray = []
+        self.imgDataArray = []  # Array containing the path to the images to be loaded.
         self.number_of_imgs = 0
         self.number_of_imgs_for_train = 0
         self.number_of_imgs_for_test = 0
+        self.iterator_path = 0  # used if you want to load one image at the time.
 
         self.train_loaded = False
 
-    def discover_and_make_order(self):
         print("Discovering dataset...")
         directories = next(os.walk(self.baseDirectory))[1]
 
         i = 0
         for directory in directories:
             for file_name in next(os.walk(self.baseDirectory + "/" + directory))[2]:
-                self.imgDataArray.append(Image(file_name, directory, i))
+                self.imgDataArray.append(ImagePath(file_name, directory, i))
                 self.number_of_imgs += 1
             i += 1
 
@@ -60,12 +76,24 @@ class ImgUtils:
         print("Shuffling order...")
         random.shuffle(self.imgDataArray)
 
-        # TODO: faire de sorte d'être sur que on oublie pas une image ou deux
-        self.number_of_imgs_for_train = math.floor((self.number_of_imgs/4)*3)
-        self.number_of_imgs_for_test = math.floor(self.number_of_imgs/4)
+        self.number_of_imgs_for_train = math.floor((self.number_of_imgs / 4) * 3)
+        self.number_of_imgs_for_test = math.floor(self.number_of_imgs / 4)
 
-        print("Ready for loading!\n", self.number_of_imgs_for_train, "for training and", self.number_of_imgs_for_test, "for testing")
-        return len(directories)
+        print("Ready for loading!\n", self.number_of_imgs_for_train, "for training and", self.number_of_imgs_for_test,
+              "for testing")
+        self.nb_classes = len(directories)
+
+    def get_nb_classes(self):
+        return self.nb_classes
+
+    def has_next(self):
+        return self.iterator_path + 1 < self.number_of_imgs
+
+    def next_path(self):
+        """Return the path one image at each call in the order defined in the constructor"""
+        p = self.imgDataArray[self.iterator_path]
+        self.iterator_path += 1
+        return self.baseDirectory + "/" + p.get_directory() + "/" + p.get_name()
 
     def load_dataset(self):
 
@@ -84,16 +112,13 @@ class ImgUtils:
                 redo = False
                 self.train_loaded = False
                 break
-            if j+1 >= self.max_img_loaded:
+            if j + 1 >= self.max_img_loaded:
                 print("Max img loaded!", self.number_of_image_read, "/", self.number_of_imgs)
                 redo = True
                 break
 
-            img = cv2.imread(self.baseDirectory + "/" + img_data.get_directory() + "/" + img_data.get_name(), cv2.IMREAD_COLOR)
-            # lab_img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-            # cv2.imshow('image', lab_img)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+            img = cv2.imread(self.baseDirectory + "/" + img_data.get_directory() + "/" + img_data.get_name(),
+                             cv2.IMREAD_COLOR)
             data_x.append(img)
             data_y.append(img_data.get_img_class())
             j += 1
