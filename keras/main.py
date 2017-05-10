@@ -5,7 +5,7 @@ from quiver_engine.layer_result_generators import get_outputs_generator
 # from quiver_engine.server import get_evaluation_context_getter
 from quiver_engine.util import *
 from sklearn.preprocessing import MinMaxScaler
-from skimage.measure import structural_similarity as ssim
+from skimage.measure import compare_ssim as ssim
 
 from imgUtils import *
 from quiver_engine import server
@@ -160,7 +160,7 @@ def get_heatmap(input_img, model, layer_name, image_name=None):
     if image_name is not None:
         heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
                                       2)
-    return cv2.resize(heatmap_colored, (256,256))
+    return cv2.resize(heatmap_colored, (224, 224))
 
 
 def get_VGG16_heatmap(model, layer_idx, seed_img):
@@ -190,12 +190,7 @@ def detect_bias():
         seed_img = utils.load_img(next_path, target_size=(224, 224))
         heatmapVGG16 = get_VGG16_heatmap(model_vgg16, layer_idx, seed_img)
 
-        cv2.imshow("custom", heatmapCustom)
-        cv2.waitKey()
-        cv2.imshow("vgg16", heatmapVGG16)
-        cv2.waitKey()
-
-        score += ssim(heatmapCustom, heatmapVGG16)
+        score += ssim(heatmapCustom.reshape(1, -1), heatmapVGG16.reshape(1, -1), multichannel=True)
 
     print("THE DATASET", "dataset", "HAS A SCORE OF", score)
 
