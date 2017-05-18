@@ -1,6 +1,5 @@
-from keras.models import Sequential
-from keras.layers import *
-from keras.utils import np_utils
+from concurrent.futures import ThreadPoolExecutor
+
 from quiver_engine.layer_result_generators import get_outputs_generator
 # from quiver_engine.server import get_evaluation_context_getter
 from quiver_engine.util import *
@@ -8,17 +7,17 @@ from sklearn.preprocessing import MinMaxScaler
 from skimage.measure import compare_ssim as ssim
 
 from imgUtils import *
-from quiver_engine import server
-import time
+
 from PIL import Image, ImageEnhance, ImageOps
-from pathlib import Path
+
 from vis.utils.vggnet import VGG16
 import scipy.misc
 
 from keras.preprocessing.image import img_to_array
 from vis.utils import utils
 from vis.visualization import visualize_cam
-import pandas as pd
+
+from plant_village_custom_model import *
 
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
@@ -26,92 +25,12 @@ import pandas as pd
 # https://arxiv.org/pdf/1312.4400.pdf
 # https://www.quora.com/What-is-global-average-pooling
 # https://arxiv.org/pdf/1512.04150.pdf
+# https://arxiv.org/pdf/1512.03385.pdf
 
 
 def get_model(name, mode):
     if name == "custom":
-        img_u = DatasetLoader("./dataset_rand", 10000)
-        start = time.strftime("%c")
-        the_true_score = []
-        nb_classes = img_u.get_nb_classes()
-        N_EPOCHS = 5
-
-        # Define model architecture
-        model = Sequential()
-
-        model.add(Convolution2D(nb_filter=64, nb_row=3, nb_col=3, activation='relu', input_shape=(256, 256, 3),
-                                dim_ordering='tf', name="Conv1"))
-        model.add(Convolution2D(nb_filter=32, nb_row=3, nb_col=3, activation='relu', name="Conv2"))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-
-        model.add(Convolution2D(nb_filter=32, nb_row=3, nb_col=3, activation='relu', name="Conv3"))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-
-        model.add(Convolution2D(nb_filter=32, nb_row=3, nb_col=3, activation='relu', name="Conv4"))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-
-        if mode == "GAP":
-            model.add(GlobalAveragePooling2D(name="GAP"))
-        elif mode == "dense":
-            model.add(Flatten())
-            model.add(Dense(128, activation='relu'))
-            model.add(Dropout(0.5))
-        model.add(Dense(nb_classes, activation='softmax', name='W'))
-
-        # Compile model
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        w_file = Path("./model.h5")
-        model.summary()
-
-        if w_file.is_file():
-            model.load_weights("./model.h5")
-            return model
-        else:
-            # Train
-            redo = True
-            # for i in range(0, N_EPOCHS):
-            while redo:
-                redo, x_train, y_train = img_u.load_dataset()
-                # Preprocessing
-                x_train = x_train.astype('float32')
-                x_train /= 255
-
-                y_train = np_utils.to_categorical(y_train, nb_classes)
-
-                # Fit model on training data
-                print("Starting...")
-                model.fit(x_train, y_train, batch_size=10, nb_epoch=N_EPOCHS, verbose=1)
-                # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
-                # redo = True
-
-            print("Train completed! Will now evalutate...")
-
-            # Evaluate
-            redo = True
-            while redo:
-                redo, x_test, y_test = img_u.load_dataset()
-                # Preprocessing
-                x_test = x_test.astype('float32')
-                x_test /= 255
-
-                y_test_2 = np_utils.to_categorical(y_test, nb_classes)
-                # Evaluate model on test data
-                the_true_score.append(model.evaluate(x_test, y_test_2, batch_size=10, verbose=1))
-
-                # y_hat = model.predict_classes(x_test)
-                # print(pd.crosstab(y_hat, y_test))
-
-            print("Model:")
-            model.summary()
-            print("Obtained the score:", the_true_score)
-            print("Training started at:", start)
-            print("Training ended at:", time.strftime("%c"))
-            print("Classes:", nb_classes)
-            print("Nb_epoch:", 10)
-            model.save_weights("./model.h5")
-            return model
+        return get_custom_model(mode)
     elif name == "VGG16":
         return VGG16(weights='imagenet', include_top=True)
 
@@ -153,10 +72,14 @@ def get_heatmap(input_img, model, layer_name, image_name=None):
         deprocessed.putdata(new_data)
         deprocessed = reduce_opacity(deprocessed, w[z])
         heatmap.paste(deprocessed, (0, 0), deprocessed)
-    ImageOps.invert(heatmap.convert("RGB")).save("TMP.jpg", "JPEG")
-    heatmap = cv2.imread("TMP.jpg", cv2.CV_8UC3)
+    ImageOps.invert(heatmap.convert("RGB")).convert("RGBA").save("TMP.png", "PNG")
+    heatmap = cv2.imread("TMP.png", cv2.CV_8UC3)
+
+    heatmap = np.maximum(heatmap, 0)
+
     heatmap_colored = cv2.applyColorMap(np.uint8(255 * np.asarray(heatmap)), cv2.COLORMAP_JET)
     heatmap_colored[np.where(heatmap <= 0.2)] = 0
+
     if image_name is not None:
         heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
                                       2)
@@ -170,34 +93,61 @@ def get_VGG16_heatmap(model, layer_idx, seed_img):
     return visualize_cam(model, layer_idx, [pred_class], seed_img, overlay=False)
 
 
-def detect_bias():
-    """Lecture : http://www.pyimagesearch.com/2014/09/15/python-compare-two-images/"""
+def detect_bias(nb_threads):
+    with ThreadPoolExecutor(max_workers=nb_threads) as executor:
+        """Lecture : http://www.pyimagesearch.com/2014/09/15/python-compare-two-images/"""
 
-    model_custom = get_model("custom", "dense")
+        model_custom = get_model("custom", "GAP")
 
-    model_vgg16 = get_model("VGG16", "-")
-    layer_name = 'predictions'
-    layer_idx = [idx for idx, layer in enumerate(model_vgg16.layers) if layer.name == layer_name][0]
+        model_vgg16 = get_model("VGG16", "-")
+        layer_name = 'predictions'
+        layer_idx = [idx for idx, layer in enumerate(model_vgg16.layers) if layer.name == layer_name][0]
 
-    img_u = DatasetLoader("./dataset", 10000)
-    score = 0
-    while img_u.has_next():
-        next_path = img_u.next_path()
+        img_u = DatasetLoader("./dataset", 10000)
+        score = 0
+        j = 0
 
-        im = Image.open(next_path)
-        heatmapCustom = get_heatmap(im, model_custom, "Conv4")
+        while img_u.has_next():
+            future = []
+            for i in range(0, 4):
+                next_path = img_u.next_path()
 
-        seed_img = utils.load_img(next_path, target_size=(224, 224))
-        heatmapVGG16 = get_VGG16_heatmap(model_vgg16, layer_idx, seed_img)
+                im = Image.open(next_path)
+                heatmapCustom = get_heatmap(im, model_custom, "Conv4")
 
-        score += ssim(heatmapCustom.reshape(1, -1), heatmapVGG16.reshape(1, -1), multichannel=True)
+                seed_img = utils.load_img(next_path, target_size=(224, 224))
+                heatmapVGG16 = get_VGG16_heatmap(model_vgg16, layer_idx, seed_img)
 
-    print("THE DATASET", "dataset", "HAS A SCORE OF", score)
+                future.append(executor.submit(ssim, heatmapCustom.reshape(1, -1), heatmapVGG16.reshape(1, -1),
+                                              multichannel=True))
+
+            for i in range(0, len(future)):
+                try:
+                    score += future[i].result()
+                    j += 1
+                except ValueError:
+                    print("Value error -> skipped")
+
+        print("THE DATASET", "dataset", "HAS A SCORE OF", score/j)
+
+
+def create_cam():
+    model = get_model("custom", "GAP")
+    heatmaps = []
+    for path in next(os.walk('./visual'))[2]:
+        # Predict the corresponding class for use in `visualize_saliency`.
+        seed_img = utils.load_img('./visual/' + path, target_size=(256, 256))
+
+        # Here we are asking it to show attention such that prob of `pred_class` is maximized.
+        heatmap = get_heatmap(seed_img, model, "Conv4")
+        heatmaps.append(heatmap)
+
+    cv2.imwrite("./TEST CAM.jpg", utils.stitch_images(heatmaps))
 
 
 def main():
     np.random.seed(123)  # for reproducibility
-    detect_bias()
+    detect_bias(4)
 
 if __name__ == "__main__":
     main()
