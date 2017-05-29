@@ -86,6 +86,9 @@ class DatasetLoader:
     def get_nb_classes(self):
         return self.nb_classes
 
+    def get_nb_images(self):
+        return self.number_of_imgs
+
     def has_next(self):
         return self.iterator_path + 1 < self.number_of_imgs
 

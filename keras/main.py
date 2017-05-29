@@ -109,7 +109,11 @@ def detect_bias(nb_threads):
 
         while img_u.has_next():
             future = []
-            for i in range(0, 4):
+            for i in range(0, nb_threads):
+
+                if not img_u.has_next():
+                    break
+
                 next_path = img_u.next_path()
 
                 im = Image.open(next_path)
@@ -118,17 +122,19 @@ def detect_bias(nb_threads):
                 seed_img = utils.load_img(next_path, target_size=(224, 224))
                 heatmapVGG16 = get_VGG16_heatmap(model_vgg16, layer_idx, seed_img)
 
-                future.append(executor.submit(ssim, heatmapCustom.reshape(1, -1), heatmapVGG16.reshape(1, -1),
+                future.append(executor.submit(ssim, heatmapCustom, heatmapVGG16,
                                               multichannel=True))
 
             for i in range(0, len(future)):
                 try:
                     score += future[i].result()
                     j += 1
+                    print(j, "/", img_u.get_nb_images())
                 except ValueError:
                     print("Value error -> skipped")
 
-        print("THE DATASET", "dataset", "HAS A SCORE OF", score/j)
+        score = score/j
+        print("THE DATASET", "dataset", "HAS A SCORE OF", score)
 
 
 def create_cam():
@@ -147,7 +153,7 @@ def create_cam():
 
 def main():
     np.random.seed(123)  # for reproducibility
-    detect_bias(4)
+    detect_bias(8)
 
 if __name__ == "__main__":
     main()
