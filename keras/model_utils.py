@@ -1,9 +1,9 @@
-from quiver_engine.layer_result_generators import get_outputs_generator
 from quiver_engine.util import *
 from sklearn.preprocessing import MinMaxScaler
 from img_loader import *
 from PIL import Image, ImageEnhance, ImageOps
 import scipy.misc
+from keras.models import Model
 
 
 def reduce_opacity(im, opacity):
@@ -20,6 +20,15 @@ def reduce_opacity(im, opacity):
     alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
     im.putalpha(alpha)
     return im
+
+
+def get_outputs_generator(model, layer_name):
+    layer_model = Model(
+        input=model.input,
+        output=model.get_layer(layer_name).get_output_at(0)
+    )
+
+    return layer_model.predict
 
 
 # FIXME: Better check the way that vis create the output generator

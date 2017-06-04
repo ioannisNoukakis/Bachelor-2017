@@ -1,5 +1,6 @@
 import csv
 
+import PIL
 import keras
 from PIL import Image
 
@@ -24,7 +25,7 @@ class BiasMetric:
         for i, _ in enumerate(self.l1):
             data.append([self.l1[i], self.l2[i], self.e1[i], self.e2[i], self.metric1[i], self.metric2[i]])
 
-        with open('results.csv', 'wb') as f:
+        with open('results.csv', 'w') as f:
             writer = csv.writer(f)
             writer.writerows(data)
 
@@ -46,6 +47,8 @@ class MetricCallback(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         for i in range(0, self.batch_size):
             # load images
+            if not self.current_loader.has_next():
+                return
             training_img = Image.open(self.current_loader.next_path())
             mask = Image.open(self.segmentend_db_img_loader.next_path_in_order())
 
@@ -54,6 +57,7 @@ class MetricCallback(keras.callbacks.Callback):
             cam_b = get_heatmap(training_img, self.dummy_model, 'Conv4')
 
             # apply the segmented db mask
+            mask = mask.resize((224, 224), PIL.Image.ANTIALIAS)
             cam_a_p, cam_a_e = merge_images_mask(cam_a, mask)
             cam_b_p, cam_b_e = merge_images_mask(cam_b, mask)
 
@@ -76,5 +80,6 @@ class MetricCallback(keras.callbacks.Callback):
             # compute the metrics
             self.bias_metric.metric1.append(l1 - l2)
             self.bias_metric.metric2.append(e1 - e2)
+            print("image", i, "ok")
 
         return

@@ -31,14 +31,16 @@ def create_cam():
 def make_bias_metrics():
     img_u = DatasetLoader("./dataset", 10000)
     img_segmented = DatasetLoader("./segmentedDB", 10000)
-    img_segmented.imgDataArray = list(map(lambda x: x.name[:-4] + "_final_masked.jpg", img_segmented.imgDataArray))
+
+    for p in img_segmented.imgDataArray:
+        p.name[:-4] + "_final_masked.jpg"
 
     bias_metric = BiasMetric()
     dummy_model = get_custom_model("GAP", True)
     vgg16 = VGG16FineTuned(img_u)
     mc = MetricCallback(bias_metric, dummy_model, 10, img_u, img_segmented)
 
-    vgg16.train(False, [mc])
+    vgg16.train(1, False, [mc])
 
     bias_metric.save_to_csv()
 
@@ -46,6 +48,9 @@ def make_bias_metrics():
 def main():
     np.random.seed(123)  # for reproducibility
     make_bias_metrics()
+    # img_u = DatasetLoader("./dataset", 10000)
+    # vgg16 = VGG16FineTuned(img_u)
+    # vgg16.train()
 
 if __name__ == "__main__":
     main()

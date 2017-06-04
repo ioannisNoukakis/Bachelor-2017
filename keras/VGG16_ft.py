@@ -16,9 +16,10 @@ class VGG16FineTuned:
         self.model.add(Dense(img_u.nb_classes, activation='softmax', name='W'))
 
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self.model.summary()
 
-    def train(self, save_weights=False, callbacks=None):
-        self.model, score = train_model(self.model, self.img_u, 5, callbacks)
+    def train(self, nb_epochs, save_weights=False, callbacks=None):
+        self.model, score = train_model(self.model, self.img_u, nb_epochs, callbacks)
         print("score", score)
         if save_weights:
             self.model.save_weights("./VGG16_GAP.h5")
