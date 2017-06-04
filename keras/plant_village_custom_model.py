@@ -3,7 +3,7 @@ from keras.layers import *
 from keras.utils import np_utils
 from quiver_engine import server
 from pathlib import Path
-from imgUtils import *
+from img_loader import *
 import time
 
 
@@ -73,7 +73,7 @@ def get_custom_model(mode, random):
         return model
 
 
-def train_model(model, img_u, n_epochs):
+def train_model(model, img_u, n_epochs, callbacks):
     redo = True
     for i in range(0, n_epochs):
         print("epoch", i)
@@ -87,7 +87,10 @@ def train_model(model, img_u, n_epochs):
 
             # Fit model on training data
             print("Starting...")
-            model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
+            if callbacks:
+                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0, callbacks=callbacks)
+            else:
+                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
             # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
         redo = True
     return model

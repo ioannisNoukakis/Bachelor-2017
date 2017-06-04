@@ -1,5 +1,5 @@
 from unittest import TestCase
-from mailsUtils import send_mail
+from mails_utils import send_mail
 
 
 class TestSend_mail(TestCase):
