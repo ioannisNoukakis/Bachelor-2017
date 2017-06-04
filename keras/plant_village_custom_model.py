@@ -7,7 +7,7 @@ from imgUtils import *
 import time
 
 
-def get_custom_model(mode):
+def get_custom_model(mode, random):
     img_u = DatasetLoader("./dataset_rand", 10000)
     start = time.strftime("%c")
     the_true_score = []
@@ -47,6 +47,9 @@ def get_custom_model(mode):
         w_file = Path("./model_dense.h5")
     model.summary()
 
+    if random:
+        return model
+
     if w_file.is_file() and mode == "GAP":
         model.load_weights("./model_GAP.h5")
         return model
@@ -54,39 +57,7 @@ def get_custom_model(mode):
         model.load_weights("./model_dense.h5")
         return model
     else:
-        # Train
-        redo = True
-        # for i in range(0, N_EPOCHS):
-        while redo:
-            redo, x_train, y_train = img_u.load_dataset()
-            # Preprocessing
-            x_train = x_train.astype('float32')
-            x_train /= 255
-
-            y_train = np_utils.to_categorical(y_train, nb_classes)
-
-            # Fit model on training data
-            print("Starting...")
-            model.fit(x_train, y_train, batch_size=10, nb_epoch=N_EPOCHS, verbose=1)
-            # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
-            # redo = True
-
-        print("Train completed! Will now evalutate...")
-
-        # Evaluate
-        redo = True
-        while redo:
-            redo, x_test, y_test = img_u.load_dataset()
-            # Preprocessing
-            x_test = x_test.astype('float32')
-            x_test /= 255
-
-            y_test_2 = np_utils.to_categorical(y_test, nb_classes)
-            # Evaluate model on test data
-            the_true_score.append(model.evaluate(x_test, y_test_2, batch_size=10, verbose=1))
-
-            # y_hat = model.predict_classes(x_test)
-            # print(pd.crosstab(y_hat, y_test))
+        model, the_true_score = train_and_evaluate_model(model, img_u, N_EPOCHS)
 
         print("Model:")
         model.summary()
@@ -97,3 +68,39 @@ def get_custom_model(mode):
         print("Nb_epoch:", 10)
         model.save_weights("./model_GAP.h5")
         return model
+
+
+def train_and_evaluate_model(model, img_u, n_epochs):
+    redo = True
+    score = []
+    for i in range(0, n_epochs):
+        print("epoch", i)
+        while redo:
+            redo, x_train, y_train = img_u.load_dataset()
+            # Preprocessing
+            x_train = x_train.astype('float32')
+            x_train /= 255
+
+            y_train = np_utils.to_categorical(y_train, img_u.nb_classes)
+
+            # Fit model on training data
+            print("Starting...")
+            model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
+            # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
+            score = evaluate_model(model, img_u, score)
+        redo = True
+    return model, score
+
+
+def evaluate_model(model, img_u, the_true_score):
+    redo = True
+    while redo:
+        redo, x_test, y_test = img_u.load_dataset()
+        # Preprocessing
+        x_test = x_test.astype('float32')
+        x_test /= 255
+
+        y_test_2 = np_utils.to_categorical(y_test, img_u.nb_classes)
+        # Evaluate model on test data
+        the_true_score.append(model.evaluate(x_test, y_test_2, batch_size=10, verbose=1))
+    return the_true_score

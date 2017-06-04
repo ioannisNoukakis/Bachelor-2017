@@ -8,9 +8,10 @@ from skimage.measure import compare_ssim as ssim
 
 from imgUtils import *
 
+from keras import applications
+
 from PIL import Image, ImageEnhance, ImageOps
 
-from vis.utils.vggnet import VGG16
 import scipy.misc
 
 from keras.preprocessing.image import img_to_array
@@ -28,11 +29,28 @@ from plant_village_custom_model import *
 # https://arxiv.org/pdf/1512.03385.pdf
 
 
-def get_model(name, mode):
+def get_model(name, mode, random_weights):
     if name == "custom":
-        return get_custom_model(mode)
+        return get_custom_model(mode, random_weights)
     elif name == "VGG16":
-        return VGG16(weights='imagenet', include_top=True)
+        # FIXME ON A VRAIMENT BESOIN D'UN CLASSIFIEUR ENTRAINE POUR LE FINETUNING?
+        img_u = DatasetLoader("./dataset", 10000)
+
+        #https://gist.github.com/fchollet/7eb39b44eb9e16e59632d25fb3119975
+        vgg16 = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
+
+        vgg16.add(GlobalAveragePooling2D(name="GAP"))
+        vgg16.add(Dense(img_u.nb_classes, activation='softmax', name='W'))
+
+        # FIXME VERIFIER LE NOMBRE DE LAYER
+        for layer in vgg16.layers[:17]:
+            layer.trainable = False
+
+        vgg16.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        vgg16, score = train_and_evaluate_model(vgg16, img_u, 5)
+        print("score", score)
+        vgg16.save_weights("./VGG16_GAP.h5")
+        return vgg16
 
 
 def reduce_opacity(im, opacity):
@@ -153,7 +171,7 @@ def create_cam():
 
 def main():
     np.random.seed(123)  # for reproducibility
-    detect_bias(8)
+    vgg16 = get_model("VGG16", None, None)
 
 if __name__ == "__main__":
     main()
