@@ -52,12 +52,12 @@ class DatasetLoader:
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
 
-        self.number_of_image_read = 0
         self.imgDataArray = []  # Array containing the path to the images to be loaded.
         self.number_of_imgs = 0
         self.number_of_imgs_for_train = 0
         self.number_of_imgs_for_test = 0
         self.iterator_path = 0  # used if you want to load one image at the time.
+        self.i = 0  # iterator used when normal loading
 
         self.train_loaded = False
 
@@ -86,11 +86,25 @@ class DatasetLoader:
     def get_nb_classes(self):
         return self.nb_classes
 
+    def get_nb_images(self):
+        return self.number_of_imgs
+
     def has_next(self):
         return self.iterator_path + 1 < self.number_of_imgs
 
+    def has_next_in_order(self):
+        return self.i + 1 < self.number_of_imgs
+
+    def next_path_in_order(self):
+        """:return the next images as the dataset loader would normally do"""
+        p = self.imgDataArray[self.i]
+        self.i += 1
+        return self.baseDirectory + "/" + p.get_directory() + "/" + p.get_name()
+
     def next_path(self):
-        """Return the path one image at each call in the order defined in the constructor"""
+        """Return the path one image at each call in the order defined in the constructor
+        It's independant from the normal iterator. Use this when you wanna go through the 
+        dataset twice in a row"""
         p = self.imgDataArray[self.iterator_path]
         self.iterator_path += 1
         return self.baseDirectory + "/" + p.get_directory() + "/" + p.get_name()
@@ -101,28 +115,29 @@ class DatasetLoader:
         data_y = []
         redo = False
         j = 0
-        for img_data in self.imgDataArray:
-            if not self.train_loaded and self.number_of_image_read == self.number_of_imgs_for_train:
+        while True:
+            if not self.train_loaded and self.i == self.number_of_imgs_for_train:
                 print("Loaded all imgs for training. Next call will load test data...")
                 redo = False
                 self.train_loaded = True
                 break
-            if self.number_of_image_read == self.number_of_imgs:
+            if self.i == self.number_of_imgs:
                 print("Loaded all imgs for test. Done! Next call will load train data")
                 redo = False
                 self.train_loaded = False
+                self.i = 0
                 break
             if j + 1 >= self.max_img_loaded:
-                print("Max img loaded!", self.number_of_image_read, "/", self.number_of_imgs)
+                print("Max img loaded!", self.i, "/", self.number_of_imgs)
                 redo = True
                 break
 
-            img = cv2.imread(self.baseDirectory + "/" + img_data.get_directory() + "/" + img_data.get_name(),
-                             cv2.IMREAD_COLOR)
+            img = cv2.imread(self.baseDirectory + "/" + self.imgDataArray[self.i].get_directory() + "/" +
+                             self.imgDataArray[self.i].get_name(), cv2.IMREAD_COLOR)
             data_x.append(img)
-            data_y.append(img_data.get_img_class())
+            data_y.append(self.imgDataArray[self.i].get_img_class())
             j += 1
-            self.number_of_image_read += 1
+            self.i += 1
 
         print("Loading completed!")
 

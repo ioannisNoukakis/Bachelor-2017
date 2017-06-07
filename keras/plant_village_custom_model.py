@@ -57,10 +57,7 @@ def get_custom_model(mode, random):
         model.load_weights("./model_dense.h5")
         return model
     else:
-        model = train_model(model, img_u, N_EPOCHS)
-        print("Train completed! Will now evalutate...")
-
-        the_true_score = evaluate_model(model, img_u, the_true_score)
+        model, the_true_score = train_model(model, img_u, N_EPOCHS, None)
 
         print("Model:")
         model.summary()
@@ -75,6 +72,7 @@ def get_custom_model(mode, random):
 
 def train_model(model, img_u, n_epochs, callbacks):
     redo = True
+    score = []
     for i in range(0, n_epochs):
         print("epoch", i)
         while redo:
@@ -92,8 +90,9 @@ def train_model(model, img_u, n_epochs, callbacks):
             else:
                 model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
             # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
+            score = evaluate_model(model, img_u, score)
         redo = True
-    return model
+    return model, score
 
 
 def evaluate_model(model, img_u, the_true_score):
