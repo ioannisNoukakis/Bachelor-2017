@@ -4,13 +4,13 @@ from vis.utils import utils
 from VGG16_ft import VGG16FineTuned
 from bias_metric import BiasMetric, MetricCallback
 from plant_village_custom_model import *
-<<<<<<< HEAD
-from model_utils import get_heatmap
-from img_processing import dataset_convertor
 
-=======
+from model_utils import get_heatmap
+from img_processing.img_processing import dataset_convertor
+
+
 import tensorflow as tf
->>>>>>> 3e20febf0b48a7a9f7321737d4b862efa3cae152
+
 
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
@@ -28,11 +28,7 @@ def create_cam(model, outname, viz_folder):
         seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
 
         # Here we are asking it to show attention such that prob of `pred_class` is maximized.
-<<<<<<< HEAD
         heatmap = get_heatmap(seed_img, model, "Conv4", None, True)
-=======
-        # heatmap = heatmap_generate(seed_img, model, "Conv4")
->>>>>>> 3e20febf0b48a7a9f7321737d4b862efa3cae152
         heatmaps.append(heatmap)
 
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
@@ -79,6 +75,11 @@ def main():
         create_cam(model, "CAM_rand_art.jpg", "visual_art")
         create_cam(model, "CAM_rand_rand.jpg", "visual_rand")
     if argv[1] == "5":
+        model = get_custom_model("GAP", "segmentedDB", save="Custom_segmented")
+        create_cam(model, "CAM_seg_normal.jpg", "visual")
+        create_cam(model, "CAM_seg_art.jpg", "visual_art")
+        create_cam(model, "CAM_seg_rand.jpg", "visual_rand")
+    if argv[1] == "6":
         dataset_convertor("segmentedDB", "dataset_random", "dataset_art")
 
 
