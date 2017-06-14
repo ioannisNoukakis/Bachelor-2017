@@ -7,12 +7,11 @@ from img_loader import *
 import time
 
 
-def get_custom_model(mode, random):
-    img_u = DatasetLoader("./dataset_rand", 10000)
+def get_custom_model(mode, dataset, N_EPOCHS=5, random=False, save=None):
+    img_u = DatasetLoader(dataset, 10000)
     start = time.strftime("%c")
     the_true_score = []
     nb_classes = img_u.get_nb_classes()
-    N_EPOCHS = 5
 
     # Define model architecture
     model = Sequential()
@@ -40,21 +39,17 @@ def get_custom_model(mode, random):
 
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-    if mode == "GAP":
-        w_file = Path("./model_GAP.h5")
-    elif mode == "dense":
-        w_file = Path("./model_dense.h5")
+    if save is not None:
+        w_file = Path(save + ".h5")
+    else:
+        w_file = Path("")
     model.summary()
 
     if random:
         return model
 
-    if w_file.is_file() and mode == "GAP":
-        model.load_weights("./model_GAP.h5")
-        return model
-    elif w_file.is_file() and mode == "dense":
-        model.load_weights("./model_dense.h5")
+    if w_file.is_file():
+        model.load_weights(save + ".h5")
         return model
     else:
         model, the_true_score = train_model(model, img_u, N_EPOCHS, None)
@@ -66,7 +61,8 @@ def get_custom_model(mode, random):
         print("Training ended at:", time.strftime("%c"))
         print("Classes:", nb_classes)
         print("Nb_epoch:", 10)
-        model.save_weights("./model_GAP.h5")
+        if save is not None:
+            model.save_weights("./"+save + ".h5")
         return model
 
 

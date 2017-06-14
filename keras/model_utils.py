@@ -32,7 +32,7 @@ def get_outputs_generator(model, layer_name):
 
 
 # FIXME: Better check the way that vis create the output generator
-def get_heatmap(input_img, model, layer_name, image_name=None):
+def get_heatmap(input_img, model, layer_name, image_name=None, cv=False):
     input_img = preprocess_input(np.expand_dims(image.img_to_array(input_img), axis=0), dim_ordering='default')
     output_generator = get_outputs_generator(model, layer_name)
     layer_outputs = output_generator(input_img)[0]
@@ -61,7 +61,10 @@ def get_heatmap(input_img, model, layer_name, image_name=None):
     heatmap_colored[np.where(heatmap <= 0.2)] = 0
 
     if image_name is not None:
-        heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
-                                      2)
-    return Image.fromarray(cv2.resize(heatmap_colored, (224, 224)))
+        heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 2, 0)
+
+    if cv:
+        return cv2.resize(heatmap_colored, (224, 224))
+    else:
+        return Image.fromarray(cv2.resize(heatmap_colored, (224, 224)))
 

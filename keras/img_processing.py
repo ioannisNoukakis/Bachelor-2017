@@ -14,7 +14,7 @@ def dataset_convertor(dataset_directory, outfolder_random, outfolder_art):
     directories = next(os.walk(dataset_directory))[1]
     for directory in directories:
         for i, file_name in enumerate(next(os.walk(dataset_directory + "/" + directory))[2]):
-            image_splitter(Image.open(dataset_directory + "/" + directory + "/" + file_name, file_name),
+            image_splitter(Image.open(dataset_directory + "/" + directory + "/" + file_name, "r"), file_name,
                            outfolder_random, outfolder_art, directory)
             print("Treated", file_name, "successfully.")
 
@@ -34,6 +34,12 @@ def image_splitter(foreground, filename, outfolder_random, outfolder_art, classe
             new_data.append(item)
 
     foreground.putdata(new_data)
+
+    if not os.path.isdir(outfolder_random + "/" + classe):
+        os.makedirs(outfolder_random + "/" + classe)
+    if not os.path.isdir(outfolder_art + "/" + classe):
+        os.makedirs(outfolder_art + "/" + classe)
+
     background.paste(foreground, (0, 0), foreground)
     background.save(outfolder_random + "/" + classe + "/" + "rand_" + filename, "JPEG")
 
