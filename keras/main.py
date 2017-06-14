@@ -4,9 +4,13 @@ from vis.utils import utils
 from VGG16_ft import VGG16FineTuned
 from bias_metric import BiasMetric, MetricCallback
 from plant_village_custom_model import *
+<<<<<<< HEAD
 from model_utils import get_heatmap
 from img_processing import dataset_convertor
 
+=======
+import tensorflow as tf
+>>>>>>> 3e20febf0b48a7a9f7321737d4b862efa3cae152
 
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
@@ -24,7 +28,11 @@ def create_cam(model, outname, viz_folder):
         seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
 
         # Here we are asking it to show attention such that prob of `pred_class` is maximized.
+<<<<<<< HEAD
         heatmap = get_heatmap(seed_img, model, "Conv4", None, True)
+=======
+        # heatmap = heatmap_generate(seed_img, model, "Conv4")
+>>>>>>> 3e20febf0b48a7a9f7321737d4b862efa3cae152
         heatmaps.append(heatmap)
 
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
@@ -37,10 +45,12 @@ def make_bias_metrics():
     for p in img_segmented.imgDataArray:
         p.name[:-4] += "_final_masked.jpg"
 
-    bias_metric = BiasMetric()
     dummy_model = get_custom_model("GAP", True)
     vgg16 = VGG16FineTuned(img_u)
-    mc = MetricCallback(bias_metric, dummy_model, 10, img_u, img_segmented)
+    graph_context = tf.get_default_graph()
+
+    bias_metric = BiasMetric(graph_context)
+    mc = MetricCallback(bias_metric, dummy_model, 1, img_u, img_segmented)
 
     vgg16.train(1, False, [mc])
 
