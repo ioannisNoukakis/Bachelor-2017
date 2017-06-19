@@ -14,7 +14,7 @@ def dataset_convertor(dataset_directory, outfolder_random, outfolder_art):
     directories = next(os.walk(dataset_directory))[1]
     for directory in directories:
         for i, file_name in enumerate(next(os.walk(dataset_directory + "/" + directory))[2]):
-            image_splitter(Image.open(dataset_directory + "/" + directory + "/" + file_name, file_name),
+            image_splitter(Image.open(dataset_directory + "/" + directory + "/" + file_name, "r"), file_name,
                            outfolder_random, outfolder_art, directory)
             print("Treated", file_name, "successfully.")
 
@@ -34,6 +34,12 @@ def image_splitter(foreground, filename, outfolder_random, outfolder_art, classe
             new_data.append(item)
 
     foreground.putdata(new_data)
+
+    if not os.path.isdir(outfolder_random + "/" + classe):
+        os.makedirs(outfolder_random + "/" + classe)
+    if not os.path.isdir(outfolder_art + "/" + classe):
+        os.makedirs(outfolder_art + "/" + classe)
+
     background.paste(foreground, (0, 0), foreground)
     background.save(outfolder_random + "/" + classe + "/" + "rand_" + filename, "JPEG")
 
@@ -84,6 +90,25 @@ def merge_images_mask(image, mask):
     filter_img(img2, img2, lambda x: x < 10)
 
     return img1, img2
+
+
+def pixels_counter(image: Image, bound_upper, bound_lower):
+    """Now it only counts red pixels
+    bound_upper=(255, 0, 0)
+    bound_lower=(183, 253, 52)
+    """
+    (r1, g1, b1) = bound_upper
+    (r2, g2, b2) = bound_lower
+
+    score = 0
+    n_pixels = 0
+    image = image.convert("RGBA")
+    for item in image.getdata():
+        if r1 >= item[0] >= r2 and g1 <= item[1] <= g2 and b1 <= item[2] <= b2:
+            score += 1
+        n_pixels += 1
+
+    return score/n_pixels
 
 
 def most_dominant_color(image):
@@ -149,8 +174,6 @@ def main():
     )
 
     print(most_dominant_color(im1))
-    # dataset_convertor("./segmentedDB", "./dataset_rand", "./dataset_art")
-
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ from threading import Thread
 import PIL
 import keras
 from PIL import Image
+from keras.engine import Model
 
 from img_loader import DatasetLoader
 import img_processing.img_processing
@@ -55,10 +56,19 @@ class HeatmapCompute(Thread):
 class MetricCallback(keras.callbacks.Callback):
 
     def __init__(self, bias_metric: BiasMetric,
-                 dummy_model,
-                 shampleing_rate,
+                 dummy_model: Model,
+                 shampleing_rate: int,
                  current_loader: DatasetLoader,
                  segmentend_db_img_loader: DatasetLoader):
+        """
+
+        :param bias_metric: The bias metrics container
+        :param dummy_model: The dummy model that wont be trained.
+        :param shampleing_rate: The every n images a metric will be comptued
+        :param current_loader: The dataset loader
+        :param segmentend_db_img_loader: the mask dataset loader.
+
+        """
 
         self.bias_metric = bias_metric
         self.dummy_model = dummy_model
@@ -106,22 +116,13 @@ class MetricCallback(keras.callbacks.Callback):
                 print("mask applied in", time.time() - start_time)
                 start_time = time.time()
 
-                # get the dominant color
-                a_p_dc = img_processing.img_processing.most_dominant_color(cam_a_p)
-                a_e_dc = img_processing.img_processing.most_dominant_color(cam_a_e)
-                b_p_dc = img_processing.img_processing.most_dominant_color(cam_b_p)
-                b_e_dc = img_processing.img_processing.most_dominant_color(cam_b_e)
-
-                print("dominant color computed in ", time.time() - start_time)
-                start_time = time.time()
-
                 # get the distance from red
-                l1 = img_processing.img_processing.color_distance((255, 0, 0), a_p_dc)
-                l2 = img_processing.img_processing.color_distance((0, 0, 255), b_p_dc)
-                e1 = img_processing.img_processing.color_distance((255, 0, 0), a_e_dc)
-                e2 = img_processing.img_processing.color_distance((0, 0, 255), b_e_dc)
+                l1 = img_processing.img_processing.pixels_counter(cam_a_p, (255, 0, 0), (183, 253, 52))
+                l2 = img_processing.img_processing.pixels_counter(cam_b_p, (255, 0, 0), (183, 253, 52))
+                e1 = img_processing.img_processing.pixels_counter(cam_a_e, (255, 0, 0), (183, 253, 52))
+                e2 = img_processing.img_processing.pixels_counter(cam_b_e, (255, 0, 0), (183, 253, 52))
 
-                print("color distance computed in ", time.time() - start_time)
+                print("pixels computed in ", time.time() - start_time)
 
                 self.bias_metric.l1.append(l1)
                 self.bias_metric.l2.append(l2)

@@ -2,12 +2,12 @@ from keras import applications
 from keras.layers import GlobalAveragePooling2D, Dense
 from keras.models import Sequential
 
-from plant_village_custom_model import train_model, evaluate_model
+from plant_village_custom_model import train_model, evaluate_model, DatasetLoader
 
 
 class VGG16FineTuned:
 
-    def __init__(self, img_u):
+    def __init__(self, img_u: DatasetLoader):
         # https://gist.github.com/fchollet/7eb39b44eb9e16e59632d25fb3119975
         self.img_u = img_u
         self.model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
