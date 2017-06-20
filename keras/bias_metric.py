@@ -14,6 +14,7 @@ from multiprocessing.pool import ThreadPool
 
 
 class BiasMetric:
+    """Class used as container for metrics."""
 
     def __init__(self, graph_context):
         self.l1 = []  # l1 is the progress of the fine tuned algorithm
@@ -27,7 +28,11 @@ class BiasMetric:
         self.metric2 = []  # metric1 is e1 - e2
 
     def save_to_csv(self):
-        data = []
+        """
+        Save the experiments results on a csv file.
+        :return:
+        """
+        data = [['l1', 'l2', 'e1', 'e2', 'metric1', 'metric2']]
         for i, _ in enumerate(self.l1):
             data.append([self.l1[i], self.l2[i], self.e1[i], self.e2[i], self.metric1[i], self.metric2[i]])
 

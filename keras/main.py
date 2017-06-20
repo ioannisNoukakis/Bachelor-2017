@@ -19,14 +19,14 @@ import tensorflow as tf
 # https://arxiv.org/pdf/1512.03385.pdf
 
 
-def create_cam(model, outname, viz_folder):
+def create_cam(model, outname, viz_folder, layer_name):
     heatmaps = []
     for path in next(os.walk(viz_folder))[2]:
         # Predict the corresponding class for use in `visualize_saliency`.
         seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
 
         # Here we are asking it to show attention such that prob of `pred_class` is maximized.
-        heatmap = get_heatmap(seed_img, model, "Conv4", None, True)
+        heatmap = get_heatmap(seed_img, model, layer_name, None, True)
         heatmaps.append(heatmap)
 
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
@@ -63,26 +63,50 @@ def main():
     if argv[1] == "1":
         make_bias_metrics()
     if argv[1] == "2":
-        model = get_custom_model("GAP", "dataset", save="Custom_normal")
-        create_cam(model, "CAM_normal_normal.jpg", "visual")
-        create_cam(model, "CAM_normal_art.jpg", "visual_art")
-        create_cam(model, "CAM_normal_rand.jpg", "visual_rand")
+        model = get_custom_model(DatasetLoader("dataset", 10000), "GAP", save="Custom_normal")
+        create_cam(model, "CAM_normal_normal.jpg", "visual", "Conv4")
+        create_cam(model, "CAM_normal_art.jpg", "visual_art", "Conv4")
+        create_cam(model, "CAM_normal_rand.jpg", "visual_rand", "Conv4")
     if argv[1] == "3":
-        model = get_custom_model("GAP", "dataset_art", save="Custom_art")
-        create_cam(model, "CAM_art_normal.jpg", "visual")
-        create_cam(model, "CAM_art_art.jpg", "visual_art")
-        create_cam(model, "CAM_art_rand.jpg", "visual_rand")
+        model = get_custom_model(DatasetLoader("dataset_art", 10000), "GAP", save="Custom_art")
+        create_cam(model, "CAM_art_normal.jpg", "visual", "Conv4")
+        create_cam(model, "CAM_art_art.jpg", "visual_art", "Conv4")
+        create_cam(model, "CAM_art_rand.jpg", "visual_rand", "Conv4")
     if argv[1] == "4":
-        model = get_custom_model("GAP", "dataset_random", save="Custom_rand")
-        create_cam(model, "CAM_rand_normal.jpg", "visual")
-        create_cam(model, "CAM_rand_art.jpg", "visual_art")
-        create_cam(model, "CAM_rand_rand.jpg", "visual_rand")
+        model = get_custom_model(DatasetLoader("dataset_art", 10000), "GAP", save="Custom_rand")
+        create_cam(model, "CAM_rand_normal.jpg", "visual", "Conv4")
+        create_cam(model, "CAM_rand_art.jpg", "visual_art", "Conv4")
+        create_cam(model, "CAM_rand_rand.jpg", "visual_rand", "Conv4")
     if argv[1] == "5":
-        model = get_custom_model("GAP", "segmentedDB", save="Custom_segmented")
-        create_cam(model, "CAM_seg_normal.jpg", "visual")
-        create_cam(model, "CAM_seg_art.jpg", "visual_art")
-        create_cam(model, "CAM_seg_rand.jpg", "visual_rand")
+        model = get_custom_model(DatasetLoader("segmentedDB", 10000), "GAP", save="Custom_segmented")
+        create_cam(model, "CAM_seg_normal.jpg", "visual", "Conv4")
+        create_cam(model, "CAM_seg_art.jpg", "visual_art", "Conv4")
+        create_cam(model, "CAM_seg_rand.jpg", "visual_rand", "Conv4")
     if argv[1] == "6":
+        model = VGG16FineTuned(DatasetLoader("dataset", 10000))
+        model.train(5, False, None)
+        create_cam(model, "CAM_FT_normal_normal.jpg", "visual", "block5_conv3")
+        create_cam(model, "CAM_FT_normal_art.jpg", "visual_art", "block5_conv3")
+        create_cam(model, "CAM_FT_normal_rand.jpg", "visual_rand", "block5_conv3")
+    if argv[1] == "7":
+        model = VGG16FineTuned(DatasetLoader("dataset_art", 10000))
+        model.train(5, False, None)
+        create_cam(model, "CAM_FT_art_normal.jpg", "visual", "block5_conv3")
+        create_cam(model, "CAM_FT_art_art.jpg", "visual_art", "block5_conv3")
+        create_cam(model, "CAM_FT_art_rand.jpg", "visual_rand", "block5_conv3")
+    if argv[1] == "8":
+        model = VGG16FineTuned(DatasetLoader("dataset_random", 10000))
+        model.train(5, False, None)
+        create_cam(model, "CAM_FT_rand_normal.jpg", "visual", "block5_conv3")
+        create_cam(model, "CAM_FT_rand_art.jpg", "visual_art", "block5_conv3")
+        create_cam(model, "CAM_FT_rand_rand.jpg", "visual_rand", "block5_conv3")
+    if argv[1] == "9":
+        model = VGG16FineTuned(DatasetLoader("segmentedDB", 10000))
+        model.train(5, False, None)
+        create_cam(model, "CAM_FT_seg_normal.jpg", "visual", "block5_conv3")
+        create_cam(model, "CAM_FT_seg_art.jpg", "visual_art", "block5_conv3")
+        create_cam(model, "CAM_FT_seg_rand.jpg", "visual_rand", "block5_conv3")
+    if argv[1] == "10":
         dataset_convertor("segmentedDB", "dataset_random", "dataset_art")
 
 
