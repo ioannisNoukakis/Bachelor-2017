@@ -49,7 +49,7 @@ def make_bias_metrics():
                         dummy_model=dummy_model,
                         shampleing_rate=1,
                         current_loader=img_u,
-                        segmentend_db_img_loader= img_segmented)
+                        segmentend_db_img_loader=img_segmented)
 
     vgg16.train(5, False, [mc])
 
@@ -84,25 +84,25 @@ def main():
         create_cam(model, "CAM_seg_rand.jpg", "visual_rand", "Conv4")
     if argv[1] == "6":
         model = VGG16FineTuned(DatasetLoader("dataset", 10000))
-        model.train(5, False, None)
+        model.train(10, False, None)
         create_cam(model, "CAM_FT_normal_normal.jpg", "visual", "block5_conv3")
         create_cam(model, "CAM_FT_normal_art.jpg", "visual_art", "block5_conv3")
         create_cam(model, "CAM_FT_normal_rand.jpg", "visual_rand", "block5_conv3")
     if argv[1] == "7":
         model = VGG16FineTuned(DatasetLoader("dataset_art", 10000))
-        model.train(5, False, None)
+        model.train(10, False, None)
         create_cam(model, "CAM_FT_art_normal.jpg", "visual", "block5_conv3")
         create_cam(model, "CAM_FT_art_art.jpg", "visual_art", "block5_conv3")
         create_cam(model, "CAM_FT_art_rand.jpg", "visual_rand", "block5_conv3")
     if argv[1] == "8":
         model = VGG16FineTuned(DatasetLoader("dataset_random", 10000))
-        model.train(5, False, None)
+        model.train(10, False, None)
         create_cam(model, "CAM_FT_rand_normal.jpg", "visual", "block5_conv3")
         create_cam(model, "CAM_FT_rand_art.jpg", "visual_art", "block5_conv3")
         create_cam(model, "CAM_FT_rand_rand.jpg", "visual_rand", "block5_conv3")
     if argv[1] == "9":
         model = VGG16FineTuned(DatasetLoader("segmentedDB", 10000))
-        model.train(5, False, None)
+        model.train(10, False, None)
         create_cam(model, "CAM_FT_seg_normal.jpg", "visual", "block5_conv3")
         create_cam(model, "CAM_FT_seg_art.jpg", "visual_art", "block5_conv3")
         create_cam(model, "CAM_FT_seg_rand.jpg", "visual_rand", "block5_conv3")
