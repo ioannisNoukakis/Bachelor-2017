@@ -19,8 +19,8 @@ class BiasMetric:
     def __init__(self, graph_context):
         self.l1 = []  # l1 is the progress of the fine tuned algorithm
         self.l2 = []  # l2 is the progress of the custom algorithm
-        self.e1 = []  # l2 is the progress of the error of the custom algorithm
-        self.e2 = []  # l2 is the progress of the error of the custom algorithm
+        self.e1 = []  # e1 is the progress of the error of the custom algorithm
+        self.e2 = []  # e2 is the progress of the error of the custom algorithm
 
         self.graph_context = graph_context
 
@@ -76,7 +76,7 @@ class MetricCallback(keras.callbacks.Callback):
         self.bias_metric = bias_metric
         self.dummy_model = dummy_model
         self.shampleing_rate = shampleing_rate
-        self.i = 0
+        self.i = 1
         self.j = 0
         self.current_loader = current_loader
         self.segmentend_db_img_loader = segmentend_db_img_loader
@@ -85,7 +85,7 @@ class MetricCallback(keras.callbacks.Callback):
         for _ in range(0, 10):  # the cnn takes 10 by 10 images
             if self.i == self.shampleing_rate:
                 # load images
-                if self.j > self.current_loader.number_of_imgs:
+                if self.j >= self.current_loader.number_of_imgs:
                     return
 
                 print("Starting image", self.j)
@@ -122,6 +122,7 @@ class MetricCallback(keras.callbacks.Callback):
                 start_time = time.time()
 
                 # get the distance from red
+                # FIXME do not cound alpha pixels
                 l1 = img_processing.img_processing.pixels_counter(cam_a_p, (255, 0, 0), (183, 253, 52))
                 l2 = img_processing.img_processing.pixels_counter(cam_b_p, (255, 0, 0), (183, 253, 52))
                 e1 = img_processing.img_processing.pixels_counter(cam_a_e, (255, 0, 0), (183, 253, 52))
@@ -137,7 +138,7 @@ class MetricCallback(keras.callbacks.Callback):
                 # compute the metrics
                 self.bias_metric.metric1.append(l1 - l2)
                 self.bias_metric.metric2.append(e1 - e2)
-                self.i = 0
+                self.i = 1
             else:
                 self.i += 1
             self.j += 1

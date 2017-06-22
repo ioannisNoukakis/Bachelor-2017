@@ -113,7 +113,7 @@ class DatasetLoader:
         self.iterator_path += 1
         return self.baseDirectory + "/" + p.get_directory() + "/" + p.get_name()
 
-    def load_dataset(self):
+    def load_dataset(self, no_test_data=False):
 
         data_x = []
         data_y = []
@@ -121,10 +121,17 @@ class DatasetLoader:
         j = 0
         while True:
             if not self.train_loaded and self.i == self.number_of_imgs_for_train:
-                print("Loaded all imgs for training. Next call will load test data...")
-                redo = False
-                self.train_loaded = True
-                break
+                if no_test_data:
+                    print("Loaded all imgs for training. Resetting iterator...")
+                    redo = False
+                    self.train_loaded = False
+                    self.i = 0
+                    break
+                else:
+                    print("Loaded all imgs for training. Next call will load test data...")
+                    redo = False
+                    self.train_loaded = True
+                    break
             if self.i == self.number_of_imgs:
                 print("Loaded all imgs for test. Done! Next call will load train data")
                 redo = False
