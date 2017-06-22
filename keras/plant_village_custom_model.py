@@ -66,13 +66,17 @@ def get_custom_model(img_u: DatasetLoader, mode, N_EPOCHS=5, random=False, save=
 
 
 def data_generator(img_u: DatasetLoader):
-    _, x_train, y_train = img_u.load_dataset(no_test_data=True)
-    # Preprocessing
-    x_train = x_train.astype('float32')
-    x_train /= 255
+    a = 0
+    while True:
+        _, x_train, y_train = img_u.load_dataset(no_test_data=True)
+        # Preprocessing
+        x_train = x_train.astype('float32')
+        x_train /= 255
 
-    y_train = np_utils.to_categorical(y_train, img_u.nb_classes)
-    yield x_train, y_train
+        y_train = np_utils.to_categorical(y_train, img_u.nb_classes)
+        print("yielding", a, "with shape", x_train.shape)
+        a += 1
+        yield x_train, y_train
 
 
 def train_model(model, img_u, n_epochs, callbacks):

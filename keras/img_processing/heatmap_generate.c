@@ -1041,8 +1041,8 @@ static const char __pyx_k_quiver_engine_util[] = "quiver_engine.util";
 static const char __pyx_k_FONT_HERSHEY_SIMPLEX[] = "FONT_HERSHEY_SIMPLEX";
 static const char __pyx_k_get_outputs_generator[] = "get_outputs_generator";
 static const char __pyx_k_sklearn_preprocessing[] = "sklearn.preprocessing";
-static const char __pyx_k_home_lux_dev_Bachelor_2017_kera[] = "/home/lux/dev/Bachelor-2017/keras/img_processing/heatmap_generate.pyx";
 static const char __pyx_k_img_processing_heatmap_generate[] = "img_processing.heatmap_generate";
+static const char __pyx_k_mnt_Bachelor_2017_keras_img_pro[] = "/mnt/Bachelor-2017/keras/img_processing/heatmap_generate.pyx";
 static PyObject *__pyx_n_s_Brightness;
 static PyObject *__pyx_n_s_COLORMAP_JET;
 static PyObject *__pyx_n_s_CV_8UC3;
@@ -1088,7 +1088,6 @@ static PyObject *__pyx_n_s_graph_context;
 static PyObject *__pyx_n_s_heatmap;
 static PyObject *__pyx_n_s_heatmap_colored;
 static PyObject *__pyx_n_s_heatmap_generate;
-static PyObject *__pyx_kp_s_home_lux_dev_Bachelor_2017_kera;
 static PyObject *__pyx_n_s_im;
 static PyObject *__pyx_n_s_image;
 static PyObject *__pyx_n_s_image_name;
@@ -1108,6 +1107,7 @@ static PyObject *__pyx_n_s_layer_name;
 static PyObject *__pyx_n_s_layer_outputs;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_misc;
+static PyObject *__pyx_kp_s_mnt_Bachelor_2017_keras_img_pro;
 static PyObject *__pyx_n_s_mode;
 static PyObject *__pyx_n_s_model;
 static PyObject *__pyx_n_s_new;
@@ -3930,7 +3930,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_heatmap, __pyx_k_heatmap, sizeof(__pyx_k_heatmap), 0, 0, 1, 1},
   {&__pyx_n_s_heatmap_colored, __pyx_k_heatmap_colored, sizeof(__pyx_k_heatmap_colored), 0, 0, 1, 1},
   {&__pyx_n_s_heatmap_generate, __pyx_k_heatmap_generate, sizeof(__pyx_k_heatmap_generate), 0, 0, 1, 1},
-  {&__pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_k_home_lux_dev_Bachelor_2017_kera, sizeof(__pyx_k_home_lux_dev_Bachelor_2017_kera), 0, 0, 1, 0},
   {&__pyx_n_s_im, __pyx_k_im, sizeof(__pyx_k_im), 0, 0, 1, 1},
   {&__pyx_n_s_image, __pyx_k_image, sizeof(__pyx_k_image), 0, 0, 1, 1},
   {&__pyx_n_s_image_name, __pyx_k_image_name, sizeof(__pyx_k_image_name), 0, 0, 1, 1},
@@ -3950,6 +3949,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_layer_outputs, __pyx_k_layer_outputs, sizeof(__pyx_k_layer_outputs), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_misc, __pyx_k_misc, sizeof(__pyx_k_misc), 0, 0, 1, 1},
+  {&__pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_k_mnt_Bachelor_2017_keras_img_pro, sizeof(__pyx_k_mnt_Bachelor_2017_keras_img_pro), 0, 0, 1, 0},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
   {&__pyx_n_s_model, __pyx_k_model, sizeof(__pyx_k_model), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
@@ -4164,7 +4164,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__24 = PyTuple_Pack(3, __pyx_n_s_im, __pyx_n_s_opacity, __pyx_n_s_alpha); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__24);
   __Pyx_GIVEREF(__pyx_tuple__24);
-  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_reduce_opacity, 8, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_reduce_opacity, 8, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 8, __pyx_L1_error)
 
   /* "img_processing/heatmap_generate.pyx":24
  * 
@@ -4176,7 +4176,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__26 = PyTuple_Pack(3, __pyx_n_s_model, __pyx_n_s_layer_name, __pyx_n_s_layer_model); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__26);
   __Pyx_GIVEREF(__pyx_tuple__26);
-  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_get_outputs_generator, 24, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_get_outputs_generator, 24, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 24, __pyx_L1_error)
 
   /* "img_processing/heatmap_generate.pyx":34
  * 
@@ -4188,7 +4188,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__28 = PyTuple_Pack(16, __pyx_n_s_graph_context, __pyx_n_s_input_img, __pyx_n_s_model, __pyx_n_s_layer_name, __pyx_n_s_image_name, __pyx_n_s_output_generator, __pyx_n_s_layer_outputs, __pyx_n_s_heatmap, __pyx_n_s_w, __pyx_n_s_z, __pyx_n_s_img, __pyx_n_s_deprocessed, __pyx_n_s_datas, __pyx_n_s_new_data, __pyx_n_s_item, __pyx_n_s_heatmap_colored); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(5, 0, 16, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_heatmap_generate, 34, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(5, 0, 16, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_heatmap_generate, 34, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;

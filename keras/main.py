@@ -51,7 +51,7 @@ def make_bias_metrics(dataset_name: str, shampeling_rate: int):
                         current_loader=img_u,
                         segmentend_db_img_loader=img_segmented)
 
-    vgg16.train(1, False, [mc])
+    vgg16.train(5, False, [mc])
 
     bias_metric.save_to_csv()
 
