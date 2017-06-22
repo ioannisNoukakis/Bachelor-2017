@@ -42,7 +42,6 @@ class BiasMetric:
 
 
 class HeatmapCompute(Thread):
-
     def __init__(self, img, model, layer_name):
         Thread.__init__(self)
         self.img = img
@@ -59,7 +58,6 @@ class HeatmapCompute(Thread):
 
 
 class MetricCallback(keras.callbacks.Callback):
-
     def __init__(self, bias_metric: BiasMetric,
                  dummy_model: Model,
                  shampleing_rate: int,
@@ -84,7 +82,7 @@ class MetricCallback(keras.callbacks.Callback):
         self.segmentend_db_img_loader = segmentend_db_img_loader
 
     def on_batch_end(self, batch, logs={}):
-        for _ in range(0, 10):
+        for _ in range(0, 10):  # the cnn takes 10 by 10 images
             if self.i == self.shampleing_rate:
                 # load images
                 if not self.current_loader.has_next():
@@ -93,19 +91,21 @@ class MetricCallback(keras.callbacks.Callback):
                 print("Starting image", self.j)
                 start_time = time.time()
 
-                training_img = Image.open(self.current_loader.next_path())
-                mask = Image.open(self.segmentend_db_img_loader.next_path_in_order())
+                training_img = Image.open(self.current_loader.get(self.j))
+                mask = Image.open(self.segmentend_db_img_loader.get(self.j))
 
                 # get the cams from both the models
                 pool = ThreadPool(processes=2)
-                async_result1 = pool.apply_async(img_processing.heatmap_generate.heatmap_generate, (self.bias_metric.graph_context,
-                                                                                                    training_img,
-                                                                                                    self.model,
-                                                                                                    'block5_conv3'))
-                async_result2 = pool.apply_async(img_processing.heatmap_generate.heatmap_generate, (self.bias_metric.graph_context,
-                                                                                                    training_img,
-                                                                                                    self.dummy_model,
-                                                                                                    'Conv4'))
+                async_result1 = pool.apply_async(img_processing.heatmap_generate.heatmap_generate,
+                                                 (self.bias_metric.graph_context,
+                                                  training_img,
+                                                  self.model,
+                                                  'block5_conv3'))
+                async_result2 = pool.apply_async(img_processing.heatmap_generate.heatmap_generate,
+                                                 (self.bias_metric.graph_context,
+                                                  training_img,
+                                                  self.dummy_model,
+                                                  'Conv4'))
 
                 cam_a = async_result1.get()
                 cam_b = async_result2.get()

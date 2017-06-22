@@ -8,8 +8,8 @@ from plant_village_custom_model import *
 from model_utils import get_heatmap
 from img_processing.img_processing import dataset_convertor
 
-
 import tensorflow as tf
+
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
@@ -32,8 +32,8 @@ def create_cam(model, outname, viz_folder, layer_name):
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
 
 
-def make_bias_metrics():
-    img_u = DatasetLoader("./dataset", 10000)
+def make_bias_metrics(dataset_name: str, shampeling_rate: int):
+    img_u = DatasetLoader(dataset_name, 10000)
     img_segmented = DatasetLoader("./segmentedDB", 10000)
 
     for p in img_segmented.imgDataArray:
@@ -47,7 +47,7 @@ def make_bias_metrics():
     bias_metric = BiasMetric(graph_context)
     mc = MetricCallback(bias_metric=bias_metric,
                         dummy_model=dummy_model,
-                        shampleing_rate=1,
+                        shampleing_rate=shampeling_rate,
                         current_loader=img_u,
                         segmentend_db_img_loader=img_segmented)
 
@@ -61,7 +61,7 @@ def main():
 
     argv = sys.argv
     if argv[1] == "1":
-        make_bias_metrics()
+        make_bias_metrics(argv[2], int(argv[3]))
     if argv[1] == "2":
         model = get_custom_model(DatasetLoader("dataset", 10000), "GAP", save="Custom_normal")
         create_cam(model, "CAM_normal_normal.jpg", "visual", "Conv4")

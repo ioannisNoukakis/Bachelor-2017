@@ -95,6 +95,10 @@ class DatasetLoader:
     def has_next_in_order(self):
         return self.i + 1 < self.number_of_imgs
 
+    def get(self, index: int):
+        p = self.imgDataArray[index]
+        return self.baseDirectory + "/" + p.get_directory() + "/" + p.get_name()
+
     def next_path_in_order(self):
         """:return the next images as the dataset loader would normally do"""
         p = self.imgDataArray[self.i]
