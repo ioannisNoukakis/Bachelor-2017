@@ -85,7 +85,7 @@ class MetricCallback(keras.callbacks.Callback):
         for _ in range(0, 10):  # the cnn takes 10 by 10 images
             if self.i == self.shampleing_rate:
                 # load images
-                if not self.current_loader.has_next():
+                if not self.j > self.current_loader.number_of_imgs:
                     return
 
                 print("Starting image", self.j)
