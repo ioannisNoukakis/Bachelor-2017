@@ -8,7 +8,7 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
     (r2, g2, b2) = bound_lower
 
     score = 0
-    n_pixels = 0
+    nPixels = 0
     newdata = []
     image = image.convert("RGBA")
     for item in image.getdata():
@@ -17,13 +17,12 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
             newdata.append(item)
         else:
             newdata.append((0, 0, 0, 0))
-        if item[3] != 0:  # we should not count the alpha pixels
-            n_pixels += 1
+        nPixels += 1
 
     image.putdata(newdata)
     image.show()
 
-    return score/n_pixels
+    return score/nPixels
 
 
 class PixelsCounterTest(unittest.TestCase):

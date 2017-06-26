@@ -106,8 +106,7 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
     for item in image.getdata():
         if r1 >= item[0] >= r2 and g1 <= item[1] <= g2 and b1 <= item[2] <= b2:
             score += 1
-        if item[3] != 0: # we should not count the alpha pixels
-            n_pixels += 1
+        n_pixels += 1
 
     return score/n_pixels
 

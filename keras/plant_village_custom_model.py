@@ -65,30 +65,28 @@ def get_custom_model(img_u: DatasetLoader, mode, N_EPOCHS=5, random=False, save=
         return model
 
 
-def data_generator(img_u: DatasetLoader):
-    _, x_train, y_train = img_u.load_dataset(no_test_data=True)
-    # Preprocessing
-    x_train = x_train.astype('float32')
-    x_train /= 255
-
-    y_train = np_utils.to_categorical(y_train, img_u.nb_classes)
-    yield x_train, y_train
-
-
 def train_model(model, img_u, n_epochs, callbacks):
     redo = True
     score = []
+    for i in range(0, n_epochs):
+        print("epoch", i)
+        while redo:
+            redo, x_train, y_train = img_u.load_dataset()
+            # Preprocessing
+            x_train = x_train.astype('float32')
+            x_train /= 255
 
-    print("Starting...")
-    if callbacks:
-        model.fit_generator(data_generator(img_u=img_u), img_u.number_of_imgs/10, epochs=n_epochs,
-                            callbacks=callbacks, verbose=1)
-        # model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0, callbacks=callbacks)
-    else:
-        model.fit_generator(data_generator(img_u=img_u), img_u.number_of_imgs / 10, epochs=n_epochs, verbose=1)
-        # model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
-    score = evaluate_model(model, img_u, score)
-    redo = True
+            y_train = np_utils.to_categorical(y_train, img_u.nb_classes)
+
+            # Fit model on training data
+            print("Starting...")
+            if callbacks:
+                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0, callbacks=callbacks)
+            else:
+                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
+            # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
+            score = evaluate_model(model, img_u, score)
+        redo = True
     return model, score
 
 
