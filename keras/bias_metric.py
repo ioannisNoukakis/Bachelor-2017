@@ -126,6 +126,11 @@ class MetricCallback(keras.callbacks.Callback):
                 cam_a = async_result1.get()
                 cam_b = async_result2.get()
 
+                if cam_a is None or cam_b is None:
+                    print("[ERROR][BIAS METRIC]", "could not read this image:", tmp)
+                    self.j += 1
+                    continue
+
                 print("got cams in", time.time() - start_time)
                 start_time = time.time()
 
