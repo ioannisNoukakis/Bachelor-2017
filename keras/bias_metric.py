@@ -96,6 +96,7 @@ class MetricCallback(keras.callbacks.Callback):
                 p_file = Path("/path/to/file")
                 if not p_file.exists():  # if segmented does not exists continue...
                     print("[ERROR][BIAS METRIC]", p, "does not exists...")
+                    self.j += 1
                     continue
 
                 training_img = Image.open(self.current_loader.get(self.j))
