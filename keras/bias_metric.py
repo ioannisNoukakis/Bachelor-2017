@@ -1,5 +1,6 @@
 import csv
 import time
+from pathlib import Path
 from threading import Thread
 
 import PIL
@@ -91,8 +92,14 @@ class MetricCallback(keras.callbacks.Callback):
                 print("Starting image", self.j)
                 start_time = time.time()
 
+                p = self.segmentend_db_img_loader.get(self.j)
+                p_file = Path("/path/to/file")
+                if not p_file.exists():  # if segmented does not exists continue...
+                    print("[ERROR][BIAS METRIC]", p, "does not exists...")
+                    continue
+
                 training_img = Image.open(self.current_loader.get(self.j))
-                mask = Image.open(self.segmentend_db_img_loader.get(self.j))
+                mask = Image.open(p)
 
                 # get the cams from both the models
                 pool = ThreadPool(processes=2)
