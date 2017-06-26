@@ -48,8 +48,7 @@ def make_bias_metrics(dataset_name: str, shampeling_rate: int):
     mc = MetricCallback(bias_metric=bias_metric,
                         dummy_model=dummy_model,
                         shampleing_rate=shampeling_rate,
-                        current_loader=img_u,
-                        segmentend_db_img_loader=img_segmented)
+                        current_loader=img_u)
 
     vgg16.train(5, False, [mc])
 

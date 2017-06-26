@@ -62,15 +62,13 @@ class MetricCallback(keras.callbacks.Callback):
     def __init__(self, bias_metric: BiasMetric,
                  dummy_model: Model,
                  shampleing_rate: int,
-                 current_loader: DatasetLoader,
-                 segmentend_db_img_loader: DatasetLoader):
+                 current_loader: DatasetLoader):
         """
 
         :param bias_metric: The bias metrics container
         :param dummy_model: The dummy model that wont be trained.
         :param shampleing_rate: The every n images a metric will be comptued
         :param current_loader: The dataset loader
-        :param segmentend_db_img_loader: the mask dataset loader.
 
         """
 
@@ -80,27 +78,34 @@ class MetricCallback(keras.callbacks.Callback):
         self.i = 0
         self.j = 0
         self.current_loader = current_loader
-        self.segmentend_db_img_loader = segmentend_db_img_loader
 
     def on_batch_end(self, batch, logs={}):
         for _ in range(0, 10):  # the cnn takes 10 by 10 images
             if self.i == self.shampleing_rate:
-                # load images
+
+                # check boundary
                 if self.j > self.current_loader.number_of_imgs:
                     return
 
                 print("Starting image", self.j)
                 start_time = time.time()
 
-                p = self.segmentend_db_img_loader.get(self.j)
-                p_file = Path("/path/to/file")
+                p = self.current_loader.get(self.j)
+                p_file = Path(p)
                 if not p_file.exists():  # if segmented does not exists continue...
                     print("[ERROR][BIAS METRIC]", p, "does not exists...")
                     self.j += 1
                     continue
+                training_img = Image.open(p)
 
-                training_img = Image.open(self.current_loader.get(self.j))
-                mask = Image.open(p)
+                tmp = p[:-4]
+                tmp = tmp + "_final_masked.jpg"
+                tmp_file = Path(tmp)
+                if not tmp_file.exists():  # if segmented does not exists continue...
+                    print("[ERROR][BIAS METRIC]", tmp, "does not exists...")
+                    self.j += 1
+                    continue
+                mask = Image.open(tmp)
 
                 # get the cams from both the models
                 pool = ThreadPool(processes=2)
