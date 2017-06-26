@@ -1,10 +1,12 @@
 import csv
+import os
 import time
 from pathlib import Path
 from threading import Thread
 
 import PIL
 import keras
+import psutil as psutil
 from PIL import Image
 from keras.engine import Model
 
@@ -40,6 +42,11 @@ class BiasMetric:
         with open('results.csv', 'w') as f:
             writer = csv.writer(f)
             writer.writerows(data)
+
+
+def get_mem_usage():
+    process = psutil.Process(os.getpid())
+    return process.memory_info()
 
 
 class HeatmapCompute(Thread):
@@ -86,6 +93,8 @@ class MetricCallback(keras.callbacks.Callback):
                 # check boundary
                 if self.j > self.current_loader.number_of_imgs:
                     return
+
+                print("[INFO][BIAS METRIC]", "[Memory]", get_mem_usage())
 
                 print("Starting image", self.j)
                 start_time = time.time()
