@@ -34,11 +34,6 @@ def create_cam(model, outname, viz_folder, layer_name):
 
 def make_bias_metrics(dataset_name: str, shampeling_rate: int):
     img_u = DatasetLoader(dataset_name, 10000)
-    img_segmented = DatasetLoader("./segmentedDB", 10000)
-
-    for p in img_segmented.imgDataArray:
-        tmp = p.name[:-4]
-        tmp = tmp + "_final_masked.jpg"
 
     dummy_model = get_custom_model(img_u, "GAP", random=True)
     vgg16 = VGG16FineTuned(img_u)
