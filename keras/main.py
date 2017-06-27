@@ -39,23 +39,23 @@ def create_cam(model, outname, viz_folder, layer_name):
         heatmaps.append(heatmap)
 
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
-    
+
 
 def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
 
-        dataset_loader = DatasetLoader(dataset_name, 10000)
+    dataset_loader = DatasetLoader(dataset_name, 10000)
 
-        vgg16 = VGG16FineTuned(dataset_loader)
-        graph_context = tf.get_default_graph()
+    vgg16 = VGG16FineTuned(dataset_loader)
+    graph_context = tf.get_default_graph()
 
-        bias_metric = BiasMetric(graph_context)
-        mc = MonoMetricCallBack(bias_metric=bias_metric,
-                            shampleing_rate=shampeling_rate,
-                            current_loader=dataset_loader)
+    bias_metric = BiasMetric(graph_context)
+    mc = MonoMetricCallBack(bias_metric=bias_metric,
+                        shampleing_rate=shampeling_rate,
+                        current_loader=dataset_loader)
 
-        vgg16.train(5, False, [mc])
+    vgg16.train(5, False, [mc])
 
-        bias_metric.save_to_csv()
+    bias_metric.save_to_csv()
 
 
 def make_bias_metrics(dataset_name: str, shampeling_rate: int):
