@@ -10,16 +10,36 @@ import scipy.cluster
 
 
 def dataset_convertor(dataset_directory, outfolder_random, outfolder_art):
+    """
+    Convert a dataset by creating two new datasets.
+    One with a random background and one with an 'art' background.
+
+    :param dataset_directory:
+    :param outfolder_random:
+    :param outfolder_art:
+    :return:
+    """
     print("converting dataset...")
     directories = next(os.walk(dataset_directory))[1]
     for directory in directories:
         for i, file_name in enumerate(next(os.walk(dataset_directory + "/" + directory))[2]):
             image_splitter(Image.open(dataset_directory + "/" + directory + "/" + file_name, "r"), file_name,
                            outfolder_random, outfolder_art, directory)
-            print("Treated", file_name, "successfully.")
+            print("converted", file_name, "successfully.")
 
 
-def image_splitter(foreground, filename, outfolder_random, outfolder_art, classe):
+def image_splitter(foreground, filename, outfolder_random, outfolder_art, the_class):
+    """
+    Take an image an generate two new image.
+    One with a random background and one with an 'art' background.
+    
+    :param foreground: The image to be treated.
+    :param filename: The name of the image to be treated.
+    :param outfolder_random: the path to the outfolder of the random dataset.
+    :param outfolder_art: the path to the outfolder of the art dataset.
+    :param the_class: The name of the class of the dataset.
+    :return: -
+    """
     imarray = numpy.random.rand(256, 256, 3) * 255
     background = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
     background2 = Art().redraw()
@@ -35,26 +55,26 @@ def image_splitter(foreground, filename, outfolder_random, outfolder_art, classe
 
     foreground.putdata(new_data)
 
-    if not os.path.isdir(outfolder_random + "/" + classe):
-        os.makedirs(outfolder_random + "/" + classe)
-    if not os.path.isdir(outfolder_art + "/" + classe):
-        os.makedirs(outfolder_art + "/" + classe)
+    if not os.path.isdir(outfolder_random + "/" + the_class):
+        os.makedirs(outfolder_random + "/" + the_class)
+    if not os.path.isdir(outfolder_art + "/" + the_class):
+        os.makedirs(outfolder_art + "/" + the_class)
 
     background.paste(foreground, (0, 0), foreground)
-    background.save(outfolder_random + "/" + classe + "/" + "rand_" + filename, "JPEG")
+    background.save(outfolder_random + "/" + the_class + "/" + "rand_" + filename, "JPEG")
 
     background2.paste(foreground, (0, 0), foreground)
-    background2.save(outfolder_art + "/" + classe + "/" + "art_" + filename, "JPEG")
+    background2.save(outfolder_art + "/" + the_class + "/" + "art_" + filename, "JPEG")
 
 
 def filter_img(img, new_img, f):
     """
-    Puts transparency pixel everytime a pixel that is in f range condition is met.
+    Puts transparency pixel every time a pixel that is in f range condition is met.
     
     :param img: the image 
     :param new_img: the image where the filtered image will be stored
     :param f: the filter function. f(Int) => Boolean.
-    :return: 
+    :return: -
     """
 
     datas = img.getdata()
@@ -73,7 +93,7 @@ def merge_images_mask(image, mask):
     
     :param image: the image
     :param mask: the mask
-    :return: the new image
+    :return: the new images
     """
     mask = mask.convert("RGBA")
 
@@ -92,10 +112,15 @@ def merge_images_mask(image, mask):
     return img1, img2
 
 
+# TODO: Test this function correctly
 def pixels_counter(image: Image, bound_upper, bound_lower):
-    """Now it only counts red pixels
-    bound_upper=(255, 0, 0)
-    bound_lower=(183, 253, 52)
+    """
+    gives a ratio of number of pixels in bounds / total pixels
+
+    :param image:
+    :param bound_upper:
+    :param bound_lower:
+    :return: the score
     """
     (r1, g1, b1) = bound_upper
     (r2, g2, b2) = bound_lower
@@ -106,7 +131,8 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
     for item in image.getdata():
         if r1 >= item[0] >= r2 and g1 <= item[1] <= g2 and b1 <= item[2] <= b2:
             score += 1
-        n_pixels += 1
+        if item[3] != 0:
+            n_pixels += 1
 
     return score/n_pixels
 

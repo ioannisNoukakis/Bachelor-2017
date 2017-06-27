@@ -35,7 +35,7 @@ class BiasMetric:
     def save_to_csv(self):
         """
         Save the experiments results on a csv file.
-        :return:
+        :return:-
         """
         data = [['l1', 'l2', 'e1', 'e2', 'metric1', 'metric2']]
         for i, _ in enumerate(self.l1):
@@ -47,11 +47,18 @@ class BiasMetric:
 
 
 def get_mem_usage():
+    """
+    Get the current memory usage of this device.
+    :return: the memory info.
+    """
     process = psutil.Process(os.getpid())
     return process.memory_info()
 
 
 class HeatmapCompute(Thread):
+    """
+    Worker thread to compute Heatmaps (CAMs)
+    """
     def __init__(self, img, model, layer_name):
         Thread.__init__(self)
         self.img = img
@@ -68,6 +75,9 @@ class HeatmapCompute(Thread):
 
 
 class MonoMetricCallBack(keras.callbacks.Callback):
+    """
+    Simple bias metric.
+    """
 
     def __init__(self, bias_metric: BiasMetric,
                  shampleing_rate: int,
@@ -144,7 +154,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
                 print("mask applied in", time.time() - start_time)
                 start_time = time.time()
 
-                # get the distance from red
+                # get the red pixels ratio
                 l1 = img_processing.img_processing.pixels_counter(cam_a_p, (255, 0, 0), (183, 253, 52))
                 e1 = img_processing.img_processing.pixels_counter(cam_a_e, (255, 0, 0), (183, 253, 52))
 
@@ -163,6 +173,10 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 
 
 class MetricCallback(keras.callbacks.Callback):
+    """
+    Double bias metrics. One this the network and one with randomly initialized model
+    """
+
     def __init__(self, bias_metric: BiasMetric,
                  dummy_model: Model,
                  shampleing_rate: int,

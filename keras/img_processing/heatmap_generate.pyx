@@ -7,6 +7,16 @@ import scipy.misc
 from model_utils import reduce_opacity, get_outputs_generator
 
 def heatmap_generate(graph_context, input_img, model, layer_name, image_name=None):
+    """
+    Generate a heatmap for the bias metrics.
+
+    :param graph_context: the tensorflow context.
+    :param input_img: the image to generate heatmap.
+    :param model: the model.
+    :param layer_name: The layer name that will be used to generate the heatmap.
+    :param image_name: print a text on the image.
+    :return:the heatmap or None if an error occured.
+    """
     try:
         with graph_context.as_default():
             input_img = preprocess_input(np.expand_dims(image.img_to_array(input_img), axis=0), dim_ordering='default')
@@ -45,7 +55,7 @@ def heatmap_generate(graph_context, input_img, model, layer_name, image_name=Non
 
 
 def get_heatmap(input_img, model, layer_name, image_name=None, cv=False):
-    """"""
+    """see above"""
     input_img = preprocess_input(np.expand_dims(image.img_to_array(input_img), axis=0), dim_ordering='default')
     output_generator = get_outputs_generator(model, layer_name)
     layer_outputs = output_generator(input_img)[0]

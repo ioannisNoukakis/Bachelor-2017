@@ -7,6 +7,9 @@ from logger import info
 
 
 class ImagePath:
+    """
+    Container for image name and path and class.
+    """
     def __init__(self, name, directory, img_class):
         self.name = name
         self.directory = directory
@@ -35,8 +38,12 @@ class DatasetLoader:
             |__Data2_class1
         |__Class2
 
+        Sometimes the data is too big to fit in memory. So this utility will split it
+        and you'ill have to call load_dataset as longs as it returns True as it first
+        return var.
+
         :param base_directory: The base directory
-        :param max_img_loaded: The number of maximum images the utility can load at the same time.
+        :param max_img_loaded: The number of maximum images the utility can load at the same time..
         """
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
