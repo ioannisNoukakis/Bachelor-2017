@@ -1,9 +1,9 @@
 import sys
 from vis.utils import utils
 
+import img_processing.heatmap_generate
 from VGG16_ft import VGG16FineTuned
 from bias_metric import BiasMetric, MetricCallback, MonoMetricCallBack
-from img_processing.heatmap_generate import get_heatmap
 from plant_village_custom_model import *
 
 from img_processing.img_processing import dataset_convertor
@@ -35,10 +35,11 @@ def create_cam(model, outname, viz_folder, layer_name):
         seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
 
         # Here we are asking it to show attention such that prob of `pred_class` is maximized.
-        heatmap = get_heatmap(seed_img, model, layer_name, None, True)
+        heatmap = img_processing.heatmap_generate.get_heatmap(seed_img, model, layer_name, None, True)
         heatmaps.append(heatmap)
 
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
+    
 
 def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
 

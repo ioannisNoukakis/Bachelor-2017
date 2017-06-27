@@ -2,7 +2,7 @@ from keras import applications
 from keras.layers import GlobalAveragePooling2D, Dense
 from keras.models import Sequential
 
-from plant_village_custom_model import train_model, evaluate_model, DatasetLoader
+from plant_village_custom_model import train_model, DatasetLoader
 
 
 class VGG16FineTuned:
