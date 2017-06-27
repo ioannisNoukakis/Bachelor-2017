@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # Copyright (c) 2010, Andrej Bauer, http://andrej.com/
 # All rights reserved.
 #

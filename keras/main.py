@@ -2,10 +2,10 @@ import sys
 from vis.utils import utils
 
 from VGG16_ft import VGG16FineTuned
-from bias_metric import BiasMetric, MetricCallback
+from bias_metric import BiasMetric, MetricCallback, MonoMetricCallBack
+from img_processing.heatmap_generate import get_heatmap
 from plant_village_custom_model import *
 
-from model_utils import get_heatmap
 from img_processing.img_processing import dataset_convertor
 
 import tensorflow as tf
@@ -20,6 +20,15 @@ import tensorflow as tf
 
 
 def create_cam(model, outname, viz_folder, layer_name):
+    """
+    create an image of Class Activation Mapping (CAM).
+
+    :param model: The model
+    :param outname: The name of the future generated image.
+    :param viz_folder: The folder of the input images
+    :param layer_name: The name of the layer of which the outputs will be used to compute the CAMs.
+    :return: -
+    """
     heatmaps = []
     for path in next(os.walk(viz_folder))[2]:
         # Predict the corresponding class for use in `visualize_saliency`.
@@ -31,8 +40,32 @@ def create_cam(model, outname, viz_folder, layer_name):
 
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
 
+def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
+
+        dataset_loader = DatasetLoader(dataset_name, 10000)
+
+        vgg16 = VGG16FineTuned(dataset_loader)
+        graph_context = tf.get_default_graph()
+
+        bias_metric = BiasMetric(graph_context)
+        mc = MonoMetricCallBack(bias_metric=bias_metric,
+                            shampleing_rate=shampeling_rate,
+                            current_loader=dataset_loader)
+
+        vgg16.train(5, False, [mc])
+
+        bias_metric.save_to_csv()
+
 
 def make_bias_metrics(dataset_name: str, shampeling_rate: int):
+    """
+    Make the bias metrics by using the process described here:
+    <insert link to TB>
+
+    :param dataset_name: The dataset name
+    :param shampeling_rate: images will be processed every n image.
+    :return: -
+    """
     img_u = DatasetLoader(dataset_name, 10000)
 
     dummy_model = get_custom_model(img_u, "GAP", random=True)
@@ -54,6 +87,8 @@ def main():
     np.random.seed(123)  # for reproducibility
 
     argv = sys.argv
+    if argv[0] == "0":
+        make_simple_bias_metrics(argv[2], int(argv[3]))
     if argv[1] == "1":
         make_bias_metrics(argv[2], int(argv[3]))
     if argv[1] == "2":

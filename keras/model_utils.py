@@ -1,9 +1,62 @@
-from quiver_engine.util import *
-from sklearn.preprocessing import MinMaxScaler
+from keras.utils import np_utils
 from img_loader import *
-from PIL import Image, ImageEnhance, ImageOps
-import scipy.misc
+from PIL import ImageEnhance
 from keras.models import Model
+
+
+def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
+    """
+    Trains a model. At the end of each epochs evaluates it.
+    :param model: The model to be trained
+    :param dataset_loader: The data set loader with the model will train.
+    :param n_epochs: The number of iterations over the data.
+    :param callbacks: keras callbacks
+    :return: The trained model and its score
+    """
+    redo = True
+    score = []
+    for i in range(0, n_epochs):
+        print("epoch", i)
+        while redo:
+            redo, x_train, y_train = dataset_loader.load_dataset()
+            # Preprocessing
+            x_train = x_train.astype('float32')
+            x_train /= 255
+
+            y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
+
+            # Fit model on training data
+            print("Starting...")
+            if callbacks:
+                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0, callbacks=callbacks)
+            else:
+                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
+            # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
+            score = evaluate_model(model, dataset_loader, score)
+        redo = True
+    return model, score
+
+
+def evaluate_model(model, dataset_loader: DatasetLoader, score):
+    """
+    Evaluates a model.
+
+    :param model: The model to be evaluated.
+    :param dataset_loader: The data set loader that will provide the evaluation data.
+    :param score: The model's score
+    :return: the new score
+    """
+    redo = True
+    while redo:
+        redo, x_test, y_test = dataset_loader.load_dataset()
+        # Preprocessing
+        x_test = x_test.astype('float32')
+        x_test /= 255
+
+        y_test_2 = np_utils.to_categorical(y_test, dataset_loader.nb_classes)
+        # Evaluate model on test data
+        score.append(model.evaluate(x_test, y_test_2, batch_size=10, verbose=1))
+    return score
 
 
 def reduce_opacity(im, opacity):
@@ -23,48 +76,16 @@ def reduce_opacity(im, opacity):
 
 
 def get_outputs_generator(model, layer_name):
+    """
+    Gets the output generator of a specific layer of the model.
+
+    :param model: The model
+    :param layer_name: The layer's name
+    :return: the output generator (a function)
+    """
     layer_model = Model(
         input=model.input,
         output=model.get_layer(layer_name).get_output_at(0)
     )
 
     return layer_model.predict
-
-
-# FIXME: Better check the way that vis create the output generator
-def get_heatmap(input_img, model, layer_name, image_name=None, cv=False):
-    input_img = preprocess_input(np.expand_dims(image.img_to_array(input_img), axis=0), dim_ordering='default')
-    output_generator = get_outputs_generator(model, layer_name)
-    layer_outputs = output_generator(input_img)[0]
-    heatmap = Image.new("RGBA", (224, 224), color=0)
-    # Normalize input on weights
-    w = MinMaxScaler((0.0, 1.0)).fit_transform((model.get_layer("W").get_weights()[0]).flatten())
-
-    for z in range(0, layer_outputs.shape[2]):
-        img = layer_outputs[:, :, z]
-
-        deprocessed = scipy.misc.toimage(img).resize((224, 224)).convert("RGBA")
-        datas = deprocessed.getdata()
-        new_data = []
-        for item in datas:
-            if item[0] < 16 and item[1] < 16 and item[2] < 16:
-                new_data.append((0, 0, 0, 0))
-            else:
-                new_data.append(item)
-        deprocessed.putdata(new_data)
-        deprocessed = reduce_opacity(deprocessed, w[z])
-        heatmap.paste(deprocessed, (0, 0), deprocessed)
-    ImageOps.invert(heatmap.convert("RGB")).convert("RGBA").save("TMP.png", "PNG")
-    heatmap = cv2.imread("TMP.png", cv2.CV_8UC3)  # FIXME: remove tmp file
-
-    heatmap_colored = cv2.applyColorMap(np.uint8(255 * np.asarray(heatmap)), cv2.COLORMAP_JET)
-    heatmap_colored[np.where(heatmap <= 0.2)] = 0
-
-    if image_name is not None:
-        heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 2, 0)
-
-    if cv:
-        return cv2.resize(heatmap_colored, (224, 224))
-    else:
-        return Image.fromarray(cv2.resize(heatmap_colored, (224, 224)))
-

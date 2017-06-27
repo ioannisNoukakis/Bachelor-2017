@@ -1,15 +1,27 @@
 from keras.models import Sequential
 from keras.layers import *
-from keras.utils import np_utils
 from pathlib import Path
 from img_loader import *
 import time
 
+from model_utils import train_model
 
-def get_custom_model(img_u: DatasetLoader, mode, N_EPOCHS=5, random=False, save=None):
+
+def get_custom_model(dataset_loader: DatasetLoader, mode, N_EPOCHS=5, random=False, save=None):
+    """
+    Creates and compile the custom model.
+
+    :param dataset_loader: The data set loader with the model will train.
+    :param mode: GAP for global average pooling layer or dense of the fully connected layers
+    :param N_EPOCHS: the number of iterations over the data.
+    :param random: if true the model will be returned with random weights.
+    :param save: if not none the model will try first to load it's saved weights.
+                 if such file does not exists, trains and creates it.
+    :return: the model and its score
+    """
     start = time.strftime("%c")
     the_true_score = []
-    nb_classes = img_u.get_nb_classes()
+    nb_classes = dataset_loader.get_nb_classes()
 
     # Define model architecture
     model = Sequential()
@@ -50,7 +62,7 @@ def get_custom_model(img_u: DatasetLoader, mode, N_EPOCHS=5, random=False, save=
         model.load_weights(save + ".h5")
         return model
     else:
-        model, the_true_score = train_model(model, img_u, N_EPOCHS, None)
+        model, the_true_score = train_model(model, dataset_loader, N_EPOCHS, None)
 
         print("Model:")
         model.summary()
@@ -62,42 +74,3 @@ def get_custom_model(img_u: DatasetLoader, mode, N_EPOCHS=5, random=False, save=
         if save is not None:
             model.save_weights("./"+save + ".h5")
         return model
-
-
-def train_model(model, img_u, n_epochs, callbacks):
-    redo = True
-    score = []
-    for i in range(0, n_epochs):
-        print("epoch", i)
-        while redo:
-            redo, x_train, y_train = img_u.load_dataset()
-            # Preprocessing
-            x_train = x_train.astype('float32')
-            x_train /= 255
-
-            y_train = np_utils.to_categorical(y_train, img_u.nb_classes)
-
-            # Fit model on training data
-            print("Starting...")
-            if callbacks:
-                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0, callbacks=callbacks)
-            else:
-                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
-            # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
-            score = evaluate_model(model, img_u, score)
-        redo = True
-    return model, score
-
-
-def evaluate_model(model, img_u, the_true_score):
-    redo = True
-    while redo:
-        redo, x_test, y_test = img_u.load_dataset()
-        # Preprocessing
-        x_test = x_test.astype('float32')
-        x_test /= 255
-
-        y_test_2 = np_utils.to_categorical(y_test, img_u.nb_classes)
-        # Evaluate model on test data
-        the_true_score.append(model.evaluate(x_test, y_test_2, batch_size=10, verbose=1))
-    return the_true_score
