@@ -5,21 +5,7 @@ from PIL import Image, ImageEnhance, ImageOps
 import scipy.misc
 from keras.models import Model
 
-def reduce_opacity(im, opacity):
-    """
-    Returns an image with reduced opacity.
-    Taken from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/362879
-    """
-    assert 0 <= opacity <= 1
-    if im.mode != 'RGBA':
-        im = im.convert('RGBA')
-    else:
-        im = im.copy()
-    alpha = im.split()[3]
-    alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
-    im.putalpha(alpha)
-    return im
-
+from model_utils import reduce_opacity
 
 def get_outputs_generator(model, layer_name):
     layer_model = Model(

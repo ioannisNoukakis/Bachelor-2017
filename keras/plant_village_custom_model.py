@@ -1,7 +1,6 @@
 from keras.models import Sequential
 from keras.layers import *
 from keras.utils import np_utils
-from quiver_engine import server
 from pathlib import Path
 from img_loader import *
 import time

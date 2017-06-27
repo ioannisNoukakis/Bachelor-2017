@@ -42,6 +42,7 @@ cd /mnt/Bachelor-2017/keras
 sudo python3 setup.py build_ext --inplace #build cypthon
 sudo python3 -m pip install scikit-learn
 sudo python3 -m pip install h5py
+sudo python3 -m pip install psutil
 
 ##After cudnn installation
 
