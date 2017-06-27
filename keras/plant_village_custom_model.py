@@ -4,6 +4,7 @@ from pathlib import Path
 from img_loader import *
 import time
 
+from logger import info
 from model_utils import train_model
 
 
@@ -64,13 +65,13 @@ def get_custom_model(dataset_loader: DatasetLoader, mode, N_EPOCHS=5, random=Fal
     else:
         model, the_true_score = train_model(model, dataset_loader, N_EPOCHS, None)
 
-        print("Model:")
+        info("[CUSTOM MODEL] Model:", "")
         model.summary()
-        print("Obtained the score:", the_true_score)
-        print("Training started at:", start)
-        print("Training ended at:", time.strftime("%c"))
-        print("Classes:", nb_classes)
-        print("Nb_epoch:", 10)
+        info("[CUSTOM MODEL] Obtained the score:", the_true_score)
+        info("[CUSTOM MODEL] Training started at:", start)
+        info("[CUSTOM MODEL] Training ended at:", time.strftime("%c"))
+        info("[CUSTOM MODEL] Classes:", nb_classes)
+        info("[CUSTOM MODEL] Nb_epoch:", 10)
         if save is not None:
             model.save_weights("./"+save + ".h5")
         return model

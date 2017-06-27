@@ -15,6 +15,8 @@ import img_processing.img_processing
 import img_processing.heatmap_generate
 from multiprocessing.pool import ThreadPool
 
+from logger import info, error
+
 
 class BiasMetric:
     """Class used as container for metrics."""
@@ -91,16 +93,16 @@ class MonoMetricCallBack(keras.callbacks.Callback):
                 # check boundary
                 if self.j > self.current_loader.number_of_imgs:
                     return
+                info("[BIAS METRIC][Memory]", get_mem_usage())
 
-                print("[INFO][BIAS METRIC]", "[Memory]", get_mem_usage())
-
+                info("[BIAS METRIC]", "")
                 print("Starting image", self.j)
                 start_time = time.time()
 
                 p = self.current_loader.get(self.j)
                 p_file = Path(p)
                 if not p_file.exists():  # if segmented does not exists continue...
-                    print("[ERROR][BIAS METRIC]", p, "does not exists...")
+                    error("[ERROR][BIAS METRIC] -> does not exists:", p)
                     self.j += 1
                     continue
                 training_img = Image.open(p)
@@ -112,7 +114,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 
                 tmp_file = Path(tmp)
                 if not tmp_file.exists():  # if segmented does not exists continue...
-                    print("[ERROR][BIAS METRIC]", tmp, "does not exists...")
+                    error("[ERROR][BIAS METRIC] -> does not exists:", tmp)
                     self.j += 1
                     continue
                 mask = Image.open(tmp)
@@ -128,7 +130,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
                 cam_a = async_result1.get()
 
                 if cam_a is None:
-                    print("[ERROR][BIAS METRIC]", "could not read this image:", tmp)
+                    print("[ERROR][BIAS METRIC] -> could not read this image:", tmp)
                     self.j += 1
                     continue
 

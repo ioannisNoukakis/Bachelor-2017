@@ -42,19 +42,24 @@ def create_cam(model, outname, viz_folder, layer_name):
 
 
 def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
-
+    """
+    """
+    info("[INFO][MAIN]", "Loading...")
     dataset_loader = DatasetLoader(dataset_name, 10000)
 
+    info("[INFO][MAIN]", "Compiling model...")
     vgg16 = VGG16FineTuned(dataset_loader)
     graph_context = tf.get_default_graph()
 
     bias_metric = BiasMetric(graph_context)
     mc = MonoMetricCallBack(bias_metric=bias_metric,
-                        shampleing_rate=shampeling_rate,
-                        current_loader=dataset_loader)
+                            shampleing_rate=shampeling_rate,
+                            current_loader=dataset_loader)
 
+    info("[INFO][MAIN]", "Starting training...")
     vgg16.train(5, False, [mc])
 
+    info("[INFO][MAIN]", "Training completed!")
     bias_metric.save_to_csv()
 
 
@@ -88,7 +93,7 @@ def main():
     np.random.seed(123)  # for reproducibility
 
     argv = sys.argv
-    if argv[0] == "0":
+    if argv[1] == "0":
         make_simple_bias_metrics(argv[2], int(argv[3]))
     if argv[1] == "1":
         make_bias_metrics(argv[2], int(argv[3]))

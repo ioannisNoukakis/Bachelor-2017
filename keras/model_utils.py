@@ -3,6 +3,8 @@ from img_loader import *
 from PIL import ImageEnhance
 from keras.models import Model
 
+from logger import info
+
 
 def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     """
@@ -16,7 +18,7 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     redo = True
     score = []
     for i in range(0, n_epochs):
-        print("epoch", i)
+        info("[MODEL-UTILS] epoch", i)
         while redo:
             redo, x_train, y_train = dataset_loader.load_dataset()
             # Preprocessing
@@ -26,7 +28,7 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
             y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
 
             # Fit model on training data
-            print("Starting...")
+            info("[MODEL-UTILS] Starting...", "")
             if callbacks:
                 model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0, callbacks=callbacks)
             else:
