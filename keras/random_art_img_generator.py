@@ -71,17 +71,17 @@ from PIL import Image, ImageDraw
 # Utility functions
 
 def average(c1, c2, w=0.5):
-    '''Compute the weighted average of two colors. With w = 0.5 we get the average.'''
+    """Compute the weighted average of two colors. With w = 0.5 we get the average."""
     (r1, g1, b1) = c1
     (r2, g2, b2) = c2
     r3 = w * r1 + (1 - w) * r2
     g3 = w * g1 + (1 - w) * g2
     b3 = w * b1 + (1 - w) * b2
-    return (r3, g3, b3)
+    return r3, g3, b3
 
 
 def rgb(r, g, b):
-    '''Convert a color represented by (r,g,b) to a string understood by tkinter.'''
+    """Convert a color represented by (r,g,b) to a string understood by tkinter."""
     u = max(0, min(255, int(128 * (r + 1))))
     v = max(0, min(255, int(128 * (g + 1))))
     w = max(0, min(255, int(128 * (b + 1))))
@@ -89,12 +89,12 @@ def rgb(r, g, b):
 
 
 def well(x):
-    '''A function which looks a bit like a well.'''
+    """A function which looks a bit like a well."""
     return 1 - 2 / (1 + x * x) ** 8
 
 
 def tent(x):
-    '''A function that looks a bit like a tent.'''
+    """A function that looks a bit like a tent."""
     return 1 - 2 * abs(x)
 
 
@@ -106,14 +106,14 @@ def tent(x):
 # should contain the arity attribute which tells how many subexpressions should
 # be passed to the __init__ constructor.
 
-class VariableX():
+class VariableX:
     arity = 0
 
     def __init__(self): pass
 
     def __repr__(self): return "x"
 
-    def eval(self, x, y): return (x, x, x)
+    def eval(self, x): return x, x, x
 
 
 class VariableY():
@@ -123,10 +123,10 @@ class VariableY():
 
     def __repr__(self): return "y"
 
-    def eval(self, x, y): return (y, y, y)
+    def eval(self, y): return y, y, y
 
 
-class Constant():
+class Constant:
     arity = 0
 
     def __init__(self):
@@ -135,10 +135,10 @@ class Constant():
     def __repr__(self):
         return 'Constant(%g,%g,%g)' % self.c
 
-    def eval(self, x, y): return self.c
+    def eval(self): return self.c
 
 
-class Sum():
+class Sum:
     arity = 2
 
     def __init__(self, e1, e2):
@@ -152,7 +152,7 @@ class Sum():
         return average(self.e1.eval(x, y), self.e2.eval(x, y))
 
 
-class Product():
+class Product:
     arity = 2
 
     def __init__(self, e1, e2):
@@ -168,7 +168,7 @@ class Product():
         r3 = r1 * r2
         g3 = g1 * g2
         b3 = b1 * b2
-        return (r3, g3, b3)
+        return r3, g3, b3
 
 
 class Mod():
@@ -188,9 +188,9 @@ class Mod():
             r3 = r1 % r2
             g3 = g1 % g2
             b3 = b1 % b2
-            return (r3, g3, b3)
+            return r3, g3, b3
         except:
-            return (0, 0, 0)
+            return 0, 0, 0
 
 
 class Well():
@@ -204,7 +204,7 @@ class Well():
 
     def eval(self, x, y):
         (r, g, b) = self.e.eval(x, y)
-        return (well(r), well(g), well(b))
+        return well(r), well(g), well(b)
 
 
 class Tent():
@@ -218,7 +218,7 @@ class Tent():
 
     def eval(self, x, y):
         (r, g, b) = self.e.eval(x, y)
-        return (tent(r), tent(g), tent(b))
+        return tent(r), tent(g), tent(b)
 
 
 class Sin():
@@ -237,10 +237,10 @@ class Sin():
         r2 = math.sin(self.phase + self.freq * r1)
         g2 = math.sin(self.phase + self.freq * g1)
         b2 = math.sin(self.phase + self.freq * b1)
-        return (r2, g2, b2)
+        return r2, g2, b2
 
 
-class Level():
+class Level:
     arity = 3
 
     def __init__(self, level, e1, e2):
@@ -259,7 +259,7 @@ class Level():
         r4 = r2 if r1 < self.treshold else r3
         g4 = g2 if g1 < self.treshold else g3
         b4 = b2 if b1 < self.treshold else b3
-        return (r4, g4, b4)
+        return r4, g4, b4
 
 
 class Mix():
@@ -292,7 +292,7 @@ operators1 = [op for op in operators if op.arity > 0]
 
 
 def generate(k=50):
-    '''Randonly generate an expession of a given size.'''
+    """Randonly generate an expession of a given size."""
     if k <= 0:
         # We used up available size, generate a leaf of the expression tree
         op = random.choice(operators0)
@@ -310,7 +310,7 @@ def generate(k=50):
         return op(*args)
 
 
-class Art():
+class Art:
     """A simple graphical user interface for random art. It displays the image,
        and the 'Again!' button."""
 
