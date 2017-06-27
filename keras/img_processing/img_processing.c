@@ -1112,8 +1112,8 @@ static const char __pyx_k_random_art_img_generator[] = "random_art_img_generator
 static const char __pyx_k_img_processing_img_processing[] = "img_processing.img_processing";
 static const char __pyx_k_segmentedDB_Apple___Apple_scab[] = "./segmentedDB/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510_final_masked.jpg";
 static const char __pyx_k_dataset_Apple___Apple_scab_fcd4[] = "./dataset/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510.JPG";
-static const char __pyx_k_home_lux_dev_Bachelor_2017_kera[] = "/home/lux/dev/Bachelor-2017/keras/img_processing/img_processing.pyx";
 static const char __pyx_k_merge_images_mask_locals_lambda[] = "merge_images_mask.<locals>.<lambda>";
+static const char __pyx_k_mnt_Bachelor_2017_keras_img_pro[] = "/mnt/Bachelor-2017/keras/img_processing/img_processing.pyx";
 static PyObject *__pyx_kp_s_;
 static PyObject *__pyx_n_s_Art;
 static PyObject *__pyx_n_s_Image;
@@ -1168,7 +1168,6 @@ static PyObject *__pyx_n_s_g2;
 static PyObject *__pyx_n_s_getdata;
 static PyObject *__pyx_n_s_hi;
 static PyObject *__pyx_n_s_histogram;
-static PyObject *__pyx_kp_s_home_lux_dev_Bachelor_2017_kera;
 static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_im1;
 static PyObject *__pyx_n_s_im2;
@@ -1193,6 +1192,7 @@ static PyObject *__pyx_n_s_mask1;
 static PyObject *__pyx_n_s_mask2;
 static PyObject *__pyx_n_s_merge_images_mask;
 static PyObject *__pyx_n_s_merge_images_mask_locals_lambda;
+static PyObject *__pyx_kp_s_mnt_Bachelor_2017_keras_img_pro;
 static PyObject *__pyx_n_s_most_dominant_color;
 static PyObject *__pyx_n_s_n_pixels;
 static PyObject *__pyx_n_s_name;
@@ -6510,8 +6510,8 @@ static PyObject *__pyx_pf_14img_processing_14img_processing_14main(CYTHON_UNUSED
  *     )
  * 
  *     print(most_dominant_color(im1))             # <<<<<<<<<<<<<<
- *     # dataset_convertor("./segmentedDB", "./dataset_rand", "./dataset_art")
  * 
+ * if __name__ == "__main__":
  */
   __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_most_dominant_color); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -6666,7 +6666,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_getdata, __pyx_k_getdata, sizeof(__pyx_k_getdata), 0, 0, 1, 1},
   {&__pyx_n_s_hi, __pyx_k_hi, sizeof(__pyx_k_hi), 0, 0, 1, 1},
   {&__pyx_n_s_histogram, __pyx_k_histogram, sizeof(__pyx_k_histogram), 0, 0, 1, 1},
-  {&__pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_k_home_lux_dev_Bachelor_2017_kera, sizeof(__pyx_k_home_lux_dev_Bachelor_2017_kera), 0, 0, 1, 0},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
   {&__pyx_n_s_im1, __pyx_k_im1, sizeof(__pyx_k_im1), 0, 0, 1, 1},
   {&__pyx_n_s_im2, __pyx_k_im2, sizeof(__pyx_k_im2), 0, 0, 1, 1},
@@ -6691,6 +6690,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_mask2, __pyx_k_mask2, sizeof(__pyx_k_mask2), 0, 0, 1, 1},
   {&__pyx_n_s_merge_images_mask, __pyx_k_merge_images_mask, sizeof(__pyx_k_merge_images_mask), 0, 0, 1, 1},
   {&__pyx_n_s_merge_images_mask_locals_lambda, __pyx_k_merge_images_mask_locals_lambda, sizeof(__pyx_k_merge_images_mask_locals_lambda), 0, 0, 1, 1},
+  {&__pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_k_mnt_Bachelor_2017_keras_img_pro, sizeof(__pyx_k_mnt_Bachelor_2017_keras_img_pro), 0, 0, 1, 0},
   {&__pyx_n_s_most_dominant_color, __pyx_k_most_dominant_color, sizeof(__pyx_k_most_dominant_color), 0, 0, 1, 1},
   {&__pyx_n_s_n_pixels, __pyx_k_n_pixels, sizeof(__pyx_k_n_pixels), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
@@ -6955,7 +6955,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__23 = PyTuple_Pack(7, __pyx_n_s_dataset_directory, __pyx_n_s_outfolder_random, __pyx_n_s_outfolder_art, __pyx_n_s_directories, __pyx_n_s_directory, __pyx_n_s_i, __pyx_n_s_file_name); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(3, 0, 7, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_dataset_convertor, 12, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(3, 0, 7, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_dataset_convertor, 12, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 12, __pyx_L1_error)
 
   /* "img_processing/img_processing.pyx":22
  * 
@@ -6967,7 +6967,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__25 = PyTuple_Pack(11, __pyx_n_s_foreground, __pyx_n_s_filename, __pyx_n_s_outfolder_random, __pyx_n_s_outfolder_art, __pyx_n_s_classe, __pyx_n_s_imarray, __pyx_n_s_background, __pyx_n_s_background2, __pyx_n_s_datas, __pyx_n_s_new_data, __pyx_n_s_item); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
-  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(5, 0, 11, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_image_splitter, 22, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(5, 0, 11, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_image_splitter, 22, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 22, __pyx_L1_error)
 
   /* "img_processing/img_processing.pyx":50
  * 
@@ -6979,7 +6979,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__27 = PyTuple_Pack(6, __pyx_n_s_img, __pyx_n_s_new_img, __pyx_n_s_f, __pyx_n_s_datas, __pyx_n_s_new_data, __pyx_n_s_item); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(3, 0, 6, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_filter_img, 50, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(3, 0, 6, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_filter_img, 50, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 50, __pyx_L1_error)
 
   /* "img_processing/img_processing.pyx":70
  * 
@@ -6991,7 +6991,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__29 = PyTuple_Pack(6, __pyx_n_s_image, __pyx_n_s_mask, __pyx_n_s_mask1, __pyx_n_s_mask2, __pyx_n_s_img1, __pyx_n_s_img2); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
-  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(2, 0, 6, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_merge_images_mask, 70, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(2, 0, 6, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_merge_images_mask, 70, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 70, __pyx_L1_error)
 
   /* "img_processing/img_processing.pyx":95
  * 
@@ -7003,7 +7003,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__31 = PyTuple_Pack(12, __pyx_n_s_image, __pyx_n_s_bound_upper, __pyx_n_s_bound_lower, __pyx_n_s_r1, __pyx_n_s_g1, __pyx_n_s_b1, __pyx_n_s_r2, __pyx_n_s_g2, __pyx_n_s_b2, __pyx_n_s_score, __pyx_n_s_n_pixels, __pyx_n_s_item); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__31);
   __Pyx_GIVEREF(__pyx_tuple__31);
-  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(3, 0, 12, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_pixels_counter, 95, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(3, 0, 12, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_pixels_counter, 95, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 95, __pyx_L1_error)
 
   /* "img_processing/img_processing.pyx":114
  * 
@@ -7015,7 +7015,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__34 = PyTuple_Pack(14, __pyx_n_s_image, __pyx_n_s_NUM_CLUSTERS, __pyx_n_s_ar, __pyx_n_s_shape, __pyx_n_s_codes, __pyx_n_s__33, __pyx_n_s_original_codes, __pyx_n_s_low, __pyx_n_s_hi, __pyx_n_s_vecs, __pyx_n_s_counts, __pyx_n_s_bins, __pyx_n_s_index_max, __pyx_n_s_code); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__34);
   __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_most_dominant_color, 114, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_most_dominant_color, 114, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 114, __pyx_L1_error)
 
   /* "img_processing/img_processing.pyx":163
  * 
@@ -7027,7 +7027,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__36 = PyTuple_Pack(8, __pyx_n_s_c1, __pyx_n_s_c2, __pyx_n_s_r1, __pyx_n_s_g1, __pyx_n_s_b1, __pyx_n_s_r2, __pyx_n_s_g2, __pyx_n_s_b2); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__36);
   __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_color_distance, 163, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_color_distance, 163, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 163, __pyx_L1_error)
 
   /* "img_processing/img_processing.pyx":169
  * 
@@ -7039,7 +7039,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__38 = PyTuple_Pack(2, __pyx_n_s_im1, __pyx_n_s_im2); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__38);
   __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(0, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_main_2, 169, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(0, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_img_pro, __pyx_n_s_main_2, 169, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -7365,24 +7365,24 @@ PyMODINIT_FUNC PyInit_img_processing(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_main_2, __pyx_t_2) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "img_processing/img_processing.pyx":180
- * 
+  /* "img_processing/img_processing.pyx":178
+ *     print(most_dominant_color(im1))
  * 
  * if __name__ == "__main__":             # <<<<<<<<<<<<<<
  *     main()
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_2, __pyx_n_s_main, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_2, __pyx_n_s_main, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 178, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_3) {
 
-    /* "img_processing/img_processing.pyx":181
+    /* "img_processing/img_processing.pyx":179
  * 
  * if __name__ == "__main__":
  *     main()             # <<<<<<<<<<<<<<
  */
-    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_main_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 181, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_main_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
@@ -7395,17 +7395,17 @@ PyMODINIT_FUNC PyInit_img_processing(void)
       }
     }
     if (__pyx_t_4) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 181, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     } else {
-      __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 181, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
     }
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "img_processing/img_processing.pyx":180
- * 
+    /* "img_processing/img_processing.pyx":178
+ *     print(most_dominant_color(im1))
  * 
  * if __name__ == "__main__":             # <<<<<<<<<<<<<<
  *     main()
