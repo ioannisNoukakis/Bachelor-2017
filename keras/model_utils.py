@@ -23,7 +23,7 @@ def train_model_generator(model, dataset_loader: DatasetLoader, n_epochs, callba
     score = []
     model.fit_generator(generator=batch_generator(dataset_loader),
                         nb_epoch=n_epochs,
-                        samples_per_epoch=dataset_loader.number_of_imgs,
+                        samples_per_epoch=math.floor(dataset_loader.number_of_imgs/dataset_loader.max_img_loaded)+1,
                         callbacks=callbacks,
                         verbose=0)
     score = evaluate_model(model, dataset_loader, score)
