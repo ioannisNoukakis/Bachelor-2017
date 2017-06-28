@@ -37,9 +37,9 @@ class BiasMetric:
         Save the experiments results on a csv file.
         :return:-
         """
-        data = [['l1', 'l2', 'e1', 'e2', 'metric1', 'metric2']]
+        data = [['l1', 'l2', 'e1', 'e2']]
         for i, _ in enumerate(self.l1):
-            data.append([self.l1[i], self.l2[i], self.e1[i], self.e2[i], self.metric1[i], self.metric2[i]])
+            data.append([self.l1[i], self.l2[i], self.e1[i], self.e2[i]])
 
         with open('results.csv', 'w') as f:
             writer = csv.writer(f)
@@ -94,6 +94,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
         self.shampleing_rate = shampleing_rate
         self.i = 0
         self.j = 0
+        self.k = 0
         self.current_loader = current_loader
 
     def on_batch_end(self, batch, logs={}):
@@ -101,13 +102,14 @@ class MonoMetricCallBack(keras.callbacks.Callback):
             if self.i == self.shampleing_rate:
 
                 # check boundary
-                if self.j > self.current_loader.number_of_imgs:
-                    return
+                if self.j >= self.current_loader.number_of_imgs:
+                    break
                 info("[BIAS METRIC][Memory]", get_mem_usage())
 
                 info("[BIAS METRIC]", "")
-                print("Starting image", self.j)
+                print("Starting image", self.k)
                 start_time = time.time()
+                self.k += 1
 
                 p = self.current_loader.get(self.j)
                 p_file = Path(p)
