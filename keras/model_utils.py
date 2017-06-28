@@ -2,6 +2,7 @@ from keras.utils import np_utils
 from img_loader import *
 from PIL import ImageEnhance
 from keras.models import Model
+import numpy as np
 
 from logger import info
 
@@ -14,9 +15,8 @@ def batch_generator(dataset_loader: DatasetLoader):
         x_train /= 255
 
         y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
-
-        for i, _ in enumerate(x_train):
-            yield x_train[i], y_train[i]
+        for i, _ in enumerate(x_train):            
+            yield np.expand_dims(x_train[i], axis=0), y_train[i]
 
 
 def train_model_generator(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
@@ -39,27 +39,22 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     :param callbacks: keras callbacks
     :return: The trained model and its score
     """
-    redo = True
     score = []
-    for i in range(0, n_epochs):
-        info("[MODEL-UTILS] epoch", i)
-        while redo:
-            redo, x_train, y_train = dataset_loader.load_dataset()
-            # Preprocessing
-            x_train = x_train.astype('float32')
-            x_train /= 255
+    redo, x_train, y_train = dataset_loader.load_dataset()
+    # Preprocessing
+    x_train = x_train.astype('float32')
+    x_train /= 255
 
-            y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
+    y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
 
-            # Fit model on training data
-            info("[MODEL-UTILS] Starting...", "")
-            if callbacks:
-                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=0, callbacks=callbacks)
-            else:
-                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
-            # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
-            score = evaluate_model(model, dataset_loader, score)
-        redo = True
+    # Fit model on training data
+    info("[MODEL-UTILS] Starting...", "")
+    if callbacks:
+        model.fit(x_train, y_train, batch_size=10, epochs=n_epochs, verbose=1, callbacks=callbacks)
+    else:
+        model.fit(x_train, y_train, batch_size=10, nb_epoch=n_epochs, verbose=1)
+    # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
+    score = evaluate_model(model, dataset_loader, score)
     return model, score
 
 
