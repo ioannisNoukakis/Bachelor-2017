@@ -43,6 +43,12 @@ def create_cam(model, outname, viz_folder, layer_name):
 
 def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
     """
+    Make the bias metrics by using the process described here:
+    <insert link to TB>
+
+    :param dataset_name: The dataset name
+    :param shampeling_rate: images will be processed every n image.
+    :return: -
     """
     info("[INFO][MAIN]", "Loading...")
     dataset_loader = DatasetLoader(dataset_name, 10000)

@@ -212,6 +212,7 @@ class MetricCallback(keras.callbacks.Callback):
                 print("Starting image", self.j)
                 start_time = time.time()
 
+                # check if image exists
                 p = self.current_loader.get(self.j)
                 p_file = Path(p)
                 if not p_file.exists():  # if segmented does not exists continue...
@@ -225,6 +226,7 @@ class MetricCallback(keras.callbacks.Callback):
                 tmp = "./segmentedDB" + tmp + "_final_masked.jpg"
                 print(tmp)
 
+                # check if image exists
                 tmp_file = Path(tmp)
                 if not tmp_file.exists():  # if segmented does not exists continue...
                     print("[ERROR][BIAS METRIC]", tmp, "does not exists...")

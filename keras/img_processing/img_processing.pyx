@@ -2,11 +2,7 @@ from PIL import Image
 import numpy
 import os
 
-from scipy.misc import fromimage
-
 from random_art_img_generator import Art
-import scipy
-import scipy.cluster
 
 
 def dataset_convertor(dataset_directory, outfolder_random, outfolder_art):
@@ -117,9 +113,9 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
     """
     gives a ratio of number of pixels in bounds / total pixels
 
-    :param image:
-    :param bound_upper:
-    :param bound_lower:
+    :param image: the image
+    :param bound_upper: the upper bound
+    :param bound_lower: the lower bound
     :return: the score
     """
     (r1, g1, b1) = bound_upper
@@ -137,69 +133,12 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
     return score/n_pixels
 
 
-def most_dominant_color(image):
-    """
-    from : https://gist.github.com/samuelclay/918751
-    
-    Find the most dominant color in an image.
-    
-    :param image: the image
-    :return: the most dominant color
-    """
-
-    NUM_CLUSTERS = 15
-
-    # Convert image into array of values for each point.
-    ar = fromimage(image)
-    shape = ar.shape
-
-    # Reshape array of values to merge color bands.
-    if len(shape) > 2:
-        ar = ar.reshape(scipy.product(shape[:2]), shape[2])
-
-    # convert to float
-    ar = ar.astype('float32')
-
-    # Get NUM_CLUSTERS worth of centroids.
-    codes, _ = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
-
-    # Pare centroids, removing blacks and whites and shades of really dark and really light.
-    original_codes = codes
-    for low, hi in [(60, 200), (35, 230), (10, 250)]:
-        codes = scipy.array([code for code in codes
-                             if not ((code[0] < low and code[1] < low and code[2] < low) or
-                                     (code[0] > hi and code[1] > hi and code[2] > hi))])
-        if not len(codes):
-            codes = original_codes
-        else:
-            break
-
-    # Assign codes (vector quantization). Each vector is compared to the centroids
-    # and assigned the nearest one.
-    vecs, _ = scipy.cluster.vq.vq(ar, codes)
-
-    # Count occurences of each clustered vector.
-    counts, bins = scipy.histogram(vecs, len(codes))
-
-    # Find the most frequent color, based on the counts.
-    index_max = scipy.argmax(counts)
-    return codes[index_max][:3]
-
-
-def color_distance(c1, c2):
-    (r1, g1, b1) = c1
-    (r2, g2, b2) = c2
-    return numpy.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
-
-
 def main():
 
     im1, im2 = merge_images_mask(
         Image.open('./dataset/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510.JPG'),
         Image.open('./segmentedDB/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510_final_masked.jpg')
     )
-
-    print(most_dominant_color(im1))
 
 if __name__ == "__main__":
     main()

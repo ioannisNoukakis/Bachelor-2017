@@ -1,0 +1,36 @@
+Imagine you are designing a system
+to predict which criminals will reofend.
+One option is to optimize for “true positives,”
+meaning that you will identify
+as many people as possible who are at
+high risk of committing another crime.
+One problem with this approach is that
+it tends to increase the number of false
+positives: people who will be unjustly classified
+as likely reofenders. The dial can be
+adjusted to deliver as few false positives
+as possible, but that tends to create more
+false negatives: likely reofenders who slip
+through and get a more lenient treatment
+than warranted.
+
+C'est un bias de classes les pantes comme on les classe?
+Je veux dire on cherche les maladies mais on a des échantillons saints
+dans le lot alors je sais pas ça ferait des faux négatif?
+Un faux négatif c'est pas grave car on traite la plante donc
+meme si elle est saine ça la dérangera pas?
+Mais si tout doit être traité ça va engender des milliards de couts?
+
+Le explicit content filter de yahoo est afecté par les bias d'un cnn classique?
+
+-> Peut y avoir un bias dans le scaling si il est pas partout le même ?
+
+-> Tourner le datset induit-il du bias? Genre on reprends toutes les images et on les fait tourner à chaque
+fois de 60 degré.
+
+-> Eclairage?
+
+-> Les trois background à la fois?
+
+-> La matrice de confusion: Si le CNN confonds des classes de la meme espèce ca va
+Sinon c'est que y'a du biais.

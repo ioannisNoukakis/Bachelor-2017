@@ -82,18 +82,39 @@ class DatasetLoader:
         self.nb_classes = len(directories)
 
     def get_nb_classes(self):
+        """
+        Returns the number of classes in the dataset.
+        :return: the number of classes.
+        """
         return self.nb_classes
 
     def get_nb_images(self):
+        """
+        Returns the number of images in the dataset.
+        :return: the number of images.
+        """
         return self.number_of_imgs
 
     def has_next(self):
+        """
+        Check for the iterator path if it has a next.
+        :return: True if the iterator has a next
+        """
         return self.iterator_path + 1 < self.number_of_imgs
 
     def has_next_in_order(self):
+        """
+        Checks for the order iterator path if it has a next.
+        :return:
+        """
         return self.i + 1 < self.number_of_imgs
 
     def get(self, index: int):
+        """
+        Return an image path at the given index.
+        :param index: the index
+        :return: and image path
+        """
         p = self.imgDataArray[index]
         return self.baseDirectory + "/" + p.get_directory() + "/" + p.get_name()
 
@@ -112,6 +133,11 @@ class DatasetLoader:
         return self.baseDirectory + "/" + p.get_directory() + "/" + p.get_name()
 
     def load_dataset(self):
+        """
+        Tries to load the dataset. If the dataset is too big for the memory split it.
+        Call back this function until it does not return True as first return variable.
+        :return: redo, score
+        """
 
         data_x = []
         data_y = []
