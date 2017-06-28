@@ -7,6 +7,7 @@ from threading import Thread
 import PIL
 import keras
 import psutil as psutil
+
 from PIL import Image
 from keras.engine import Model
 
@@ -97,7 +98,12 @@ class MonoMetricCallBack(keras.callbacks.Callback):
         self.k = 0
         self.current_loader = current_loader
 
+    def on_epoch_end(self, epoch, logs=None):
+        self.i = 0
+        self.j = 0
+
     def on_batch_end(self, batch, logs={}):
+        print(self.i, self.j)
         for _ in range(0, 10):  # the cnn takes 10 by 10 images
             if self.i == self.shampleing_rate:
 
@@ -171,7 +177,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
             else:
                 self.i += 1
             self.j += 1
-        return
+
 
 
 class MetricCallback(keras.callbacks.Callback):
