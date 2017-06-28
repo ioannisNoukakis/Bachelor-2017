@@ -51,7 +51,7 @@ def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
     :return: -
     """
     info("[INFO][MAIN]", "Loading...")
-    dataset_loader = DatasetLoader(dataset_name, 10000)
+    dataset_loader = DatasetLoader(dataset_name, 10000, True)
 
     info("[INFO][MAIN]", "Compiling model...")
     vgg16 = VGG16FineTuned(dataset_loader)

@@ -28,7 +28,7 @@ class ImagePath:
 class DatasetLoader:
     """ Utility image loading class """
 
-    def __init__(self, base_directory, max_img_loaded):
+    def __init__(self, base_directory, max_img_loaded, no_training_data=False):
         """
         This utility expects you to have the following folder pattern:
 
@@ -47,6 +47,7 @@ class DatasetLoader:
         """
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
+        self.no_training_data = no_training_data
 
         self.imgDataArray = []  # Array containing the path to the images to be loaded.
         self.number_of_imgs = 0
@@ -145,10 +146,17 @@ class DatasetLoader:
         j = 0
         while True:
             if not self.train_loaded and self.i == self.number_of_imgs_for_train:
-                info("DATASET LOADER]", "Loaded all imgs for training. Next call will load test data...")
-                redo = False
-                self.train_loaded = True
-                break
+                if self.no_training_data:
+                    info("DATASET LOADER]", "Loaded all imgs for training.")
+                    self.train_loaded = False
+                    self.i = 0
+                    redo = False
+                    break
+                else:
+                    info("DATASET LOADER]", "Loaded all imgs for training. Next call will load test data...")
+                    redo = False
+                    self.train_loaded = True
+                    break
             if self.i == self.number_of_imgs:
                 info("DATASET LOADER]", "Loaded all imgs for test. Done! Next call will load train data")
                 redo = False

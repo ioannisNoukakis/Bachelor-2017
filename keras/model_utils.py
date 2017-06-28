@@ -6,6 +6,30 @@ from keras.models import Model
 from logger import info
 
 
+def batch_generator(dataset_loader: DatasetLoader):
+    while True:
+        _, x_train, y_train = dataset_loader.load_dataset()
+        # Preprocessing
+        x_train = x_train.astype('float32')
+        x_train /= 255
+
+        y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
+
+        for i, _ in enumerate(x_train):
+            yield x_train[i], y_train[i]
+
+
+def train_model_generator(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
+    score = []
+    model.fit_generator(generator=batch_generator(dataset_loader),
+                        nb_epoch=n_epochs,
+                        samples_per_epoch=dataset_loader.number_of_imgs,
+                        callbacks=callbacks,
+                        verbose=0)
+    score = evaluate_model(model, dataset_loader, score)
+    return model, score
+
+
 def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     """
     Trains a model. At the end of each epochs evaluates it.

@@ -3,6 +3,7 @@ from keras.layers import GlobalAveragePooling2D, Dense
 from keras.models import Sequential
 
 from logger import info
+from model_utils import train_model_generator
 from plant_village_custom_model import train_model, DatasetLoader
 
 
@@ -36,7 +37,7 @@ class VGG16FineTuned:
         :param callbacks: keras callbacks
         :return:
         """
-        self.model, score = train_model(self.model, self.img_u, nb_epochs, callbacks)
+        self.model, score = train_model_generator(self.model, self.img_u, nb_epochs, callbacks)
         info("[VGG16_FT]", score)
         if save_weights:
             self.model.save_weights("./VGG16_GAP.h5")
