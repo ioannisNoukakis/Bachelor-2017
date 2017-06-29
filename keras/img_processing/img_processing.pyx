@@ -129,7 +129,8 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
             score += 1
         if item[3] != 0:
             n_pixels += 1
-
+    if n_pixels == 0:
+        return 0
     return score/n_pixels
 
 

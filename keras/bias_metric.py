@@ -8,6 +8,8 @@ import PIL
 import keras
 import psutil as psutil
 
+import gc
+
 from PIL import Image
 from keras.engine import Model
 
@@ -168,3 +170,4 @@ class MonoMetricCallBack(keras.callbacks.Callback):
             else:
                 self.i += 1
             self.j += 1
+            gc.collect()
