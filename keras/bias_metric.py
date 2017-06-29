@@ -28,7 +28,7 @@ def save_to_csv(l, e):
     with open('results.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerows([l, e])
-        writer.close()
+        f.close()
 
 
 class BiasMetric:
