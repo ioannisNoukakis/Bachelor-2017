@@ -66,7 +66,7 @@ def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
     vgg16.train(10, False, [mc])
 
     info("[INFO][MAIN]", "Training completed!")
-    bias_metric.save_to_csv()
+    save_to_csv()
 
 
 def make_bias_metrics(dataset_name: str, shampeling_rate: int):
@@ -92,7 +92,7 @@ def make_bias_metrics(dataset_name: str, shampeling_rate: int):
 
     vgg16.train(5, False, [mc])
 
-    bias_metric.save_to_csv()
+    save_to_csv()
 
 
 def main():

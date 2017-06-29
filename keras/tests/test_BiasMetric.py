@@ -14,7 +14,7 @@ class PixelsCounterTest(unittest.TestCase):
         bm.metric1 = [0, 0.3, 0.5]
         bm.metric2 = [0.1, 0, -0.1]
 
-        bm.save_to_csv()
+        save_to_csv()
 
         with open('results.csv', 'r') as f:
             content = f.read()
