@@ -66,33 +66,6 @@ def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
     vgg16.train(10, False, [mc])
 
     info("[INFO][MAIN]", "Training completed!")
-    save_to_csv()
-
-
-def make_bias_metrics(dataset_name: str, shampeling_rate: int):
-    """
-    Make the bias metrics by using the process described here:
-    <insert link to TB>
-
-    :param dataset_name: The dataset name
-    :param shampeling_rate: images will be processed every n image.
-    :return: -
-    """
-    img_u = DatasetLoader(dataset_name, 10000)
-
-    dummy_model = get_custom_model(img_u, "GAP", random=True)
-    vgg16 = VGG16FineTuned(img_u)
-    graph_context = tf.get_default_graph()
-
-    bias_metric = BiasMetric(graph_context)
-    mc = MetricCallback(bias_metric=bias_metric,
-                        dummy_model=dummy_model,
-                        shampleing_rate=shampeling_rate,
-                        current_loader=img_u)
-
-    vgg16.train(5, False, [mc])
-
-    save_to_csv()
 
 
 def main():
