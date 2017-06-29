@@ -34,3 +34,7 @@ fois de 60 degré.
 
 -> La matrice de confusion: Si le CNN confonds des classes de la meme espèce ca va
 Sinon c'est que y'a du biais.
+
+-> Moyenne des metrics lors de l'entrainement pour réduire le bruit de la courbe.
+
+-> prendre 10 images aléatoire par fin de batch -> par images vues

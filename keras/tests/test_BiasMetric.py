@@ -1,7 +1,7 @@
 import unittest
 import tensorflow as tf
 
-from bias_metric import BiasMetric
+from bias_metric import BiasMetric, save_to_csv
 
 
 class PixelsCounterTest(unittest.TestCase):

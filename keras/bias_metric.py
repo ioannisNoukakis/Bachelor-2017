@@ -89,6 +89,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
         self.j = 0
         self.k = 0
         self.current_loader = current_loader
+        self.pool = ThreadPool(processes=2)
 
     def on_train_begin(self, logs=None):
         save_to_csv('l', 'e')
@@ -133,8 +134,8 @@ class MonoMetricCallBack(keras.callbacks.Callback):
                 mask = Image.open(tmp)
 
                 # get the cams from both the models
-                pool = ThreadPool(processes=2)
-                async_result1 = pool.apply_async(img_processing.heatmap_generate.heatmap_generate,
+
+                async_result1 = self.pool.apply_async(img_processing.heatmap_generate.heatmap_generate,
                                                  (self.bias_metric.graph_context,
                                                   training_img,
                                                   self.model,
