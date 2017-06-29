@@ -3,7 +3,7 @@ from vis.utils import utils
 
 import img_processing.heatmap_generate
 from VGG16_ft import VGG16FineTuned
-from bias_metric import BiasMetric, MetricCallback, MonoMetricCallBack
+from bias_metric import BiasMetric, MonoMetricCallBack
 from plant_village_custom_model import *
 
 from img_processing.img_processing import dataset_convertor
