@@ -24,7 +24,7 @@ def heatmap_generate(graph_context, input_img, model, layer_name, image_name=Non
             layer_outputs = output_generator(input_img)[0]
             heatmap = Image.new("RGBA", (224, 224), color=0)
             # Normalize input on weights
-            w = MinMaxScaler((0.0, 1.0)).fit_transform((model.get_layer("W").get_weights()[0]).flatten())
+            w = MinMaxScaler((0.0, 1.0)).fit_transform((model.get_layer("W").get_weights()).flatten())
 
             for z in range(0, layer_outputs.shape[2]):
                 img = layer_outputs[:, :, z]

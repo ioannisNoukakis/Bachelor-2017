@@ -3,7 +3,6 @@ from keras.layers import GlobalAveragePooling2D, Dense
 from keras.models import Sequential
 
 from logger import info
-from model_utils import train_model_generator
 from plant_village_custom_model import train_model, DatasetLoader
 
 

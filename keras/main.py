@@ -2,13 +2,15 @@ import sys
 from vis.utils import utils
 
 import img_processing.heatmap_generate
+from CAM_maker import train_VGGCAM, plot_classmap
 from VGG16_ft import VGG16FineTuned
 from bias_metric import BiasMetric, MonoMetricCallBack
 from plant_village_custom_model import *
 
-from img_processing.img_processing import dataset_convertor
+import json
 
 import tensorflow as tf
+import os
 
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
@@ -75,54 +77,26 @@ def main():
     if argv[1] == "0":
         make_simple_bias_metrics(argv[2], int(argv[3]))
     if argv[1] == "1":
-        make_bias_metrics(argv[2], int(argv[3]))
-    if argv[1] == "2":
-        model = get_custom_model(DatasetLoader("dataset", 10000), "GAP", save="Custom_normal")
-        create_cam(model, "CAM_normal_normal.jpg", "visual", "Conv4")
-        create_cam(model, "CAM_normal_art.jpg", "visual_art", "Conv4")
-        create_cam(model, "CAM_normal_rand.jpg", "visual_rand", "Conv4")
-    if argv[1] == "3":
-        model = get_custom_model(DatasetLoader("dataset_art", 10000), "GAP", save="Custom_art")
-        create_cam(model, "CAM_art_normal.jpg", "visual", "Conv4")
-        create_cam(model, "CAM_art_art.jpg", "visual_art", "Conv4")
-        create_cam(model, "CAM_art_rand.jpg", "visual_rand", "Conv4")
-    if argv[1] == "4":
-        model = get_custom_model(DatasetLoader("dataset_art", 10000), "GAP", save="Custom_rand")
-        create_cam(model, "CAM_rand_normal.jpg", "visual", "Conv4")
-        create_cam(model, "CAM_rand_art.jpg", "visual_art", "Conv4")
-        create_cam(model, "CAM_rand_rand.jpg", "visual_rand", "Conv4")
-    if argv[1] == "5":
-        model = get_custom_model(DatasetLoader("segmentedDB", 10000), "GAP", save="Custom_segmented")
-        create_cam(model, "CAM_seg_normal.jpg", "visual", "Conv4")
-        create_cam(model, "CAM_seg_art.jpg", "visual_art", "Conv4")
-        create_cam(model, "CAM_seg_rand.jpg", "visual_rand", "Conv4")
-    if argv[1] == "6":
-        model = VGG16FineTuned(DatasetLoader("dataset", 10000))
-        model.train(10, False, None)
-        create_cam(model, "CAM_FT_normal_normal.jpg", "visual", "block5_conv3")
-        create_cam(model, "CAM_FT_normal_art.jpg", "visual_art", "block5_conv3")
-        create_cam(model, "CAM_FT_normal_rand.jpg", "visual_rand", "block5_conv3")
-    if argv[1] == "7":
-        model = VGG16FineTuned(DatasetLoader("dataset_art", 10000))
-        model.train(10, False, None)
-        create_cam(model, "CAM_FT_art_normal.jpg", "visual", "block5_conv3")
-        create_cam(model, "CAM_FT_art_art.jpg", "visual_art", "block5_conv3")
-        create_cam(model, "CAM_FT_art_rand.jpg", "visual_rand", "block5_conv3")
-    if argv[1] == "8":
-        model = VGG16FineTuned(DatasetLoader("dataset_random", 10000))
-        model.train(10, False, None)
-        create_cam(model, "CAM_FT_rand_normal.jpg", "visual", "block5_conv3")
-        create_cam(model, "CAM_FT_rand_art.jpg", "visual_art", "block5_conv3")
-        create_cam(model, "CAM_FT_rand_rand.jpg", "visual_rand", "block5_conv3")
-    if argv[1] == "9":
-        model = VGG16FineTuned(DatasetLoader("segmentedDB", 10000))
-        model.train(10, False, None)
-        create_cam(model, "CAM_FT_seg_normal.jpg", "visual", "block5_conv3")
-        create_cam(model, "CAM_FT_seg_art.jpg", "visual_art", "block5_conv3")
-        create_cam(model, "CAM_FT_seg_rand.jpg", "visual_rand", "block5_conv3")
-    if argv[1] == "10":
-        dataset_convertor("segmentedDB", "dataset_random", "dataset_art")
+        dl = DatasetLoader(argv[2], 10000, True)
+        train_VGGCAM(dl, int(argv[3]))
 
+        # plot CAMs only for the validation data:
+        for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
+            for j in range(0, dl.nb_classes):
+                outpath = "maps/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+                outname = outpath + "/" + str(j) + ".png"
+
+                try:
+                    os.makedirs("maps/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name)
+                except OSError:
+                    pass
+
+                predicted = plot_classmap(outname=outpath + outname,
+                              img_path=dl.baseDirectory + "/" +dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name,
+                              label=j,
+                              nb_classes=dl.nb_classes)
+                with open(outpath + '/resuts.json', 'w') as outfile:
+                    json.dump({'predicted': predicted, "true_label": dl.imgDataArray[i].img_class}, outfile)
 
 if __name__ == "__main__":
     main()
