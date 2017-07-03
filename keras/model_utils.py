@@ -40,21 +40,25 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     :return: The trained model and its score
     """
     score = []
-    redo, x_train, y_train = dataset_loader.load_dataset()
-    # Preprocessing
-    x_train = x_train.astype('float32')
-    x_train /= 255
-
-    y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
-
-    # Fit model on training data
+    redo = True
     info("[MODEL-UTILS] Starting...", "")
-    if callbacks:
-        model.fit(x_train, y_train, batch_size=10, epochs=n_epochs, verbose=1, callbacks=callbacks)
-    else:
-        model.fit(x_train, y_train, batch_size=10, nb_epoch=n_epochs, verbose=1)
-    # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
-    score = evaluate_model(model, dataset_loader, score)
+    for i in range(0, n_epochs):
+        print("[MODEL-UTILS] epoch", i, "/", n_epochs)
+        while redo:
+            redo, x_train, y_train = dataset_loader.load_dataset()
+            # Preprocessing
+            x_train = x_train.astype('float32')
+            x_train /= 255
+
+            y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
+
+            # Fit model on training data
+            if callbacks:
+                model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1, callbacks=callbacks)
+            else:
+                model.fit(x_train, y_train, batch_size=10, nb_epoch=n_epochs, verbose=1)
+        # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
+        score = evaluate_model(model, dataset_loader, score)
     return model, score
 
 
@@ -106,7 +110,7 @@ def get_outputs_generator(model, layer_name):
     """
     layer_model = Model(
         input=model.input,
-        output=model.get_layer(layer_name).get_output_at(0)
+        output=model.get_layer(layer_name).output
     )
 
     return layer_model.predict

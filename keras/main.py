@@ -75,7 +75,8 @@ def main():
 
     argv = sys.argv
     if argv[1] == "0":
-        make_simple_bias_metrics(argv[2], int(argv[3]))
+        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000))
+        vggft.train(15, weights_out=argv[3])
     if argv[1] == "1":
         dl = DatasetLoader(argv[2], 10000, True)
         train_VGGCAM(dl, int(argv[3]))
