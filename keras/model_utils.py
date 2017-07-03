@@ -56,7 +56,7 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
             if callbacks:
                 model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1, callbacks=callbacks)
             else:
-                model.fit(x_train, y_train, batch_size=10, nb_epoch=n_epochs, verbose=1)
+                model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1)
         # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
         score = evaluate_model(model, dataset_loader, score)
     return model, score
