@@ -106,7 +106,7 @@ def get_outputs_generator(model, layer_name):
     """
     layer_model = Model(
         input=model.input,
-        output=model.get_layer(layer_name).get_output_at(0)
+        output=model.get_layer(layer_name).get_output_at(0) #FIXME regarder la shape ou kfunction si doute
     )
 
     return layer_model.predict

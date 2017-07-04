@@ -31,7 +31,7 @@ def VGGCAM(nb_classes, num_input_channels=1024):
     model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
 
     # Add another conv layer with ReLU + GAP
-    model.add(Convolution2D(num_input_channels, 3, 3, activation='relu', border_mode="same"))
+    model.add(Convolution2D(num_input_channels, 3, 3, activation='relu', border_mode="same", name="CAM"))
     model.add(GlobalAveragePooling2D())
     # Add the W layer
     model.add(Dense(nb_classes, activation='softmax'))
@@ -44,11 +44,10 @@ def VGGCAM(nb_classes, num_input_channels=1024):
 def get_classmap(model, X, nb_classes, batch_size, num_input_channels, ratio):
     with tf.Session():
         inc = model.layers[0].input
-        conv6 = model.layers[-4].get_output_at(0).eval() #FIXME
-        conv6_resized = absconv.bilinear_upsampling(conv6, ratio,
-                                                    batch_size=batch_size,
-                                                    num_input_channels=num_input_channels)
-        WT = model.layers[-1].W.T
+        conv6 = model.get_layer('CAM').output
+        conv6_resized = absconv.bilinear_upsampling(conv6, ratio, batch_size=batch_size, num_input_channels=num_input_channels)
+
+        WT = model.layers[-1].kernel
         conv6_resized = K.reshape(conv6_resized, (-1, num_input_channels, 224 * 224))
         classmap = K.dot(WT, conv6_resized).reshape((-1, nb_classes, 224, 224))
         get_cmap = K.function([inc], classmap)
@@ -80,7 +79,8 @@ def train_VGGCAM(dataset_loader: DatasetLoader, n_epochs, num_input_channels=102
             y = np_utils.to_categorical(y, dataset_loader.nb_classes)
             for i, _ in enumerate(X):
                 # pre processing
-                X = cv2.resize(X, (224, 224)).astype(np.float32)
+                # X = cv2.resize(X, (224, 224)).astype(np.float32)
+                X = X.astype(np.float32)
 
                 X[i][:, :, 0] -= 103.939
                 X[i][:, :, 1] -= 116.779
