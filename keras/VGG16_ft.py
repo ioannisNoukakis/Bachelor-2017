@@ -1,5 +1,5 @@
 from keras import applications
-from keras.layers import GlobalAveragePooling2D, Dense
+from keras.layers import GlobalAveragePooling2D, Dense, Convolution2D
 from keras.models import Sequential
 
 from logger import info
@@ -21,22 +21,28 @@ class VGG16FineTuned:
         self.img_u = dataset_loader
         self.model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
 
+        self.model.add(Convolution2D(512, 3, 3, activation='relu', border_mode="same", name="CAM"))
         self.model.add(GlobalAveragePooling2D(name="GAP"))
         self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
 
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.model.summary()
 
-    def train(self, nb_epochs, save_weights=False, callbacks=None):
+    def train(self, nb_epochs, weights_in=None, weights_out=None, callbacks=None):
         """
         Trains the custom VGG16 model.
 
+        :param weights_in:
         :param nb_epochs: the number of iterations over the data.
-        :param save_weights: if the weights of the custom models should be saved.
+        :param weights_out: if the weights of the custom models should be saved.
         :param callbacks: keras callbacks
         :return:
         """
-        self.model, score = train_model(self.model, self.img_u, nb_epochs, callbacks)
-        info("[VGG16_FT]", score)
-        if save_weights:
-            self.model.save_weights("./VGG16_GAP.h5")
+        if weights_in is None:
+            self.model, score = train_model(self.model, self.img_u, nb_epochs, callbacks)
+            info("[VGG16_FT]", score)
+        else:
+            self.model.load_weights(weights_in)
+
+        if weights_out is not None and weights_in is None:
+            self.model.save_weights(weights_out)
