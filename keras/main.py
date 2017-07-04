@@ -75,7 +75,7 @@ def main():
 
     argv = sys.argv
     if argv[1] == "0":
-        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000))
+        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[4])))
         vggft.train(15, weights_out=argv[3])
     if argv[1] == "1":
         dl = DatasetLoader(argv[2], 10000, True)
