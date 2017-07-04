@@ -40,12 +40,13 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     :return: The trained model and its score
     """
     score = []
-    redo = True
     info("[MODEL-UTILS] Starting...", "")
     for i in range(0, n_epochs):
-        print("[MODEL-UTILS] epoch", i, "/", n_epochs)
-        while redo:
+        print("[MODEL-UTILS] epoch", str(i+1), "/", n_epochs)
+        while True:
             redo, x_train, y_train = dataset_loader.load_dataset()
+            if not redo :
+                break
             # Preprocessing
             x_train = x_train.astype('float32')
             x_train /= 255
@@ -71,6 +72,7 @@ def evaluate_model(model, dataset_loader: DatasetLoader, score):
     :param score: The model's score
     :return: the new score
     """
+    print("[MODEL_UTILS] EVALUATING...")
     redo = True
     while redo:
         redo, x_test, y_test = dataset_loader.load_dataset()
