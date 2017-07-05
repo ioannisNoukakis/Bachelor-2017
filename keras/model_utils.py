@@ -1,3 +1,4 @@
+from keras.applications.imagenet_utils import preprocess_input
 from keras.utils import np_utils
 from img_loader import *
 from PIL import ImageEnhance
@@ -12,7 +13,7 @@ def batch_generator(dataset_loader: DatasetLoader):
         _, x_train, y_train = dataset_loader.load_dataset()
         # Preprocessing
         x_train = x_train.astype('float32')
-        x_train /= 255
+        x_train = preprocess_input(x_train)
 
         y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
         for i, _ in enumerate(x_train):            
@@ -48,7 +49,7 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
             redo, x_train, y_train = dataset_loader.load_dataset()
             # Preprocessing
             x_train = x_train.astype('float32')
-            x_train /= 255
+            x_train = preprocess_input(x_train)
 
             y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
 
@@ -76,7 +77,7 @@ def evaluate_model(model, dataset_loader: DatasetLoader, score):
         redo, x_test, y_test = dataset_loader.load_dataset()
         # Preprocessing
         x_test = x_test.astype('float32')
-        x_test /= 255
+        x_test = preprocess_input(x_test)
 
         y_test_2 = np_utils.to_categorical(y_test, dataset_loader.nb_classes)
         # Evaluate model on test data
