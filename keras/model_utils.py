@@ -12,7 +12,7 @@ def batch_generator(dataset_loader: DatasetLoader):
     while True:
         _, x_train, y_train = dataset_loader.load_dataset()
         # Preprocessing
-        x_train = x_train.astype('float64')
+        x_train = x_train.astype('float32')
         x_train = preprocess_input(x_train)
 
         y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
@@ -49,7 +49,7 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
             if not redo :
                 break
             # Preprocessing
-            x_train = x_train.astype('float64')
+            x_train = x_train.astype('float32')
             x_train = preprocess_input(x_train)
 
             y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
@@ -78,7 +78,7 @@ def evaluate_model(model, dataset_loader: DatasetLoader, score):
     while redo:
         redo, x_test, y_test = dataset_loader.load_dataset()
         # Preprocessing
-        x_test = x_test.astype('float64')
+        x_test = x_test.astype('float32')
         x_test = preprocess_input(x_test)
 
         y_test_2 = np_utils.to_categorical(y_test, dataset_loader.nb_classes)
