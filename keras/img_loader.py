@@ -147,24 +147,24 @@ class DatasetLoader:
         while True:
             if not self.train_loaded and self.i == self.number_of_imgs_for_train:
                 if self.no_training_data:
-                    info("[DATASET LOADER]", "Loaded all imgs for training.")
+                    info("DATASET LOADER]", "Loaded all imgs for training.")
                     self.train_loaded = False
                     self.i = 0
                     redo = False
                     break
                 else:
-                    info("[DATASET LOADER]", "Loaded all imgs for training. Next call will load test data...")
+                    info("DATASET LOADER]", "Loaded all imgs for training. Next call will load test data...")
                     redo = False
                     self.train_loaded = True
                     break
             if self.i == self.number_of_imgs:
-                info("[DATASET LOADER]", "Loaded all imgs for test. Done! Next call will load train data")
+                info("DATASET LOADER]", "Loaded all imgs for test. Done! Next call will load train data")
                 redo = False
                 self.train_loaded = False
                 self.i = 0
                 break
             if j + 1 >= self.max_img_loaded:
-                info("[DATASET LOADER]", "")
+                info("DATASET LOADER]", "")
                 print("Max img loaded!", self.i, "/", self.number_of_imgs)
                 redo = True
                 break
@@ -176,6 +176,6 @@ class DatasetLoader:
             j += 1
             self.i += 1
 
-        info("[DATASET LOADER]", "Loading completed!")
+        info("DATASET LOADER]", "Loading completed!")
 
         return redo, np.asarray(data_x), np.asarray(data_y)

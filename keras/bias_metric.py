@@ -1,23 +1,19 @@
 import csv
+import gc
 import os
 import time
+from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from threading import Thread
 
 import PIL
+import img_processing.img_processing
 import keras
 import psutil as psutil
-
-import gc
-
 from PIL import Image
-from keras.engine import Model
 
+import heatmap_generate
 from img_loader import DatasetLoader
-import img_processing.img_processing
-import img_processing.heatmap_generate
-from multiprocessing.pool import ThreadPool
-
 from logger import info, error
 
 
@@ -62,7 +58,7 @@ class HeatmapCompute(Thread):
         self._return = None
 
     def run(self):
-        self._return = img_processing.heatmap_generate.heatmap_generate(self.img, self.model, self.layer_name)
+        self._return = heatmap_generate.heatmap_generate(self.img, self.model, self.layer_name)
 
     def join(self):
         Thread.join(self)
@@ -137,8 +133,8 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 
                 # get the cams from both the models
 
-                async_result1 = self.pool.apply_async(img_processing.heatmap_generate.heatmap_generate,
-                                                 (self.bias_metric.graph_context,
+                async_result1 = self.pool.apply_async(heatmap_generate.heatmap_generate,
+                                                      (self.bias_metric.graph_context,
                                                   training_img,
                                                   self.model,
                                                   'block5_conv3'))

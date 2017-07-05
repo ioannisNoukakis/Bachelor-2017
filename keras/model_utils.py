@@ -3,7 +3,6 @@ from img_loader import *
 from PIL import ImageEnhance
 from keras.models import Model
 import numpy as np
-from keras.applications.imagenet_utils import preprocess_input
 
 from logger import info
 
@@ -12,8 +11,8 @@ def batch_generator(dataset_loader: DatasetLoader):
     while True:
         _, x_train, y_train = dataset_loader.load_dataset()
         # Preprocessing
-        x_train = x_train.astype('float64')
-        x_train = preprocess_input(x_train)
+        x_train = x_train.astype('float32')
+        x_train /= 255
 
         y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
         for i, _ in enumerate(x_train):            
@@ -41,24 +40,23 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     :return: The trained model and its score
     """
     score = []
+    redo = True
     info("[MODEL-UTILS] Starting...", "")
     for i in range(0, n_epochs):
-        print("[MODEL-UTILS] epoch", str(i+1), "/", n_epochs)
-        while True:
+        print("[MODEL-UTILS] epoch", i, "/", n_epochs)
+        while redo:
             redo, x_train, y_train = dataset_loader.load_dataset()
-            if not redo :
-                break
             # Preprocessing
-            x_train = x_train.astype('float64')
-            x_train = preprocess_input(x_train)
+            x_train = x_train.astype('float32')
+            x_train /= 255
 
             y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
 
             # Fit model on training data
             if callbacks:
-                model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1, callbacks=callbacks)
+                model.fit(x_train, y_train, batch_size=32, epochs=1, verbose=1, callbacks=callbacks)
             else:
-                model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1)
+                model.fit(x_train, y_train, batch_size=32, nb_epoch=1, verbose=1)
         # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
         score = evaluate_model(model, dataset_loader, score)
     return model, score
@@ -73,13 +71,12 @@ def evaluate_model(model, dataset_loader: DatasetLoader, score):
     :param score: The model's score
     :return: the new score
     """
-    print("[MODEL_UTILS] EVALUATING...")
     redo = True
     while redo:
         redo, x_test, y_test = dataset_loader.load_dataset()
         # Preprocessing
-        x_test = x_test.astype('float64')
-        x_test = preprocess_input(x_test)
+        x_test = x_test.astype('float32')
+        x_test /= 255
 
         y_test_2 = np_utils.to_categorical(y_test, dataset_loader.nb_classes)
         # Evaluate model on test data

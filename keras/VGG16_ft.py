@@ -1,5 +1,5 @@
 from keras import applications
-from keras.layers import GlobalAveragePooling2D, Dense, Convolution2D
+from keras.layers import GlobalAveragePooling2D, Dense, Convolution2D, Flatten
 from keras.models import Sequential
 
 from logger import info
@@ -12,18 +12,28 @@ class VGG16FineTuned:
     fully connected layer.
     """
 
-    def __init__(self, dataset_loader: DatasetLoader):
+    def __init__(self, dataset_loader: DatasetLoader, GAP=True):
         """
         Create and compile the custom VGG16 model.
 
         :param dataset_loader: The data set loader with the model will train.
         """
         self.img_u = dataset_loader
-        self.model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
+        if GAP:
+            self.model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
 
-        self.model.add(Convolution2D(512, 3, 3, activation='relu', border_mode="same", name="CAM"))
-        self.model.add(GlobalAveragePooling2D(name="GAP"))
-        self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
+            self.model.add(Convolution2D(512, 3, 3, activation='relu', border_mode="same", name="CAM"))
+            self.model.add(GlobalAveragePooling2D(name="GAP"))
+            self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
+        else:
+            self.model = Sequential(applications.VGG16(weights='imagenet',
+                                                       input_shape=(256, 256, 3),
+                                                       include_top=False).layers)
+
+            self.model.add(Flatten(name='flatten'))
+            self.model.add(Dense(1024, activation='relu', name='fc1'))
+            self.model.add(Dense(1024, activation='relu', name='fc2'))
+            self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
 
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.model.summary()
@@ -42,7 +52,7 @@ class VGG16FineTuned:
             self.model, score = train_model(self.model, self.img_u, nb_epochs, callbacks)
             info("[VGG16_FT]", score)
         else:
-            self.model.load_weights(weights_in)
+            self.model.load_weights(weights_in, by_name=True)
 
         if weights_out is not None and weights_in is None:
             self.model.save_weights(weights_out)

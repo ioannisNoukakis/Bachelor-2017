@@ -1,17 +1,13 @@
-import sys
-from vis.utils import utils
-
-import img_processing.heatmap_generate
-from CAM_maker import train_VGGCAM, plot_classmap
-from VGG16_ft import VGG16FineTuned
-from bias_metric import BiasMetric, MonoMetricCallBack
-from plant_village_custom_model import *
-
 import json
+import os
+import sys
 
 import tensorflow as tf
-import os
+from PIL import Image
 
+from VGG16_ft import VGG16FineTuned
+from heatmapgenerate import heatmap_generate
+from plant_village_custom_model import *
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
@@ -20,38 +16,23 @@ import os
 # https://arxiv.org/pdf/1512.04150.pdf
 # https://arxiv.org/pdf/1512.03385.pdf
 
-
+"""
 def create_cam(model, outname, viz_folder, layer_name):
-    """
-    create an image of Class Activation Mapping (CAM).
 
-    :param model: The model
-    :param outname: The name of the future generated image.
-    :param viz_folder: The folder of the input images
-    :param layer_name: The name of the layer of which the outputs will be used to compute the CAMs.
-    :return: -
-    """
     heatmaps = []
     for path in next(os.walk(viz_folder))[2]:
         # Predict the corresponding class for use in `visualize_saliency`.
         seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
 
         # Here we are asking it to show attention such that prob of `pred_class` is maximized.
-        heatmap = img_processing.heatmap_generate.get_heatmap(seed_img, model, layer_name, None, True)
+        heatmap = img_processing.heatmap_generate.heatmap_generate(seed_img, model, layer_name, None, True)
         heatmaps.append(heatmap)
 
     cv2.imwrite(outname, utils.stitch_images(heatmaps))
 
 
 def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
-    """
-    Make the bias metrics by using the process described here:
-    <insert link to TB>
 
-    :param dataset_name: The dataset name
-    :param shampeling_rate: images will be processed every n image.
-    :return: -
-    """
     info("[INFO][MAIN]", "Loading...")
     dataset_loader = DatasetLoader(dataset_name, 10000)
 
@@ -67,7 +48,7 @@ def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
     info("[INFO][MAIN]", "Starting training...")
     vgg16.train(10, False, [mc])
 
-    info("[INFO][MAIN]", "Training completed!")
+    info("[INFO][MAIN]", "Training completed!")"""
 
 
 def main():
@@ -75,16 +56,17 @@ def main():
 
     argv = sys.argv
     if argv[1] == "0":
-        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[4])))
-        vggft.train(15, weights_out=argv[3])
+        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000), GAP=int(argv[4]))
+        vggft.train(int(argv[5]), weights_out=argv[3])
     if argv[1] == "1":
-        dl = DatasetLoader(argv[2], 10000, True)
-        train_VGGCAM(dl, int(argv[3]))
+        dl = DatasetLoader(argv[2], 10000)
+        vggft = VGG16FineTuned(dataset_loader=dl, GAP=bool(argv[4]))
+        vggft.train(int(argv[5]), weights_in=argv[3])
 
         # plot CAMs only for the validation data:
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
+            outpath = "maps/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
             for j in range(0, dl.nb_classes):
-                outpath = "maps/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
                 outname = outpath + "/" + str(j) + ".png"
 
                 try:
@@ -92,12 +74,22 @@ def main():
                 except OSError:
                     pass
 
-                predicted = plot_classmap(outname=outpath + outname,
-                              img_path=dl.baseDirectory + "/" +dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name,
-                              label=j,
-                              nb_classes=dl.nb_classes)
-                with open(outpath + '/resuts.json', 'w') as outfile:
-                    json.dump({'predicted': predicted, "true_label": dl.imgDataArray[i].img_class}, outfile)
+                input_img = Image.open(
+                    dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name)
+                heatmap = heatmap_generate(
+                    graph_context=tf.get_default_graph(),
+                    input_img=input_img,
+                    model=vggft.model,
+                    class_to_predict=j,
+                    layer_name='CAM')
+                heatmap.save(outname)
+            predict_input = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                                       dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+            predict_input = np.expand_dims(predict_input, axis=1)
+            results = vggft.model.predict(predict_input)
+            with open(outpath + '/resuts.json', 'w') as outfile:
+                json.dump({'predicted': 'nan', "true_label": dl.imgDataArray[i].img_class}, outfile)
+
 
 if __name__ == "__main__":
     main()

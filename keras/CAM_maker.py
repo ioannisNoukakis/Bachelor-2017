@@ -45,11 +45,10 @@ def get_classmap(model, X, nb_classes, batch_size, num_input_channels, ratio):
     with tf.Session():
         inc = model.layers[0].input
         conv6 = model.get_layer('CAM').output
-        conv6_resized = absconv.bilinear_upsampling(conv6, ratio, batch_size=batch_size, num_input_channels=num_input_channels)
 
         WT = model.layers[-1].kernel
-        conv6_resized = K.reshape(conv6_resized, (-1, num_input_channels, 224 * 224))
-        classmap = K.dot(WT, conv6_resized).reshape((-1, nb_classes, 224, 224))
+        conv6 = K.reshape(conv6, (-1, num_input_channels, 224 * 224))
+        classmap = K.dot(WT, conv6).reshape((-1, nb_classes, 224, 224))
         get_cmap = K.function([inc], classmap)
         return get_cmap([X])
 
