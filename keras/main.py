@@ -56,11 +56,11 @@ def main():
 
     argv = sys.argv
     if argv[1] == "0":
-        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000), GAP=int(argv[4]))
+        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     if argv[1] == "1":
         dl = DatasetLoader(argv[2], 10000)
-        vggft = VGG16FineTuned(dataset_loader=dl, GAP=bool(argv[4]))
+        vggft = VGG16FineTuned(dataset_loader=dl, mode=argv[4])
         vggft.train(int(argv[5]), weights_in=argv[3])
 
         # plot CAMs only for the validation data:
