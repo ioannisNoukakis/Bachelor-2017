@@ -12,27 +12,32 @@ class VGG16FineTuned:
     fully connected layer.
     """
 
-    def __init__(self, dataset_loader: DatasetLoader, GAP=True):
+    def __init__(self, dataset_loader: DatasetLoader, mode: str):
         """
         Create and compile the custom VGG16 model.
 
         :param dataset_loader: The data set loader with the model will train.
         """
         self.img_u = dataset_loader
-        if GAP:
+        if mode == 'GAP_CAM':
             self.model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
 
             self.model.add(Convolution2D(512, 3, 3, activation='relu', border_mode="same", name="CAM"))
             self.model.add(GlobalAveragePooling2D(name="GAP"))
             self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
-        else:
+        if mode == 'GAP':
+            self.model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
+
+            self.model.add(GlobalAveragePooling2D(name="GAP"))
+            self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
+        if mode == 'DENSE':
             self.model = Sequential(applications.VGG16(weights='imagenet',
                                                        input_shape=(256, 256, 3),
                                                        include_top=False).layers)
 
             self.model.add(Flatten(name='flatten'))
-            self.model.add(Dense(1024, activation='relu', name='fc1'))
-            self.model.add(Dense(1024, activation='relu', name='fc2'))
+            self.model.add(Dense(2048, activation='relu', name='fc1'))
+            self.model.add(Dense(2048, activation='relu', name='fc2'))
             self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
 
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])

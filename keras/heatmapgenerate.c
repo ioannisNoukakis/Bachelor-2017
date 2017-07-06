@@ -989,7 +989,7 @@ static const char __pyx_k_output_generator[] = "output_generator";
 static const char __pyx_k_FONT_HERSHEY_SIMPLEX[] = "FONT_HERSHEY_SIMPLEX";
 static const char __pyx_k_get_outputs_generator[] = "get_outputs_generator";
 static const char __pyx_k_sklearn_preprocessing[] = "sklearn.preprocessing";
-static const char __pyx_k_home_lux_dev_Bachelor_2017_kera[] = "/home/lux/dev/Bachelor-2017/keras/heatmapgenerate.pyx";
+static const char __pyx_k_mnt_Bachelor_2017_keras_heatmap[] = "/mnt/Bachelor-2017/keras/heatmapgenerate.pyx";
 static PyObject *__pyx_n_s_AssertionError;
 static PyObject *__pyx_n_s_COLORMAP_JET;
 static PyObject *__pyx_n_s_CV_8UC3;
@@ -1024,7 +1024,6 @@ static PyObject *__pyx_n_s_heatmap;
 static PyObject *__pyx_n_s_heatmap_colored;
 static PyObject *__pyx_n_s_heatmap_generate;
 static PyObject *__pyx_n_s_heatmapgenerate;
-static PyObject *__pyx_kp_s_home_lux_dev_Bachelor_2017_kera;
 static PyObject *__pyx_n_s_image_name;
 static PyObject *__pyx_n_s_img;
 static PyObject *__pyx_n_s_img_loader;
@@ -1035,6 +1034,7 @@ static PyObject *__pyx_n_s_layer_name;
 static PyObject *__pyx_n_s_layer_outputs;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_misc;
+static PyObject *__pyx_kp_s_mnt_Bachelor_2017_keras_heatmap;
 static PyObject *__pyx_n_s_model;
 static PyObject *__pyx_n_s_model_utils;
 static PyObject *__pyx_n_s_new;
@@ -2970,7 +2970,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_heatmap_colored, __pyx_k_heatmap_colored, sizeof(__pyx_k_heatmap_colored), 0, 0, 1, 1},
   {&__pyx_n_s_heatmap_generate, __pyx_k_heatmap_generate, sizeof(__pyx_k_heatmap_generate), 0, 0, 1, 1},
   {&__pyx_n_s_heatmapgenerate, __pyx_k_heatmapgenerate, sizeof(__pyx_k_heatmapgenerate), 0, 0, 1, 1},
-  {&__pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_k_home_lux_dev_Bachelor_2017_kera, sizeof(__pyx_k_home_lux_dev_Bachelor_2017_kera), 0, 0, 1, 0},
   {&__pyx_n_s_image_name, __pyx_k_image_name, sizeof(__pyx_k_image_name), 0, 0, 1, 1},
   {&__pyx_n_s_img, __pyx_k_img, sizeof(__pyx_k_img), 0, 0, 1, 1},
   {&__pyx_n_s_img_loader, __pyx_k_img_loader, sizeof(__pyx_k_img_loader), 0, 0, 1, 1},
@@ -2981,6 +2980,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_layer_outputs, __pyx_k_layer_outputs, sizeof(__pyx_k_layer_outputs), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_misc, __pyx_k_misc, sizeof(__pyx_k_misc), 0, 0, 1, 1},
+  {&__pyx_kp_s_mnt_Bachelor_2017_keras_heatmap, __pyx_k_mnt_Bachelor_2017_keras_heatmap, sizeof(__pyx_k_mnt_Bachelor_2017_keras_heatmap), 0, 0, 1, 0},
   {&__pyx_n_s_model, __pyx_k_model, sizeof(__pyx_k_model), 0, 0, 1, 1},
   {&__pyx_n_s_model_utils, __pyx_k_model_utils, sizeof(__pyx_k_model_utils), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
@@ -3146,7 +3146,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__18 = PyTuple_Pack(14, __pyx_n_s_graph_context, __pyx_n_s_input_img, __pyx_n_s_model, __pyx_n_s_class_to_predict, __pyx_n_s_layer_name, __pyx_n_s_image_name, __pyx_n_s_output_generator, __pyx_n_s_layer_outputs, __pyx_n_s_heatmap, __pyx_n_s_w, __pyx_n_s_z, __pyx_n_s_img, __pyx_n_s_deprocessed, __pyx_n_s_heatmap_colored); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
-  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(6, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_lux_dev_Bachelor_2017_kera, __pyx_n_s_heatmap_generate, 8, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(6, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mnt_Bachelor_2017_keras_heatmap, __pyx_n_s_heatmap_generate, 8, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
