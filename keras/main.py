@@ -15,6 +15,8 @@ from plant_village_custom_model import *
 # https://www.quora.com/What-is-global-average-pooling
 # https://arxiv.org/pdf/1512.04150.pdf
 # https://arxiv.org/pdf/1512.03385.pdf
+# http://lcn.epfl.ch/tutorial/english/perceptron/html/learning.html
+# https://github.com/fchollet/keras/issues/4446
 
 """
 def create_cam(model, outname, viz_folder, layer_name):
@@ -86,7 +88,7 @@ def main():
             predict_input = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
                                        dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
             predict_input = np.expand_dims(predict_input, axis=1)
-            results = vggft.model.predict(predict_input)
+            results = vggft.model.predict(predict_input) # FIXME Normalize me
             with open(outpath + '/resuts.json', 'w') as outfile:
                 json.dump({'predicted': 'nan', "true_label": dl.imgDataArray[i].img_class}, outfile)
 

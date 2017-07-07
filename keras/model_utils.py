@@ -48,6 +48,9 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
             redo, x_train, y_train = dataset_loader.load_dataset()
             # Preprocessing
             x_train = x_train.astype('float32')
+            for j, img in enumerate(x_train):
+                x_train[j] = cv2.resize(img, (224, 224))
+                
             x_train = preprocess_input(x_train)
 
             y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
@@ -57,7 +60,8 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
                 model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1, callbacks=callbacks)
             else:
                 model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
-            if not redo :
+
+            if not redo:
                 break
         # TODO: Maybe this is the wrong order of how to apply epochs -> investigate
         score = evaluate_model(model, dataset_loader, score)
