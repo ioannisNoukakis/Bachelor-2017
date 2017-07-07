@@ -47,8 +47,8 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
         while True:
             redo, x_train, y_train = dataset_loader.load_dataset()
             # Preprocessing
-            for j, img in enumerate(x_train):
-                x_train[j] = cv2.resize(img, (224, 224))
+            for j, _ in enumerate(x_train):
+                x_train[j] = cv2.resize(x_train[j], (224, 224))
             x_train = x_train.astype('float32')
             x_train = preprocess_input(x_train)
 
@@ -81,8 +81,8 @@ def evaluate_model(model, dataset_loader: DatasetLoader, score):
     while redo:
         redo, x_test, y_test = dataset_loader.load_dataset()
         # Preprocessing
-        for j, img in enumerate(x_test):
-            x_test[j] = cv2.resize(img, (224, 224))
+        for j, _ in enumerate(x_test):
+            x_test[j] = cv2.resize(x_test[j], (224, 224))
             x_test = x_test.astype('float32')
             x_test = preprocess_input(x_test)
 
