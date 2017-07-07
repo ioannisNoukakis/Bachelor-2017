@@ -1,5 +1,5 @@
 from keras import applications
-from keras.layers import GlobalAveragePooling2D, Dense, Convolution2D, Flatten
+from keras.layers import *
 from keras.models import Sequential
 
 from logger import info
