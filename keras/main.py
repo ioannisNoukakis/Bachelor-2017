@@ -8,6 +8,7 @@ from PIL import Image
 from VGG16_ft import VGG16FineTuned
 from heatmapgenerate import heatmap_generate
 from plant_village_custom_model import *
+import random
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
@@ -55,9 +56,14 @@ def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
 
 def main():
     np.random.seed(123)  # for reproducibility
+    random.seed(123)
 
     argv = sys.argv
     if argv[1] == "0":
+        dl = DatasetLoader(argv[2], 10000)
+        print("SEED IS", 123)
+        print(dl.imgDataArray[dl.number_of_imgs_for_train].name)
+        print(dl.imgDataArray[dl.number_of_imgs_for_train+1].name)
         vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     if argv[1] == "1":

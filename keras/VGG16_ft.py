@@ -1,9 +1,10 @@
-from keras import applications
+from keras import applications, optimizers
 from keras.layers import *
 from keras.models import Sequential
 
 from logger import info
 from plant_village_custom_model import train_model, DatasetLoader
+from keras.models import load_model
 
 
 class VGG16FineTuned:
@@ -40,7 +41,8 @@ class VGG16FineTuned:
             self.model.add(Dense(2048, activation='relu', name='fc2'))
             self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
 
-        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        sgd = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9)
+        self.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
         self.model.summary()
 
     def train(self, nb_epochs, weights_in=None, weights_out=None, callbacks=None):
@@ -56,8 +58,8 @@ class VGG16FineTuned:
         if weights_in is None:
             self.model, score = train_model(self.model, self.img_u, nb_epochs, callbacks)
             info("[VGG16_FT]", score)
-        else:
-            self.model.load_weights(weights_in, by_name=True)
 
-        if weights_out is not None and weights_in is None:
-            self.model.save_weights(weights_out)
+        if weights_out is not None:
+            self.model.save(weights_out)
+
+        info("[VGG16_FT]", "Training completed!")

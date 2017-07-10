@@ -8,29 +8,6 @@ import numpy as np
 from logger import info
 
 
-def batch_generator(dataset_loader: DatasetLoader):
-    while True:
-        _, x_train, y_train = dataset_loader.load_dataset()
-        # Preprocessing
-        x_train = x_train.astype('float32')
-        x_train = preprocess_input(x_train)
-
-        y_train = np_utils.to_categorical(y_train, dataset_loader.nb_classes)
-        for i, _ in enumerate(x_train):            
-            yield np.expand_dims(x_train[i], axis=0), y_train[i]
-
-
-def train_model_generator(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
-    score = []
-    model.fit_generator(generator=batch_generator(dataset_loader),
-                        nb_epoch=n_epochs,
-                        samples_per_epoch=math.floor(dataset_loader.number_of_imgs/dataset_loader.max_img_loaded)+1,
-                        callbacks=callbacks,
-                        verbose=0)
-    score = evaluate_model(model, dataset_loader, score)
-    return model, score
-
-
 def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
     """
     Trains a model. At the end of each epochs evaluates it.
@@ -47,8 +24,6 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
         while True:
             redo, x_train, y_train = dataset_loader.load_dataset()
             # Preprocessing
-            for j, _ in enumerate(x_train):
-                x_train[j] = cv2.resize(x_train[j], (224, 224))
             x_train = x_train.astype('float32')
             x_train = preprocess_input(x_train)
 
@@ -56,7 +31,7 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
 
             # Fit model on training data
             if callbacks:
-                model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1, callbacks=callbacks)
+                model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1, callbacks=callbacks, show_accuracy=True)
             else:
                 model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
 
@@ -81,10 +56,8 @@ def evaluate_model(model, dataset_loader: DatasetLoader, score):
     while redo:
         redo, x_test, y_test = dataset_loader.load_dataset()
         # Preprocessing
-        for j, _ in enumerate(x_test):
-            x_test[j] = cv2.resize(x_test[j], (224, 224))
-            x_test = x_test.astype('float32')
-            x_test = preprocess_input(x_test)
+        x_test = x_test.astype('float32')
+        x_test = preprocess_input(x_test)
 
         y_test_2 = np_utils.to_categorical(y_test, dataset_loader.nb_classes)
         # Evaluate model on test data

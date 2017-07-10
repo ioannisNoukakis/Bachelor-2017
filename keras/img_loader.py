@@ -48,6 +48,7 @@ class DatasetLoader:
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
         self.no_training_data = no_training_data
+        self.directories = []
 
         self.imgDataArray = []  # Array containing the path to the images to be loaded.
         self.number_of_imgs = 0
@@ -66,6 +67,7 @@ class DatasetLoader:
             for file_name in next(os.walk(self.baseDirectory + "/" + directory))[2]:
                 self.imgDataArray.append(ImagePath(file_name, directory, i))
                 self.number_of_imgs += 1
+            self.directories.append((directory, i))
             i += 1
 
         info("DATASET LOADER]", "")
