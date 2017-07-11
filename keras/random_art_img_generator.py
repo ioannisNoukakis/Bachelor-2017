@@ -113,7 +113,7 @@ class VariableX:
 
     def __repr__(self): return "x"
 
-    def eval(self, x): return x, x, x
+    def eval(self, x, y): return x, x, x
 
 
 class VariableY():
@@ -123,7 +123,7 @@ class VariableY():
 
     def __repr__(self): return "y"
 
-    def eval(self, y): return y, y, y
+    def eval(self, x, y): return y, y, y
 
 
 class Constant:
@@ -135,7 +135,7 @@ class Constant:
     def __repr__(self):
         return 'Constant(%g,%g,%g)' % self.c
 
-    def eval(self): return self.c
+    def eval(self, x, y): return self.c
 
 
 class Sum:
@@ -346,7 +346,7 @@ class Art:
 def main():
     # Main program
 
-    Art("test1.jpg").redraw()
+    Art().redraw().show()
 
 if __name__ == "__main__":
     main()

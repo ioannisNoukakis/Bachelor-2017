@@ -18,7 +18,7 @@ sudo apt-get -qq install libopencv-dev build-essential checkinstall cmake pkg-co
 sudo apt-get install python3.5-dev -y
 sudo apt-get clean
 # download opencv-2.4.11
-
+#!/usr/bin/env bash
 git clone https://github.com/Itseez/opencv.git
 cd opencv
 git checkout 3.0.0
