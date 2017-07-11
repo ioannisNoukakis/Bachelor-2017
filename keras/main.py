@@ -4,6 +4,7 @@ import sys
 
 import tensorflow as tf
 from PIL import Image
+from keras.models import load_model
 
 from VGG16_ft import VGG16FineTuned
 from heatmapgenerate import heatmap_generate
@@ -68,8 +69,7 @@ def main():
         vggft.train(int(argv[5]), weights_out=argv[3])
     if argv[1] == "1":
         dl = DatasetLoader(argv[2], 10000)
-        vggft = VGG16FineTuned(dataset_loader=dl, mode=argv[4])
-        vggft.train(int(argv[5]), weights_in=argv[3])
+        model = load_model(argv[3])
 
         # plot CAMs only for the validation data:
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
@@ -82,21 +82,21 @@ def main():
                 except OSError:
                     pass
 
-                input_img = Image.open(
-                    dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name)
+                predict_input = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                                           dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+                predict_input = predict_input.astype('float32')
+                predict_input = np.expand_dims(predict_input, axis=1)
+                predictions = vggft.model.predict_classes(predict_input)
                 heatmap = heatmap_generate(
                     graph_context=tf.get_default_graph(),
-                    input_img=input_img,
+                    input_img=Image.fromarray(predict_input),
                     model=vggft.model,
                     class_to_predict=j,
                     layer_name='CAM')
                 heatmap.save(outname)
-            predict_input = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                       dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-            predict_input = np.expand_dims(predict_input, axis=1)
-            results = vggft.model.predict(predict_input) # FIXME Normalize me
+
             with open(outpath + '/resuts.json', 'w') as outfile:
-                json.dump({'predicted': 'nan', "true_label": dl.imgDataArray[i].img_class}, outfile)
+                json.dump({'predicted': predictions, "true_label": dl.imgDataArray[i].img_class}, outfile)
 
 
 if __name__ == "__main__":

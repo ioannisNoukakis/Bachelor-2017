@@ -61,6 +61,7 @@ class DatasetLoader:
 
         info("DATASET LOADER]", "Discovering dataset...")
         directories = next(os.walk(self.baseDirectory))[1]
+        directories = sorted(directories)
 
         i = 0
         for directory in directories:
