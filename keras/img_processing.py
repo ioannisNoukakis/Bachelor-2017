@@ -108,16 +108,16 @@ def merge_images_mask(image, mask):
     return img1, img2
 
 
-# TODO: Test this function correctly
+"""# TODO: Test this function correctly
 def pixels_counter(image: Image, bound_upper, bound_lower):
-    """
+    
     gives a ratio of number of pixels in bounds / total pixels
 
     :param image: the image
     :param bound_upper: the upper bound
     :param bound_lower: the lower bound
     :return: the score
-    """
+    
     (r1, g1, b1) = bound_upper
     (r2, g2, b2) = bound_lower
 
@@ -131,7 +131,41 @@ def pixels_counter(image: Image, bound_upper, bound_lower):
             n_pixels += 1
     if n_pixels == 0:
         return 0
-    return score/n_pixels
+    return score/n_pixels"""
+
+
+def v_from_hsv_extractor(r, g, b):
+    r /= 255.
+    g /= 255.
+    b /= 255.
+
+    return max([r, g, b])
+
+
+def pixels_counter(image: Image):
+    """
+    Returns the error rate in the image. The error is the how much of red doesnt cover the picture.
+    :param image:
+    :return:
+    """
+    score_r = 0
+    score_g = 0
+    n = 0
+    for item in image.getdata():
+        # RED
+        v1 = v_from_hsv_extractor(item[0], 0, 0)
+        v2 = v_from_hsv_extractor(0, item[1], 0)
+        if v1 > 0.:
+            score_r += 2 * v1
+        elif v2 > 0.:
+            score_g += 1 * v2
+        # Blue gives always 0
+
+        if item[3] != 0:
+            n += 2
+    if n == 0.:
+        return 0.
+    return (n - score_r - score_g) / n
 
 
 def main():
