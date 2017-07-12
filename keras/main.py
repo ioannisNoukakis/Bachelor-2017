@@ -68,10 +68,10 @@ def main():
         dl = DatasetLoader(argv[2], 10000)
         print("SEED IS", 123)
         print(dl.imgDataArray[dl.number_of_imgs_for_train].name)
-        print(dl.imgDataArray[dl.number_of_imgs_for_train+1].name)
+        print(dl.imgDataArray[dl.number_of_imgs_for_train + 1].name)
         vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
-    if argv[1] == "1":
+    if argv[1] == "1":  # FIXME -> multithreading.
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
 
@@ -87,7 +87,7 @@ def main():
                     pass
 
                 img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                           dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+                                 dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
                 predict_input = np.expand_dims(img, axis=0)
                 predict_input = predict_input.astype('float32')
                 predict_input = preprocess_input(predict_input)
@@ -102,17 +102,35 @@ def main():
 
                 with open(outpath + '/resuts.json', 'w') as outfile:
                     json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-
-    if argv[1] == "2":
-        dataset_convertor('dataset', 'dataset_rand', 'dataset_art')
-    if argv[1] == '3':
+    if argv[1] == '2':  # FIXME -> multithreading.
         dl = DatasetLoader(argv[3], 10000)
         model = load_model(argv[2])
 
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
             outpath = argv[3] + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
-            outname = outpath + "/" + str(dl.imgDataArray[i].img_class) + ".png"
+            heatmap_path = outpath + "/" + str(dl.imgDataArray[i].img_class) + ".png"
 
-            compute_metric(model, dl, i, dl.imgDataArray[i].img_class, 'CAM')
+            p_file = Path(heatmap_path)
+            if not p_file.exists():  # if segmented does not exists continue...
+                print("[ERROR][BIAS METRIC] -> does not exists:", p)
+                continue
+            heatmap = Image.open(heatmap_path)
+
+            tmp = heatmap_path[:-4]
+            tmp = tmp[len(argv[3]):]
+            tmp = "./dataset_black_bg" + tmp + "_final_masked.jpg"
+            print(tmp)
+
+            tmp_file = Path(tmp)
+            if not tmp_file.exists():  # if segmented does not exists continue...
+                print("[ERROR][BIAS METRIC] -> does not exists:", tmp)
+                continue
+            mask = Image.open(tmp)
+
+            compute_metric(heatmap, mask)
+    if argv[1] == "2":
+        dataset_convertor('dataset', 'dataset_rand', 'dataset_art')
+
+
 if __name__ == "__main__":
     main()
