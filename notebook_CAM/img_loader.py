@@ -60,6 +60,7 @@ class DatasetLoader:
 
         print("DATASET LOADER]", "Discovering dataset...")
         directories = next(os.walk(self.baseDirectory))[1]
+        directories = sorted(directories)
 
         i = 0
         for directory in directories:
@@ -180,4 +181,3 @@ class DatasetLoader:
         print("DATASET LOADER]", "Loading completed!")
 
         return redo, np.asarray(data_x), np.asarray(data_y)
-
