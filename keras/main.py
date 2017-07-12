@@ -77,12 +77,12 @@ def main():
 
         # plot CAMs only for the validation data:
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-            outpath = "maps2/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+            outpath = argv[3] + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
             for j in range(0, dl.nb_classes):
                 outname = outpath + "/" + str(j) + ".png"
 
                 try:
-                    os.makedirs("maps2/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name)
+                    os.makedirs(argv[3] + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name)
                 except OSError:
                     pass
 
