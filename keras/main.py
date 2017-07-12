@@ -116,3 +116,4 @@ def main():
             compute_metric(model, dl, i, dl.imgDataArray[i].img_class, 'CAM')
 if __name__ == "__main__":
     main()
+
