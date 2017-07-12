@@ -106,11 +106,11 @@ def main():
     if argv[1] == "2":
         dataset_convertor('dataset', 'dataset_rand', 'dataset_art')
     if argv[1] == '3':
-        dl = DatasetLoader("maps/", 10000)
+        dl = DatasetLoader(argv[3], 10000)
         model = load_model(argv[2])
 
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-            outpath = "maps/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+            outpath = argv[3] + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
             outname = outpath + "/" + str(dl.imgDataArray[i].img_class) + ".png"
 
             compute_metric(model, dl, i, dl.imgDataArray[i].img_class, 'CAM')
