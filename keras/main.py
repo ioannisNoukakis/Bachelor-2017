@@ -102,7 +102,7 @@ def main():
 
                 with open(outpath + '/resuts.json', 'w') as outfile:
                     json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-                print(i, "/", dl.number_of_imgs)
+            print(i, "/", dl.number_of_imgs)
     if argv[1] == '2':  # FIXME -> multithreading.
         dl = DatasetLoader(argv[3], 10000)
         model = load_model(argv[2])
