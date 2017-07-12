@@ -6,10 +6,11 @@ import scipy.misc
 from model_utils import reduce_opacity, get_outputs_generator
 
 
-def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=None):
+def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=None, tmp_name = 'tmp.png'):
     """
     Generate a heatmap for the bias metrics.
 
+    :param tmp_name:
     :param class_to_predict: The class for the heatmap to be generated
     :param graph_context: the tensorflow context.
     :param input_img: the image to generate heatmap.
@@ -32,8 +33,8 @@ def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=
         heatmap.paste(deprocessed, (0, 0), deprocessed)
     # heatmap = image.img_to_array(ImageOps.invert(heatmap.convert("RGB")).convert("RGBA"))
     # ImageOps.invert(heatmap.convert("RGB")).convert("RGBA").save("TMP.png", "PNG")
-    heatmap.save("TMP.png", "PNG")
-    heatmap = cv2.imread("TMP.png", cv2.CV_8UC3)  # FIXME: remove tmp file
+    heatmap.save(tmp_name, "PNG")
+    heatmap = cv2.imread(tmp_name, cv2.CV_8UC3)  # FIXME: remove tmp file
 
     heatmap_colored = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
 
