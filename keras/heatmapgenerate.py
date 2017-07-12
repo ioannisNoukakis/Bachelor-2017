@@ -5,6 +5,7 @@ import scipy.misc
 
 from model_utils import reduce_opacity, get_outputs_generator
 
+
 def heatmap_generate(graph_context, input_img, model, class_to_predict, layer_name, image_name=None):
     """
     Generate a heatmap for the bias metrics.
@@ -25,7 +26,7 @@ def heatmap_generate(graph_context, input_img, model, class_to_predict, layer_na
             # Normalize input on weights
             w = MinMaxScaler((0.0, 1.0)).fit_transform(model.get_layer("W").get_weights()[0])
 
-            for z in range(0, layer_outputs.shape[2]): # Iterate through the number of kernels
+            for z in range(0, layer_outputs.shape[2]):  # Iterate through the number of kernels
                 img = layer_outputs[:, :, z]
 
                 deprocessed = scipy.misc.toimage(cv2.resize(img, (224, 224))).convert("RGBA")
@@ -49,7 +50,8 @@ def heatmap_generate(graph_context, input_img, model, class_to_predict, layer_na
             heatmap_colored[np.where(heatmap <= 0.2)] = 0
 
             if image_name is not None:
-                heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
+                heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
+                                              (0, 0, 0),
                                               2)
             return Image.fromarray(cv2.resize(heatmap_colored, (224, 224)))
     except AssertionError:

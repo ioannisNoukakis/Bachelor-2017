@@ -168,3 +168,57 @@ class MonoMetricCallBack(keras.callbacks.Callback):
                 self.i += 1
             self.j += 1
             gc.collect()
+
+def compute_metric(current_loader, j, k, bias_metric, training_img, model):
+    print("[BIAS METRIC][Memory]", get_mem_usage())
+    print("[BIAS METRIC]", "Starting image", k)
+    start_time = time.time()
+    k += 1
+
+    p = current_loader.get(j)
+    p_file = Path(p)
+    if not p_file.exists():  # if segmented does not exists continue...
+        error("[ERROR][BIAS METRIC] -> does not exists:", p)
+        j += 1
+        return
+    training_img = Image.open(p)
+
+    tmp = p[:-4]
+    tmp = tmp[len(current_loader.baseDirectory):]
+    tmp = "./segmentedDB" + tmp + "_final_masked.jpg"
+    print(tmp)
+
+    tmp_file = Path(tmp)
+    if not tmp_file.exists():  # if segmented does not exists continue...
+        error("[ERROR][BIAS METRIC] -> does not exists:", tmp)
+        j += 1
+        return
+    mask = Image.open(tmp)
+
+    cam_a = heatmap_generate.heatmap_generate(bias_metric.graph_context,
+                                           training_img,
+                                           model,
+                                           'block5_conv3')
+
+    if cam_a is None:
+        print("[ERROR][BIAS METRIC] -> could not read this image:", tmp)
+        j += 1
+        return
+
+    print("got cams in", time.time() - start_time)
+    start_time = time.time()
+
+    # apply the segmented db mask
+    mask = mask.resize((224, 224), PIL.Image.ANTIALIAS)
+    cam_a_p, cam_a_e = img_processing.merge_images_mask(cam_a, mask)
+
+    print("mask applied in", time.time() - start_time)
+    start_time = time.time()
+
+    # get the red pixels ratio
+    l1 = img_processing.pixels_counter(cam_a_p, (255, 0, 0), (183, 253, 52))
+    e1 = img_processing.pixels_counter(cam_a_e, (255, 0, 0), (183, 253, 52))
+
+    print("pixels computed in ", time.time() - start_time)
+
+    save_to_csv(l1, e1)

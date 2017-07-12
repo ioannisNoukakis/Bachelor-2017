@@ -8,8 +8,11 @@ from keras.models import load_model
 
 from VGG16_ft import VGG16FineTuned
 from heatmapgenerate import heatmap_generate
+from img_processing import dataset_convertor
 from plant_village_custom_model import *
 import random
+from numpy import argmax
+from keras.applications.imagenet_utils import preprocess_input
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
@@ -82,21 +85,26 @@ def main():
                 except OSError:
                     pass
 
-                predict_input = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
                                            dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+                predict_input = np.expand_dims(img, axis=0)
                 predict_input = predict_input.astype('float32')
-                predict_input = np.expand_dims(predict_input, axis=1)
-                predictions = vggft.model.predict_classes(predict_input)
+                predict_input = preprocess_input(predict_input)
+                predictions = model.predict(predict_input)
+                value = argmax(predictions)
                 heatmap = heatmap_generate(
                     graph_context=tf.get_default_graph(),
-                    input_img=Image.fromarray(predict_input),
-                    model=vggft.model,
+                    input_img=Image.fromarray(img),
+                    model=model,
                     class_to_predict=j,
                     layer_name='CAM')
                 heatmap.save(outname)
 
-            with open(outpath + '/resuts.json', 'w') as outfile:
-                json.dump({'predicted': predictions, "true_label": dl.imgDataArray[i].img_class}, outfile)
+                with open(outpath + '/resuts.json', 'w') as outfile:
+                    json.dump({'predicted': value, "true_label": dl.imgDataArray[i].img_class}, outfile)
+
+    if argv[1] == "2":
+        dataset_convertor('dataset', 'dataset_rand', 'dataset_art')
 
 
 if __name__ == "__main__":
