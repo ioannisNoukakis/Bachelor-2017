@@ -70,7 +70,6 @@ def reduce_opacity(im, opacity):
     Returns an image with reduced opacity.
     Taken from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/362879
     """
-    assert 0 <= opacity <= 1
     if im.mode != 'RGBA':
         im = im.convert('RGBA')
     else:

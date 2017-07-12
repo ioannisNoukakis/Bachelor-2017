@@ -7,12 +7,12 @@ from pathlib import Path
 from threading import Thread
 
 import PIL
-import img_processing.img_processing
+import img_processing
 import keras
 import psutil as psutil
 from PIL import Image
 
-import heatmap_generate
+from heatmapgenerate import heatmap_generate
 from img_loader import DatasetLoader
 from logger import info, error
 
@@ -133,11 +133,11 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 
                 # get the cams from both the models
 
-                async_result1 = self.pool.apply_async(heatmap_generate.heatmap_generate,
+                async_result1 = self.pool.apply_async(heatmap_generate,
                                                       (self.bias_metric.graph_context,
-                                                  training_img,
-                                                  self.model,
-                                                  'block5_conv3'))
+                                                       training_img,
+                                                       self.model,
+                                                       'block5_conv3'))
 
                 cam_a = async_result1.get()
 
@@ -169,17 +169,15 @@ class MonoMetricCallBack(keras.callbacks.Callback):
             self.j += 1
             gc.collect()
 
-def compute_metric(current_loader, j, k, bias_metric, training_img, model):
+
+def compute_metric(model, current_loader, j, class_to_predict, layer_name):
     print("[BIAS METRIC][Memory]", get_mem_usage())
-    print("[BIAS METRIC]", "Starting image", k)
     start_time = time.time()
-    k += 1
 
     p = current_loader.get(j)
     p_file = Path(p)
     if not p_file.exists():  # if segmented does not exists continue...
         error("[ERROR][BIAS METRIC] -> does not exists:", p)
-        j += 1
         return
     training_img = Image.open(p)
 
@@ -191,19 +189,11 @@ def compute_metric(current_loader, j, k, bias_metric, training_img, model):
     tmp_file = Path(tmp)
     if not tmp_file.exists():  # if segmented does not exists continue...
         error("[ERROR][BIAS METRIC] -> does not exists:", tmp)
-        j += 1
         return
     mask = Image.open(tmp)
 
-    cam_a = heatmap_generate.heatmap_generate(bias_metric.graph_context,
-                                           training_img,
-                                           model,
-                                           'block5_conv3')
-
-    if cam_a is None:
-        print("[ERROR][BIAS METRIC] -> could not read this image:", tmp)
-        j += 1
-        return
+    # heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=None):
+    cam_a = heatmap_generate(training_img, model, class_to_predict, layer_name)
 
     print("got cams in", time.time() - start_time)
     start_time = time.time()
