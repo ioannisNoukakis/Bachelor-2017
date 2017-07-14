@@ -11,7 +11,8 @@ import keras
 import psutil as psutil
 from PIL import Image
 
-from heatmapgenerate import heatmap_generate
+import pyximport; pyximport.install()
+from heatmapgenerate import *
 from img_loader import DatasetLoader
 from img_processing import pixels_counter_RGB, merge_images_mask
 from logger import info, error

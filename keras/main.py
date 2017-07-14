@@ -10,7 +10,6 @@ from keras.models import load_model
 
 from VGG16_ft import VGG16FineTuned
 from bias_metric import compute_metric
-from heatmapgenerate import heatmap_generate
 from img_processing import dataset_convertor
 from plant_village_custom_model import *
 import random
@@ -18,6 +17,9 @@ from numpy import argmax
 from keras.applications.imagenet_utils import preprocess_input
 import uuid
 import time
+import pyximport; pyximport.install()
+from heatmapgenerate import *
+
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
