@@ -78,13 +78,12 @@ class MapWorker(Thread):
             # plot CAMs only for the validation data:
             for i in range(self.begining_index, self.end_index):
                 outpath = self.map_out + "/" + self.dl.imgDataArray[i].directory + "/" + self.dl.imgDataArray[i].name
+                try:
+                    os.makedirs(outpath)
+                except OSError:
+                    continue
                 for j in range(0, self.dl.nb_classes):
                     outname = outpath + "/" + str(j) + ".png"
-
-                    try:
-                        os.makedirs(self.map_out + "/" + self.dl.imgDataArray[i].directory + "/" + self.dl.imgDataArray[i].name)
-                    except OSError:
-                        pass
 
                     img = cv2.imread(self.dl.baseDirectory + "/" + self.dl.imgDataArray[i].directory + "/" +
                                      self.dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
@@ -93,6 +92,7 @@ class MapWorker(Thread):
                     predict_input = preprocess_input(predict_input)
                     predictions = self.model.predict(predict_input)
                     value = argmax(predictions)
+                    start_time = time.time()
                     heatmap = heatmap_generate(
                         input_img=predict_input[0],
                         model=self.model,
@@ -100,7 +100,7 @@ class MapWorker(Thread):
                         layer_name='CAM',
                         tmp_name=tmp_name)
                     heatmap.save(outname)
-
+                    print("got cams in", time.time() - start_time)
                     with open(outpath + '/resuts.json', 'w') as outfile:
                         json.dump({'predicted': str(value), "true_label": str(self.dl.imgDataArray[i].img_class)}, outfile)
 
@@ -118,7 +118,7 @@ def main():
         vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
-    if argv[1] == "1":
+    if argv[1] == "1": # FIXME Cythonize
         numberOfCors = int(argv[2])
         dl = DatasetLoader(argv[3], 10000)
         model = load_model(argv[4])
@@ -146,7 +146,7 @@ def main():
         for t in threads:
             t.join()
 
-    if argv[1] == '2':  # FIXME -> multithreading.
+    if argv[1] == '2':
         dl = DatasetLoader(argv[3], 10000)
         model = load_model(argv[2])
 
@@ -172,7 +172,7 @@ def main():
             mask = Image.open(tmp)
 
             compute_metric(heatmap, mask)
-    if argv[1] == "2":
+    if argv[1] == "3":
         dataset_convertor('dataset', 'dataset_rand', 'dataset_art')
 
 

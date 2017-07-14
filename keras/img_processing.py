@@ -142,7 +142,20 @@ def v_from_hsv_extractor(r, g, b):
     return max([r, g, b])
 
 
-def pixels_counter(image: Image):
+def pixels_attention_score(image: Image):
+    """
+    Returns a score of intensity / total.
+    Intensity is computed by turning an image in RGB colorspace into a monocrhome monospace by (R+G+B)/3
+    Then we get the original class activation mapping. So then all we have to do is taking the pixel's value /255
+    and compute a score :D
+    :param image:
+    :return:
+    """
+    pass
+
+
+# This was a wrong good idea.
+def pixels_counter_RGB(image: Image):
     """
     Returns the error rate in the image. The error is the how much of red doesnt cover the picture.
     :param image:
@@ -169,11 +182,15 @@ def pixels_counter(image: Image):
 
 
 def main():
-
     im1, im2 = merge_images_mask(
         Image.open('./dataset/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510.JPG'),
-        Image.open('./segmentedDB/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510_final_masked.jpg')
+        Image.open(
+            './dataset_black_bg/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510_final_masked.jpg')
     )
+
+    im1.show()
+    im2.show()
+
 
 if __name__ == "__main__":
     main()

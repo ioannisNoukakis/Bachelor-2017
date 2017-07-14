@@ -177,7 +177,7 @@ def compute_metric(cam, mask):
 
     # get the red pixels ratio
     # FIXME do a scale and attribute scores
-    l1 = img_processing.pixels_counter(cam_a_p, (255, 0, 0), (183, 253, 52))
-    e1 = img_processing.pixels_counter(cam_a_e, (255, 0, 0), (183, 253, 52))
+    l1 = img_processing.pixels_counter(cam_a_p)
+    e1 = img_processing.pixels_counter(cam_a_e)
 
     save_to_csv(l1, e1)
