@@ -1,1 +1,5 @@
 *.h5
+keras/dataset_art/*
+keras/dataset_rand/*
+keras/maps_normal/*
+keras/tmp/*
