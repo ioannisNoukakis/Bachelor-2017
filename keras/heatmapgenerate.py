@@ -33,8 +33,8 @@ def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=
         heatmap.paste(deprocessed, (0, 0), deprocessed)
     # heatmap = image.img_to_array(ImageOps.invert(heatmap.convert("RGB")).convert("RGBA"))
     # ImageOps.invert(heatmap.convert("RGB")).convert("RGBA").save("TMP.png", "PNG")
-    heatmap.save(tmp_name, "PNG")
-    heatmap = cv2.imread(tmp_name, cv2.CV_8UC3)  # FIXME: remove tmp file
+    heatmap.save('tmp/' + tmp_name, "PNG")
+    heatmap = cv2.imread('tmp/' + tmp_name, cv2.CV_8UC3)  # FIXME: remove tmp file
 
     heatmap_colored = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
 

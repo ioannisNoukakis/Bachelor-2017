@@ -7,13 +7,13 @@ from pathlib import Path
 from threading import Thread
 
 import PIL
-import img_processing
 import keras
 import psutil as psutil
 from PIL import Image
 
 from heatmapgenerate import heatmap_generate
 from img_loader import DatasetLoader
+from img_processing import pixels_counter_RGB, merge_images_mask
 from logger import info, error
 
 
@@ -151,14 +151,14 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 
                 # apply the segmented db mask
                 mask = mask.resize((224, 224), PIL.Image.ANTIALIAS)
-                cam_a_p, cam_a_e = img_processing.img_processing.merge_images_mask(cam_a, mask)
+                cam_a_p, cam_a_e = merge_images_mask(cam_a, mask)
 
                 print("mask applied in", time.time() - start_time)
                 start_time = time.time()
 
                 # get the red pixels ratio
-                l1 = img_processing.img_processing.pixels_counter(cam_a_p, (255, 0, 0), (183, 253, 52))
-                e1 = img_processing.img_processing.pixels_counter(cam_a_e, (255, 0, 0), (183, 253, 52))
+                l1 = pixels_counter_RGB(cam_a_p, (255, 0, 0), (183, 253, 52))
+                e1 = pixels_counter_RGB(cam_a_e, (255, 0, 0), (183, 253, 52))
 
                 print("pixels computed in ", time.time() - start_time)
 
@@ -173,11 +173,11 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 def compute_metric(cam, mask):
     # apply the segmented db mask
     mask = mask.resize((224, 224), PIL.Image.ANTIALIAS)
-    cam_a_p, cam_a_e = img_processing.merge_images_mask(cam, mask)
+    cam_a_p, cam_a_e = merge_images_mask(cam, mask)
 
     # get the red pixels ratio
     # FIXME do a scale and attribute scores
-    l1 = img_processing.pixels_counter(cam_a_p)
-    e1 = img_processing.pixels_counter(cam_a_e)
+    l1 = pixels_counter_RGB(cam_a_p)
+    e1 = pixels_counter_RGB(cam_a_e)
 
     save_to_csv(l1, e1)
