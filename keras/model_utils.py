@@ -8,7 +8,7 @@ import numpy as np
 from logger import info
 
 
-def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
+def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks=None, batch_size=10):
     """
     Trains a model. At the end of each epochs evaluates it.
     :param model: The model to be trained
@@ -31,9 +31,9 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks):
 
             # Fit model on training data
             if callbacks:
-                model.fit(x_train, y_train, batch_size=10, epochs=1, verbose=1, callbacks=callbacks, show_accuracy=True)
+                model.fit(x_train, y_train, batch_size=batch_size, epochs=1, verbose=1, callbacks=callbacks, show_accuracy=True)
             else:
-                model.fit(x_train, y_train, batch_size=10, nb_epoch=1, verbose=1)
+                model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=1, verbose=1)
 
             if not redo:
                 break

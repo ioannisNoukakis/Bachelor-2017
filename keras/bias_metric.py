@@ -14,7 +14,7 @@ from PIL import Image
 import pyximport; pyximport.install()
 from heatmapgenerate import *
 from img_loader import DatasetLoader
-from img_processing import pixels_counter_RGB, merge_images_mask
+from img_processing import pixels_counter_RGB, merge_images_mask, pixels_attention_score
 from logger import info, error
 
 
@@ -134,7 +134,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 
                 # get the cams from both the models
 
-                async_result1 = self.pool.apply_async(heatmapgenerate.heatmap_generate,
+                async_result1 = self.pool.apply_async(heatmap_generate,
                                                       (self.bias_metric.graph_context,
                                                        training_img,
                                                        self.model,
@@ -158,8 +158,8 @@ class MonoMetricCallBack(keras.callbacks.Callback):
                 start_time = time.time()
 
                 # get the red pixels ratio
-                l1 = pixels_counter_RGB(cam_a_p, (255, 0, 0), (183, 253, 52))
-                e1 = pixels_counter_RGB(cam_a_e, (255, 0, 0), (183, 253, 52))
+                l1 = pixels_counter_RGB(cam_a_p)
+                e1 = pixels_counter_RGB(cam_a_e)
 
                 print("pixels computed in ", time.time() - start_time)
 
@@ -178,7 +178,7 @@ def compute_metric(cam, mask):
 
     # get the red pixels ratio
     # FIXME do a scale and attribute scores
-    l1 = pixels_counter_RGB(cam_a_p)
-    e1 = pixels_counter_RGB(cam_a_e)
+    l1 = pixels_attention_score(cam_a_p)
+    e1 = pixels_attention_score(cam_a_e)
 
     save_to_csv(l1, e1)

@@ -11,6 +11,7 @@ from keras.models import load_model
 from VGG16_ft import VGG16FineTuned
 from bias_metric import compute_metric
 from img_processing import dataset_convertor
+from mnist_model import create_n_run_mnist
 from plant_village_custom_model import *
 import random
 from numpy import argmax
@@ -87,14 +88,15 @@ def generate_maps(context, dl: DatasetLoader, model, map_out: str, begining_inde
                     predictions = model.predict(predict_input)
                     value = argmax(predictions)
                     start_time = time.time()
-                    heatmap = heatmap_generate(
+                    # input_img, model, class_to_predict, layer_name, image_name=None):
+                    heatmap = heatmap_generate_np_only(
                         input_img=predict_input[0],
                         model=model,
                         class_to_predict=j,
-                        layer_name='CAM',
-                        tmp_name=tmp_name)
-                    heatmap.save(outname)
-                    heatmap.close()
+                        layer_name='CAM')
+                    cv2.imwrite(outname, heatmap)
+                    # heatmap.save(outname)
+                    # heatmap.close()
                     print("got cams in", time.time() - start_time)
                     with open(outpath + '/resuts.json', 'w') as outfile:
                         json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
@@ -121,6 +123,28 @@ class MapWorker(Thread):
             generate_maps(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index, self.number)
 
 
+def heatmap_generate_np_only(input_img, model, class_to_predict, layer_name, image_name=None):
+    output_generator = get_outputs_generator(model, layer_name)
+    layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
+    heatmap = cv2.resize(layer_outputs[:, :, 0], (28, 28))
+    # Normalize input on weights
+    w = MinMaxScaler((0.0, 1.0)).fit_transform(model.get_layer("W").get_weights()[0])
+
+    for z in range(1, layer_outputs.shape[2]):  # Iterate through the number of kernels
+        img = layer_outputs[:, :, z]
+
+        deprocessed = cv2.resize(img, (28, 28))
+        heatmap += deprocessed * w[z][class_to_predict]
+    heatmap = MinMaxScaler((0.0, 255.0)).fit_transform(heatmap)
+
+    heatmap_colored = cv2.applyColorMap(np.uint8(heatmap), cv2.COLORMAP_JET)
+
+    if image_name is not None:
+        heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
+                                      2)
+    return heatmap_colored
+
+
 def main():
     np.random.seed(123)  # for reproducibility
     random.seed(123)
@@ -128,11 +152,9 @@ def main():
 
     argv = sys.argv
     if argv[1] == "0":
-        dl = DatasetLoader(argv[2], 10000)
+
         print("SEED IS", 123)
-        print(dl.imgDataArray[dl.number_of_imgs_for_train].name)
-        print(dl.imgDataArray[dl.number_of_imgs_for_train + 1].name)
-        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], 10000), mode=argv[4])
+        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6])), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
     if argv[1] == "1": # FIXME Cythonize
@@ -167,7 +189,8 @@ def main():
             for t in threads:
                 t.join()
         else:
-            generate_maps(dl=dl,
+            generate_maps(context=graph,
+                          dl=dl,
                           model=model,
                           map_out=argv[5],
                           begining_index=b_index,
@@ -209,7 +232,23 @@ def main():
             for _ in next(os.walk(argv[2] + "/" + directory))[1]:
                 i += 1
         print(i, "images processed.")
-
-
+    if argv[1] == "5":
+        dl = DatasetLoader(argv[2], 10000)
+        for i in range(0, dl.nb_classes):
+            j = 0
+            for f in dl.imgDataArray:
+                if f.img_class == i:
+                    j += 1
+            if argv[3] == "csv":
+                print(i, ",", j)
+            else:
+                print("Class", i, "has", j, "shamples")
+    if argv[1] == "6":
+        import subprocess # threads, dataset, model
+        bashCommand = "1" + argv[2] + argv[3] + argv[4] + "thread" + argv[5]
+    if argv[1] == "7":
+        create_n_run_mnist(DatasetLoader(argv[2], int(argv[3])), 10)
 if __name__ == "__main__":
     main()
+
+#1 4 mnist_png mnist.h5 thread mnist_maps_np

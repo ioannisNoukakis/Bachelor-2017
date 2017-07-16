@@ -1,3 +1,4 @@
+import keras
 from keras import applications, optimizers
 from keras.layers import *
 from keras.models import Sequential
@@ -13,7 +14,7 @@ class VGG16FineTuned:
     fully connected layer.
     """
 
-    def __init__(self, dataset_loader: DatasetLoader, mode: str):
+    def __init__(self, dataset_loader: DatasetLoader, mode: str, compile: str):
         """
         Create and compile the custom VGG16 model.
 
@@ -41,7 +42,7 @@ class VGG16FineTuned:
             self.model.add(Dense(2048, activation='relu', name='fc2'))
             self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
 
-        sgd = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9)
+        sgd = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
         self.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
         self.model.summary()
 

@@ -91,19 +91,18 @@ def merge_images_mask(image, mask):
     :param mask: the mask
     :return: the new images
     """
-    mask = mask.convert("RGBA")
-
+    mask = mask.resize((224, 224))
     mask1 = Image.new("RGBA", image.size)
     mask2 = Image.new("RGBA", image.size)
 
-    filter_img(mask, mask1, lambda x: x < 10)
+    filter_img(mask, mask1, lambda x: x < 5)
     filter_img(mask, mask2, lambda x: x != 0)
 
     img1 = Image.composite(image.convert("RGBA"), Image.new("RGBA", image.size), mask1)
     img2 = Image.composite(image.convert("RGBA"), Image.new("RGBA", image.size), mask2)
 
-    filter_img(img1, img1, lambda x: x < 10)
-    filter_img(img2, img2, lambda x: x < 10)
+    filter_img(img1, img1, lambda x: x < 5)
+    filter_img(img2, img2, lambda x: x < 5)
 
     return img1, img2
 
@@ -147,11 +146,18 @@ def pixels_attention_score(image: Image):
     Returns a score of intensity / total.
     Intensity is computed by turning an image in RGB colorspace into a monocrhome monospace by (R+G+B)/3
     Then we get the original class activation mapping. So then all we have to do is taking the pixel's value /255
-    and compute a score :D
+    and compute a score.
     :param image:
     :return:
     """
-    pass
+    image = image.convert('L')
+    score = 0
+    n = 0
+    for item in image.getdata():
+        if item != 0:
+            score += item
+            n += 255
+    return score / n
 
 
 # This was a wrong good idea.
