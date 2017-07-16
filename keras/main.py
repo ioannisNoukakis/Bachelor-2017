@@ -10,7 +10,6 @@ from keras.models import load_model
 
 from VGG16_ft import VGG16FineTuned
 from bias_metric import compute_metric
-from heatmapgenerate import heatmap_generate
 from img_processing import dataset_convertor
 from plant_village_custom_model import *
 import random
@@ -18,6 +17,9 @@ from numpy import argmax
 from keras.applications.imagenet_utils import preprocess_input
 import uuid
 import time
+import pyximport; pyximport.install()
+from heatmapgenerate import *
+import gc
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
@@ -72,7 +74,6 @@ def generate_maps(context, dl: DatasetLoader, model, map_out: str, begining_inde
             try:
                 os.makedirs(outpath)
             except OSError:
-                print("CAMS already done... skipping...")
                 continue
             for j in range(0, dl.nb_classes):
                 try:
@@ -93,11 +94,13 @@ def generate_maps(context, dl: DatasetLoader, model, map_out: str, begining_inde
                         layer_name='CAM',
                         tmp_name=tmp_name)
                     heatmap.save(outname)
+                    heatmap.close()
                     print("got cams in", time.time() - start_time)
                     with open(outpath + '/resuts.json', 'w') as outfile:
                         json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-                except:
-                    print("ERROR IN THREAD", number, "PASSING...")
+                except Exception as e:
+                    print("ERROR IN THREAD", number,"error is", e, "PASSING...")
+                gc.collect()
 
 
 class MapWorker(Thread):
@@ -121,6 +124,7 @@ class MapWorker(Thread):
 def main():
     np.random.seed(123)  # for reproducibility
     random.seed(123)
+    print("Keras bias v1.0")
 
     argv = sys.argv
     if argv[1] == "0":

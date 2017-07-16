@@ -11,7 +11,6 @@ import keras
 import psutil as psutil
 from PIL import Image
 
-from heatmapgenerate import heatmap_generate
 from img_loader import DatasetLoader
 from img_processing import pixels_counter_RGB, merge_images_mask
 from logger import info, error
@@ -133,7 +132,7 @@ class MonoMetricCallBack(keras.callbacks.Callback):
 
                 # get the cams from both the models
 
-                async_result1 = self.pool.apply_async(heatmap_generate,
+                async_result1 = self.pool.apply_async(heatmapgenerate.heatmap_generate,
                                                       (self.bias_metric.graph_context,
                                                        training_img,
                                                        self.model,
