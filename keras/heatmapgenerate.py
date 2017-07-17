@@ -35,7 +35,7 @@ def cam_generate_for_vgg16(input_img, model, class_to_predict, layer_name, image
         img = cv2.resize(layer_outputs[:, :, z], (224, 224))
         heatmap += img * w[z][class_to_predict]
 
-    heatmap = MinMaxScaler((0.0, 255.0)).fit_transform(heatmap)
+    heatmap = MinMaxScaler((0.0, 1.0)).fit_transform(heatmap)
 
     if color:
         heatmap_colored = cv2.applyColorMap(np.uint8(heatmap), cv2.COLORMAP_JET)
@@ -49,9 +49,10 @@ def cam_generate_for_vgg16(input_img, model, class_to_predict, layer_name, image
         return heatmap
 
 
-# wrong
+
+"""
 def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=None, tmp_name='tmp.png'):
-    """
+
     Generate a heatmap for the bias metrics.
 
     :param tmp_name:
@@ -62,7 +63,7 @@ def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=
     :param layer_name: The layer name that will be used to generate the heatmap.
     :param image_name: print a text on the image.
     :return:the heatmap or None if an error occured.
-    """
+
     output_generator = get_outputs_generator(model, layer_name)
     layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
     heatmap = Image.new("RGBA", (224, 224), color=0)
@@ -86,3 +87,4 @@ def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=
         heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
                                       2)
     return Image.fromarray(cv2.resize(heatmap_colored, (224, 224)))
+"""

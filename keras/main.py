@@ -37,7 +37,7 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, only_class=False):
         except OSError:
             continue
         for j in range(0, dl.nb_classes):
-            outname = outpath + "/" + str(j) + ".png"
+            outname = outpath + "/" + str(j) + ".tiff"
 
             img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
                              dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
@@ -58,7 +58,7 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, only_class=False):
                 model=model,
                 class_to_predict=to_predict,
                 layer_name='CAM')
-            cv2.imwrite(outname, heatmap)
+            Image.fromarray(heatmap).save(outname)
             print("got cams in", time.time() - start_time)
             with open(outpath + '/resuts.json', 'w') as outfile:
                 json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
