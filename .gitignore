@@ -4,3 +4,5 @@ keras/dataset_art/*
 keras/dataset_rand/*
 keras/maps_normal/*
 keras/tmp/*
+keras/mnist_maps/*
+keras/mnist_maps_np/*
