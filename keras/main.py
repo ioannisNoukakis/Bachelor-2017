@@ -111,7 +111,7 @@ class MapWorker(Thread):
     def run(self):
         with self.context.as_default():
             print("Thread", self.number, "started...")
-            generate_maps(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index,
+            generate_maps_threaded(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index,
                           self.number)
 
 
@@ -140,25 +140,22 @@ def main():
         print("inc is:", inc)
         print(numberOfCors, "workers will rise")
         threads = []
-        if argv[5] == "thread":
-            for i in range(0, numberOfCors):
-                t = MapWorker(context=graph,
-                              dl=dl,
-                              model=model,
-                              map_out=argv[6],
-                              begining_index=b_index,
-                              end_index=e_index,
-                              number=i)
-                t.start()
-                threads.append(t)
-                print(b_index, e_index)
-                b_index = e_index
-                e_index += inc
-                time.sleep(2)
-            for t in threads:
-                t.join()
-        else: # dl: DatasetLoader, model, map_out: str
-            generate_maps(dl, model, argv[6])
+        for i in range(0, numberOfCors):
+            t = MapWorker(context=graph,
+                          dl=dl,
+                          model=model,
+                          map_out=argv[6],
+                          begining_index=b_index,
+                          end_index=e_index,
+                          number=i)
+            t.start()
+            threads.append(t)
+            print(b_index, e_index)
+            b_index = e_index
+            e_index += inc
+            time.sleep(2)
+        for t in threads:
+            t.join()
 
     if argv[1] == '2':
         dl = DatasetLoader(argv[3], 10000)
