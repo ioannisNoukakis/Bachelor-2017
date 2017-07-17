@@ -174,6 +174,11 @@ class DatasetLoader:
 
             img = cv2.imread(self.baseDirectory + "/" + self.imgDataArray[self.i].get_directory() + "/" +
                              self.imgDataArray[self.i].get_name(), cv2.IMREAD_COLOR)
+            
+            # print("IMAGE SHAPE", img.shape)
+            img = cv2.resize(img, (260, 260))
+            img = img.astype('float32')
+            
             data_x.append(img)
             data_y.append(self.imgDataArray[self.i].get_img_class())
             j += 1
