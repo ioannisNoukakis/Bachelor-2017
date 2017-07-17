@@ -28,7 +28,7 @@ from heatmapgenerate import *
 # https://github.com/fchollet/keras/issues/4446
 
 
-def generate_maps(dl: DatasetLoader, model, map_out: str, only_class=False):
+def generate_maps(dl: DatasetLoader, model, map_out: str):
     # plot CAMs only for the validation data:
     for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
         outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
@@ -36,32 +36,28 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, only_class=False):
             os.makedirs(outpath)
         except OSError:
             continue
-        for j in range(0, dl.nb_classes):
-            outname = outpath + "/" + str(j) + ".tiff"
 
-            img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                             dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-            predict_input = np.expand_dims(img, axis=0)
-            predict_input = predict_input.astype('float32')
-            predict_input = preprocess_input(predict_input)
-            predictions = model.predict(predict_input)
-            value = argmax(predictions)
-            start_time = time.time()
-            if only_class:
-                to_predict = value
-            else:
-                to_predict = j
-            # input_img, model, class_to_predict, layer_name, image_name=None):
-            heatmap = cam_generate_for_vgg16(
-                # session=K.get_session(),
-                input_img=predict_input[0],
-                model=model,
-                class_to_predict=to_predict,
-                layer_name='CAM')
-            Image.fromarray(heatmap).save(outname)
-            print("got cams in", time.time() - start_time)
-            with open(outpath + '/resuts.json', 'w') as outfile:
-                json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
+        img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                         dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+        predict_input = np.expand_dims(img, axis=0)
+        predict_input = predict_input.astype('float32')
+        predict_input = preprocess_input(predict_input)
+        predictions = model.predict(predict_input)
+        value = argmax(predictions)
+        start_time = time.time()
+        outname = outpath + "/" + str(dl.imgDataArray[i].img_class) + ".tiff"
+
+        # input_img, model, class_to_predict, layer_name, image_name=None):
+        heatmap = cam_generate_for_vgg16(
+            # session=K.get_session(),
+            input_img=predict_input[0],
+            model=model,
+            class_to_predict=value,
+            layer_name='CAM')
+        Image.fromarray(heatmap).save(outname)
+        print("got cams in", time.time() - start_time)
+        with open(outpath + '/resuts.json', 'w') as outfile:
+            json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
 
 
 def generate_maps_threaded(context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int, number: int):
@@ -235,7 +231,7 @@ def main():
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
-        generate_maps(dl, model, argv[6], only_class=True)
+        generate_maps(dl, model, argv[4], only_class=True)
 
 
 if __name__ == "__main__":
