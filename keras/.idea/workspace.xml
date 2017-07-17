@@ -52,7 +52,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mnist_model.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mnist_model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mnist_model.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="269">
@@ -60,6 +60,16 @@
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="experiments_logs.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/experiments_logs.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="440">
+              <caret line="22" column="23" lean-forward="false" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -103,6 +113,7 @@
         <option value="$PROJECT_DIR$/VGG16_ft.py" />
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/mnist_model.py" />
+        <option value="$PROJECT_DIR$/experiments_logs.txt" />
       </list>
     </option>
   </component>
@@ -764,6 +775,14 @@
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments_logs.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="440">
+          <caret line="22" column="23" lean-forward="false" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
+          <folding />
         </state>
       </provider>
     </entry>
