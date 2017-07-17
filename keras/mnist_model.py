@@ -21,7 +21,8 @@ def create_n_run_mnist(dl: DatasetLoader, epochs=5):
     model.add(Conv2D(64, (3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
-    model.add(Convolution2D(512, 3, 3, activation='relu', border_mode="same", name="CAM"))
+
+    model.add(Convolution2D(64, 3, 3, activation='relu', border_mode="same", name="CAM"))
     model.add(GlobalAveragePooling2D(name="GAP"))
     model.add(Dense(dl.nb_classes, activation='softmax', name='W'))
 
