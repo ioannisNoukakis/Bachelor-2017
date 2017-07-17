@@ -89,14 +89,15 @@ def generate_maps(context, dl: DatasetLoader, model, map_out: str, begining_inde
                     value = argmax(predictions)
                     start_time = time.time()
                     # input_img, model, class_to_predict, layer_name, image_name=None):
-                    heatmap = heatmap_generate_np_only(
+                    heatmap = heatmap_generate(
                         input_img=predict_input[0],
                         model=model,
                         class_to_predict=j,
-                        layer_name='CAM')
-                    cv2.imwrite(outname, heatmap)
-                    # heatmap.save(outname)
-                    # heatmap.close()
+                        layer_name='CAM',
+                        tmp_name=tmp_name)
+                    # cv2.imwrite(outname, heatmap)
+                    heatmap.save(outname)
+                    heatmap.close()
                     print("got cams in", time.time() - start_time)
                     with open(outpath + '/resuts.json', 'w') as outfile:
                         json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)

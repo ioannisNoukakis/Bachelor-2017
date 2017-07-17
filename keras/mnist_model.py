@@ -16,12 +16,17 @@ def create_n_run_mnist(dl: DatasetLoader, epochs=5):
     model.add(Conv2D(64, (3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
+    model.add(Conv2D(32, kernel_size=(3, 3),
+                     activation='relu'))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
     model.add(Convolution2D(512, 3, 3, activation='relu', border_mode="same", name="CAM"))
     model.add(GlobalAveragePooling2D(name="GAP"))
     model.add(Dense(dl.nb_classes, activation='softmax', name='W'))
 
-    sgd = optimizers.SGD(lr=0.00001, decay=1e-6, momentum=0.9, nesterov=True)
+    sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0.9)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-    train_model(model, dl, epochs, batch_size=64)
+    print(train_model(model, dl, epochs, batch_size=128))
     model.save("mnist.h5")
