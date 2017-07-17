@@ -21,6 +21,8 @@ AND HERE IS THE ART TRAINING
 [VGG16_FT]
 
 STEP 2.5 VALIDATE CAMS!
+--> use caltech dataset
+--> see if attention draws in the correct position
 
 STEP tree with all 4 background and their combinaisons
 
