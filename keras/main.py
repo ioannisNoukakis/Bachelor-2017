@@ -231,7 +231,7 @@ def main():
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
-        generate_maps(dl, model, argv[4], only_class=True)
+        generate_maps(dl, model, argv[4])
 
 
 if __name__ == "__main__":
