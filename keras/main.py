@@ -71,7 +71,7 @@ def generate_maps_threaded(context, dl: DatasetLoader, model, map_out: str, begi
                 continue
             for j in range(0, dl.nb_classes):
                 try:
-                    outname = outpath + "/" + str(j) + ".png"
+                    outname = outpath + "/" + str(j) + ".tiff"
 
                     img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
                                      dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
@@ -87,7 +87,7 @@ def generate_maps_threaded(context, dl: DatasetLoader, model, map_out: str, begi
                         model=model,
                         class_to_predict=j,
                         layer_name='CAM')
-                    cv2.imwrite(outname, heatmap)
+                    Image.fromarray(heatmap).save(outname)
                     print("got cams in", time.time() - start_time)
                     with open(outpath + '/resuts.json', 'w') as outfile:
                         json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
@@ -229,6 +229,13 @@ def main():
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
         generate_maps(dl, model, argv[4])
+    if argv[1] == '10':
+        dl = DatasetLoader(argv[2], 10000)
+        for i in range(0, dl.number_of_imgs):
+            outpath = dl.baseDirectory + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name + ".jpg"
+            img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                             dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+            cv2.imwrite(outpath, img)
 
 
 if __name__ == "__main__":
