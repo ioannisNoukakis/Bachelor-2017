@@ -1,11 +1,6 @@
 import json
-import os
 import sys
-from concurrent.futures import ThreadPoolExecutor
 from threading import Thread
-
-import tensorflow as tf
-from PIL import Image
 from keras.models import load_model
 
 from VGG16_ft import VGG16FineTuned
@@ -16,11 +11,12 @@ from plant_village_custom_model import *
 import random
 from numpy import argmax
 from keras.applications.imagenet_utils import preprocess_input
-import uuid
 import time
-import pyximport; pyximport.install()
+import pyximport;
+
+pyximport.install()
 from heatmapgenerate import *
-import gc
+
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
@@ -31,44 +27,45 @@ import gc
 # http://lcn.epfl.ch/tutorial/english/perceptron/html/learning.html
 # https://github.com/fchollet/keras/issues/4446
 
-"""
-def create_cam(model, outname, viz_folder, layer_name):
 
-    heatmaps = []
-    for path in next(os.walk(viz_folder))[2]:
-        # Predict the corresponding class for use in `visualize_saliency`.
-        seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
+def generate_maps(dl: DatasetLoader, model, map_out: str, only_class=False):
+    # plot CAMs only for the validation data:
+    for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
+        outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+        try:
+            os.makedirs(outpath)
+        except OSError:
+            continue
+        for j in range(0, dl.nb_classes):
+            outname = outpath + "/" + str(j) + ".png"
 
-        # Here we are asking it to show attention such that prob of `pred_class` is maximized.
-        heatmap = img_processing.heatmap_generate.heatmap_generate(seed_img, model, layer_name, None, True)
-        heatmaps.append(heatmap)
-
-    cv2.imwrite(outname, utils.stitch_images(heatmaps))
-
-
-def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
-
-    info("[INFO][MAIN]", "Loading...")
-    dataset_loader = DatasetLoader(dataset_name, 10000)
-
-    info("[INFO][MAIN]", "Compiling model...")
-    vgg16 = VGG16FineTuned(dataset_loader)
-    graph_context = tf.get_default_graph()
-
-    bias_metric = BiasMetric(graph_context)
-    mc = MonoMetricCallBack(bias_metric=bias_metric,
-                            shampleing_rate=shampeling_rate,
-                            current_loader=dataset_loader)
-
-    info("[INFO][MAIN]", "Starting training...")
-    vgg16.train(10, False, [mc])
-
-    info("[INFO][MAIN]", "Training completed!")"""
+            img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                             dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+            predict_input = np.expand_dims(img, axis=0)
+            predict_input = predict_input.astype('float32')
+            predict_input = preprocess_input(predict_input)
+            predictions = model.predict(predict_input)
+            value = argmax(predictions)
+            start_time = time.time()
+            if only_class:
+                to_predict = value
+            else:
+                to_predict = j
+            # input_img, model, class_to_predict, layer_name, image_name=None):
+            heatmap = cam_generate_for_vgg16(
+                # session=K.get_session(),
+                input_img=predict_input[0],
+                model=model,
+                class_to_predict=to_predict,
+                layer_name='CAM')
+            cv2.imwrite(outname, heatmap)
+            print("got cams in", time.time() - start_time)
+            with open(outpath + '/resuts.json', 'w') as outfile:
+                json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
 
 
-def generate_maps(context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int, number: int):
+def generate_maps_threaded(context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int, number: int):
     with context.as_default():
-        tmp_name = uuid.uuid1().hex
         # plot CAMs only for the validation data:
         for i in range(begining_index, end_index):
             outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
@@ -89,21 +86,18 @@ def generate_maps(context, dl: DatasetLoader, model, map_out: str, begining_inde
                     value = argmax(predictions)
                     start_time = time.time()
                     # input_img, model, class_to_predict, layer_name, image_name=None):
-                    heatmap = heatmap_generate(
+                    heatmap = cam_generate_for_vgg16(
                         input_img=predict_input[0],
                         model=model,
                         class_to_predict=j,
-                        layer_name='CAM',
-                        tmp_name=tmp_name)
-                    # cv2.imwrite(outname, heatmap)
-                    heatmap.save(outname)
-                    heatmap.close()
+                        layer_name='CAM')
+                    cv2.imwrite(outname, heatmap)
                     print("got cams in", time.time() - start_time)
                     with open(outpath + '/resuts.json', 'w') as outfile:
                         json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
                 except Exception as e:
-                    print("ERROR IN THREAD", number,"error is", e, "PASSING...")
-                gc.collect()
+                    print("ERROR IN THREAD", number, "error is", e, "redoing...")
+                    j -= 1
 
 
 class MapWorker(Thread):
@@ -121,29 +115,8 @@ class MapWorker(Thread):
     def run(self):
         with self.context.as_default():
             print("Thread", self.number, "started...")
-            generate_maps(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index, self.number)
-
-
-def heatmap_generate_np_only(input_img, model, class_to_predict, layer_name, image_name=None):
-    output_generator = get_outputs_generator(model, layer_name)
-    layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
-    heatmap = cv2.resize(layer_outputs[:, :, 0], (28, 28))
-    # Normalize input on weights
-    w = MinMaxScaler((0.0, 1.0)).fit_transform(model.get_layer("W").get_weights()[0])
-
-    for z in range(1, layer_outputs.shape[2]):  # Iterate through the number of kernels
-        img = layer_outputs[:, :, z]
-
-        deprocessed = cv2.resize(img, (28, 28))
-        heatmap += deprocessed * w[z][class_to_predict]
-    heatmap = MinMaxScaler((0.0, 255.0)).fit_transform(heatmap)
-
-    heatmap_colored = cv2.applyColorMap(np.uint8(heatmap), cv2.COLORMAP_JET)
-
-    if image_name is not None:
-        heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
-                                      2)
-    return heatmap_colored
+            generate_maps(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index,
+                          self.number)
 
 
 def main():
@@ -153,12 +126,11 @@ def main():
 
     argv = sys.argv
     if argv[1] == "0":
-
         print("SEED IS", 123)
         vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6])), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
-    if argv[1] == "1": # FIXME Cythonize
+    if argv[1] == "1":  # FIXME Cythonize
         numberOfCors = int(argv[2])
         dl = DatasetLoader(argv[3], 10000)
         model = load_model(argv[4])
@@ -189,13 +161,8 @@ def main():
                 time.sleep(2)
             for t in threads:
                 t.join()
-        else:
-            generate_maps(context=graph,
-                          dl=dl,
-                          model=model,
-                          map_out=argv[5],
-                          begining_index=b_index,
-                          end_index=e_index)
+        else: # dl: DatasetLoader, model, map_out: str
+            generate_maps(dl, model, argv[6])
 
     if argv[1] == '2':
         dl = DatasetLoader(argv[3], 10000)
@@ -245,11 +212,67 @@ def main():
             else:
                 print("Class", i, "has", j, "shamples")
     if argv[1] == "6":
-        import subprocess # threads, dataset, model
+        import subprocess  # threads, dataset, model
         bashCommand = "1" + argv[2] + argv[3] + argv[4] + "thread" + argv[5]
     if argv[1] == "7":
         create_n_run_mnist(DatasetLoader(argv[2], int(argv[3])), 10)
+    if argv[1] == "8":
+        dl = DatasetLoader(argv[2], 10000)
+        for i in range(0, dl.number_of_imgs):
+            try:
+                outpath = "101_resized/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+                try:
+                    os.makedirs("101_resized/" + dl.imgDataArray[i].directory)
+                except OSError:
+                    pass
+                img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                                 dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+                img = cv2.resize(img, (260, 260))
+                cv2.imwrite(outpath, img)
+            except:
+                pass
+    if argv[1] == "9":  # FIXME Cythonize
+        dl = DatasetLoader(argv[2], 10000)
+        model = load_model(argv[3])
+        print("images to process:", dl.number_of_imgs_for_test)
+        generate_maps(dl, model, argv[6], only_class=True)
+
+
 if __name__ == "__main__":
     main()
 
-#1 4 mnist_png mnist.h5 thread mnist_maps_np
+# 1 4 mnist_png mnist.h5 thread mnist_maps_np
+
+"""
+def create_cam(model, outname, viz_folder, layer_name):
+
+    heatmaps = []
+    for path in next(os.walk(viz_folder))[2]:
+        # Predict the corresponding class for use in `visualize_saliency`.
+        seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
+
+        # Here we are asking it to show attention such that prob of `pred_class` is maximized.
+        heatmap = img_processing.heatmap_generate.heatmap_generate(seed_img, model, layer_name, None, True)
+        heatmaps.append(heatmap)
+
+    cv2.imwrite(outname, utils.stitch_images(heatmaps))
+
+
+def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
+
+    info("[INFO][MAIN]", "Loading...")
+    dataset_loader = DatasetLoader(dataset_name, 10000)
+
+    info("[INFO][MAIN]", "Compiling model...")
+    vgg16 = VGG16FineTuned(dataset_loader)
+    graph_context = tf.get_default_graph()
+
+    bias_metric = BiasMetric(graph_context)
+    mc = MonoMetricCallBack(bias_metric=bias_metric,
+                            shampleing_rate=shampeling_rate,
+                            current_loader=dataset_loader)
+
+    info("[INFO][MAIN]", "Starting training...")
+    vgg16.train(10, False, [mc])
+
+    info("[INFO][MAIN]", "Training completed!")"""

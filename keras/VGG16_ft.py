@@ -14,7 +14,7 @@ class VGG16FineTuned:
     fully connected layer.
     """
 
-    def __init__(self, dataset_loader: DatasetLoader, mode: str, compile: str):
+    def __init__(self, dataset_loader: DatasetLoader, mode: str):
         """
         Create and compile the custom VGG16 model.
 
