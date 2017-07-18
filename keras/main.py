@@ -43,7 +43,7 @@ def main():
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
-        generate_maps(dl, model, argv[4], all_classes=bool(int(argv[5])), batch_size=int(argv[6]), mode=argv[7])
+        generate_maps(dl, model, argv[4], tf.get_default_graph(), all_classes=bool(int(argv[5])), batch_size=int(argv[6]), mode=argv[7])
 
     if argv[1] == '2':
         dl = DatasetLoader(argv[3], 10000)
@@ -126,7 +126,6 @@ def main():
 if __name__ == "__main__":
     main()
 # 1 4 mnist_png mnist.h5 thread mnist_maps_np
-# 1 101_resized caltech.h5 maps_test 1 2 cv2
 # 9 maps_test
 
 """
