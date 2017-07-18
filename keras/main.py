@@ -1,6 +1,6 @@
 import json
 import sys
-from threading import Thread
+from glob import glob
 from keras.models import load_model
 
 from VGG16_ft import VGG16FineTuned
@@ -28,7 +28,7 @@ from heatmapgenerate import *
 # https://github.com/fchollet/keras/issues/4446
 
 
-def generate_maps(dl: DatasetLoader, model, map_out: str):
+def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True):
     # plot CAMs only for the validation data:
     for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
         outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
@@ -36,7 +36,6 @@ def generate_maps(dl: DatasetLoader, model, map_out: str):
             os.makedirs(outpath)
         except OSError:
             continue
-
         img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
                          dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
         predict_input = np.expand_dims(img, axis=0)
@@ -44,75 +43,31 @@ def generate_maps(dl: DatasetLoader, model, map_out: str):
         predict_input = preprocess_input(predict_input)
         predictions = model.predict(predict_input)
         value = argmax(predictions)
-        start_time = time.time()
-        outname = outpath + "/" + str(dl.imgDataArray[i].img_class) + ".tiff"
-
-        # input_img, model, class_to_predict, layer_name, image_name=None):
-        heatmap = cam_generate_for_vgg16(
-            # session=K.get_session(),
-            input_img=predict_input[0],
-            model=model,
-            class_to_predict=value,
-            layer_name='CAM')
-        Image.fromarray(heatmap).save(outname)
-        print("got cams in", time.time() - start_time)
-        with open(outpath + '/resuts.json', 'w') as outfile:
-            json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-
-
-def generate_maps_threaded(context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int, number: int):
-    with context.as_default():
-        # plot CAMs only for the validation data:
-        for i in range(begining_index, end_index):
-            outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+        a = b = 0
+        if all_classes:
+            a = 0
+            b = dl.nb_classes
+        else:
+            a = value
+            b = value + 1
+        for j in range(a, b):
             try:
-                os.makedirs(outpath)
-            except OSError:
-                continue
-            for j in range(0, dl.nb_classes):
-                try:
-                    outname = outpath + "/" + str(j) + ".tiff"
+                outname = outpath + "/" + str(j) + ".tiff"
 
-                    img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                     dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-                    predict_input = np.expand_dims(img, axis=0)
-                    predict_input = predict_input.astype('float32')
-                    predict_input = preprocess_input(predict_input)
-                    predictions = model.predict(predict_input)
-                    value = argmax(predictions)
-                    start_time = time.time()
-                    # input_img, model, class_to_predict, layer_name, image_name=None):
-                    heatmap = cam_generate_for_vgg16(
-                        input_img=predict_input[0],
-                        model=model,
-                        class_to_predict=j,
-                        layer_name='CAM')
-                    Image.fromarray(heatmap).save(outname)
-                    print("got cams in", time.time() - start_time)
-                    with open(outpath + '/resuts.json', 'w') as outfile:
-                        json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-                except Exception as e:
-                    print("ERROR IN THREAD", number, "error is", e, "redoing...")
-                    j -= 1
-
-
-class MapWorker(Thread):
-    def __init__(self, context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int,
-                 number: int):
-        super().__init__()
-        self.context = context
-        self.dl = dl
-        self.model = model
-        self.map_out = map_out
-        self.begining_index = begining_index
-        self.end_index = end_index
-        self.number = number
-
-    def run(self):
-        with self.context.as_default():
-            print("Thread", self.number, "started...")
-            generate_maps_threaded(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index,
-                          self.number)
+                start_time = time.time()
+                # input_img, model, class_to_predict, layer_name, image_name=None):
+                heatmap = cam_generate_for_vgg16(
+                    input_img=predict_input[0],
+                    model=model,
+                    class_to_predict=j,
+                    layer_name='CAM')
+                Image.fromarray(heatmap).save(outname)
+                print("got cams in", time.time() - start_time)
+                with open(outpath + '/resuts.json', 'w') as outfile:
+                    json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
+            except Exception as e:
+                print("ERROR", e, "redoing...")
+                j -= 1
 
 
 def main():
@@ -126,36 +81,11 @@ def main():
         vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6])), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
-    if argv[1] == "1":  # FIXME Cythonize
-        numberOfCors = int(argv[2])
-        dl = DatasetLoader(argv[3], 10000)
-        model = load_model(argv[4])
-        model._make_predict_function()  # have to initialize before threading
-        graph = tf.get_default_graph()
-        nb_to_process = dl.number_of_imgs_for_test
-        inc = int(nb_to_process / numberOfCors)
-        b_index = dl.number_of_imgs_for_train
-        e_index = dl.number_of_imgs_for_train + inc
-        print("images to process:", nb_to_process)
-        print("inc is:", inc)
-        print(numberOfCors, "workers will rise")
-        threads = []
-        for i in range(0, numberOfCors):
-            t = MapWorker(context=graph,
-                          dl=dl,
-                          model=model,
-                          map_out=argv[6],
-                          begining_index=b_index,
-                          end_index=e_index,
-                          number=i)
-            t.start()
-            threads.append(t)
-            print(b_index, e_index)
-            b_index = e_index
-            e_index += inc
-            time.sleep(2)
-        for t in threads:
-            t.join()
+    if argv[1] == "1":  # FIXME Cythonize - no need?
+        dl = DatasetLoader(argv[2], 10000)
+        model = load_model(argv[3])
+        print("images to process:", dl.number_of_imgs_for_test)
+        generate_maps(dl, model, argv[4], all_classes=bool(int(argv[5])))
 
     if argv[1] == '2':
         dl = DatasetLoader(argv[3], 10000)
@@ -224,11 +154,17 @@ def main():
                 cv2.imwrite(outpath, img)
             except:
                 pass
-    if argv[1] == "9":  # FIXME Cythonize
-        dl = DatasetLoader(argv[2], 10000)
-        model = load_model(argv[3])
-        print("images to process:", dl.number_of_imgs_for_test)
-        generate_maps(dl, model, argv[4])
+    if argv[1] == '9':
+        files = glob(argv[2] + "/*/*/*")
+        for file in files:
+            file_s = file.split('/')
+            if file_s[3] != 'resuts.json':
+                outpath = file_s[0] + "/" + file_s[1] + "/" + file_s[2] + "/" + file_s[3][-4:] + "_colored.jpg"
+                img = cv2.imread(file, cv2.IMREAD_UNCHANGED)
+                img *= 255
+                img = cv2.applyColorMap(np.uint8(img), cv2.COLORMAP_JET)
+                cv2.imwrite(outpath, img)
+
     if argv[1] == '10':
         dl = DatasetLoader(argv[2], 10000)
         for i in range(0, dl.number_of_imgs):
@@ -241,6 +177,7 @@ def main():
 if __name__ == "__main__":
     main()
 # 1 4 mnist_png mnist.h5 thread mnist_maps_np
+# 1 101_resized caltech.h5 maps_test 1
 
 """
 def create_cam(model, outname, viz_folder, layer_name):
@@ -276,3 +213,57 @@ def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
 
     info("[INFO][MAIN]", "Training completed!")"""
 
+"""
+def generate_maps_threaded(context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int, number: int):
+    with context.as_default():
+        # plot CAMs only for the validation data:
+        for i in range(begining_index, end_index):
+            outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+            try:
+                os.makedirs(outpath)
+            except OSError:
+                continue
+            for j in range(0, dl.nb_classes):
+                try:
+                    outname = outpath + "/" + str(j) + ".tiff"
+
+                    img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                                     dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+                    predict_input = np.expand_dims(img, axis=0)
+                    predict_input = predict_input.astype('float32')
+                    predict_input = preprocess_input(predict_input)
+                    predictions = model.predict(predict_input)
+                    value = argmax(predictions)
+                    start_time = time.time()
+                    # input_img, model, class_to_predict, layer_name, image_name=None):
+                    heatmap = cam_generate_for_vgg16(
+                        input_img=predict_input[0],
+                        model=model,
+                        class_to_predict=j,
+                        layer_name='CAM')
+                    Image.fromarray(heatmap).save(outname)
+                    print("got cams in", time.time() - start_time)
+                    with open(outpath + '/resuts.json', 'w') as outfile:
+                        json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
+                except Exception as e:
+                    print("ERROR IN THREAD", number, "error is", e, "redoing...")
+                    j -= 1
+                    
+class MapWorker(Thread):
+    def __init__(self, context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int,
+                 number: int):
+        super().__init__()
+        self.context = context
+        self.dl = dl
+        self.model = model
+        self.map_out = map_out
+        self.begining_index = begining_index
+        self.end_index = end_index
+        self.number = number
+
+    def run(self):
+        with self.context.as_default():
+            print("Thread", self.number, "started...")
+            generate_maps_threaded(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index,
+                          self.number)
+"""
