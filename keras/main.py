@@ -14,9 +14,7 @@ from plant_village_custom_model import *
 from numpy import argmax
 from keras.applications.imagenet_utils import preprocess_input
 import time
-import pyximport;
-
-pyximport.install()
+import pyximport; pyximport.install()
 from heatmapgenerate import *
 
 
@@ -28,54 +26,6 @@ from heatmapgenerate import *
 # https://arxiv.org/pdf/1512.03385.pdf
 # http://lcn.epfl.ch/tutorial/english/perceptron/html/learning.html
 # https://github.com/fchollet/keras/issues/4446
-
-
-def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True, batch_size=10):
-    with K.get_session():
-        o_generator = get_outputs_generator(model, 'CAM')
-        # plot CAMs only for the validation data:
-        k = 0
-        img_arr = []
-        for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-            if i == dl.number_of_imgs-1:
-                k = batch_size-1
-            outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
-
-            try:
-                os.makedirs(outpath)
-            except OSError:
-                continue
-            img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                             dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-            img_arr.append(img)
-            k += 1
-            if k == batch_size:
-                start_time = time.time()
-                predict_input = np.asarray(img_arr)
-                predict_input = predict_input.astype('float32')
-                predict_input = preprocess_input(predict_input)
-                predictions = model.predict(predict_input)
-
-                layer_outputs = o_generator(predict_input)
-                maps_arr = cam_generate_tf_ops(model, layer_outputs)
-
-                for l, prediction in enumerate(predictions):
-                    value = argmax(prediction)
-                    if all_classes:
-                        a = 0
-                        b = dl.nb_classes
-                    else:
-                        a = value
-                        b = value + 1
-                    for j in range(a, b):
-                        outname = outpath + "/" + str(j) + '.tiff'
-                        Image.fromarray(maps_arr[l, :, :, j]).save(outname)
-                        with open(outpath + '/resuts.json', 'w') as outfile:
-                            json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)},
-                                      outfile)
-                print("got cams in", time.time() - start_time)
-                k = 1
-                img_arr = []
 
 
 def main():
@@ -93,7 +43,7 @@ def main():
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
-        generate_maps(dl, model, argv[4], all_classes=bool(int(argv[5])), batch_size=int(argv[6]))
+        generate_maps(dl, model, argv[4], all_classes=bool(int(argv[5])), batch_size=int(argv[6]), mode=argv[7])
 
     if argv[1] == '2':
         dl = DatasetLoader(argv[3], 10000)
@@ -164,10 +114,10 @@ def main():
                 pass
     if argv[1] == '9':
         files = glob(argv[2] + "/*/*/*")
-        for file in files:
+        for i, file in enumerate(files):
             file_s = file.split('/')
             if file_s[3] != 'resuts.json':
-                outpath = file_s[0] + "/" + file_s[1] + "/" + file_s[2] + "/" + file_s[3][-4:] + "_colored.jpg"
+                outpath = file_s[0] + "/" + file_s[1] + "/" + file_s[2] + "/" + file_s[3] + "_colored.jpg"
                 img = cv2.imread(file, cv2.IMREAD_UNCHANGED)
                 img = cv2.applyColorMap(np.uint8(img), cv2.COLORMAP_JET)
                 cv2.imwrite(outpath, img)
@@ -176,7 +126,7 @@ def main():
 if __name__ == "__main__":
     main()
 # 1 4 mnist_png mnist.h5 thread mnist_maps_np
-# 1 101_resized caltech.h5 maps_test 0
+# 1 101_resized caltech.h5 maps_test 1 2 cv2
 # 9 maps_test
 
 """
