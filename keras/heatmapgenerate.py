@@ -1,25 +1,18 @@
 from sklearn.preprocessing import MinMaxScaler
+from tensorflow.python.ops.image_ops_impl import ResizeMethod
+
 from img_loader import *
-from PIL import Image
-import scipy.misc
 import tensorflow as tf
 from keras import backend as K
 
-from model_utils import reduce_opacity, get_outputs_generator
 
-
-def cam_generate_tf_ops(session, input_img, model, class_to_predict, layer_name, im_width=256):
+def cam_generate_tf_ops(input_img, model, class_to_predict, output_generator, im_width=256):
     w = model.get_layer("W").get_weights()[0]
-    output_generator = get_outputs_generator(model, layer_name)
-    layer_outputs = output_generator(np.expand_dims(input_img[0], axis=0))[0]
-    layer_outputs_alt = layer_outputs.reshape(1, 8, 8, 512)
-    conv_resized = tf.image.resize_bilinear(layer_outputs_alt, [im_width, im_width])
+    layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
+    conv_resized = tf.image.resize_images(layer_outputs, [im_width, im_width], method=ResizeMethod.BICUBIC, )
     maps = K.dot(conv_resized, tf.convert_to_tensor(w))
-    maps = tf.reshape(maps, (38, 256, 256))
-    with session:
-        maps_arr = maps.eval()
-    maps_arr[class_to_predict] = MinMaxScaler((0.0, 1.0)).fit_transform(maps_arr[class_to_predict])
-    return maps_arr[class_to_predict]
+    maps_arr = maps.eval()
+    return maps_arr[:, :, class_to_predict]
 
 
 # To be fully confirmed but initials tests pass so ready for production.

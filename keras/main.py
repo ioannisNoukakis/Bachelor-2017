@@ -1,14 +1,16 @@
 import json
 import sys
 from glob import glob
+
+from PIL import Image
 from keras.models import load_model
 
 from VGG16_ft import VGG16FineTuned
 from bias_metric import compute_metric
 from img_processing import dataset_convertor
 from mnist_model import create_n_run_mnist
+from model_utils import get_outputs_generator
 from plant_village_custom_model import *
-import random
 from numpy import argmax
 from keras.applications.imagenet_utils import preprocess_input
 import time
@@ -16,6 +18,7 @@ import pyximport;
 
 pyximport.install()
 from heatmapgenerate import *
+from scipy.misc import toimage
 
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
@@ -29,45 +32,47 @@ from heatmapgenerate import *
 
 
 def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True):
-    o_generator = get_outputs_generator(model, 'CAM')
-    # plot CAMs only for the validation data:
-    for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-        outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
-        try:
-            os.makedirs(outpath)
-        except OSError:
-            continue
-        img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                         dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-        predict_input = np.expand_dims(img, axis=0)
-        predict_input = predict_input.astype('float32')
-        predict_input = preprocess_input(predict_input)
-        predictions = model.predict(predict_input)
-        value = argmax(predictions)
-        if all_classes:
-            a = 0
-            b = dl.nb_classes
-        else:
-            a = value
-            b = value + 1
-        for j in range(a, b):
+    with K.get_session():
+        o_generator = get_outputs_generator(model, 'CAM')
+        # plot CAMs only for the validation data:
+        for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
+            outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
             try:
-                outname = outpath + "/" + str(j) + ".tiff"
+                os.makedirs(outpath)
+            except OSError:
+                continue
+            img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                             dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
+            predict_input = np.expand_dims(img, axis=0)
+            predict_input = predict_input.astype('float32')
+            predict_input = preprocess_input(predict_input)
+            predictions = model.predict(predict_input)
+            value = argmax(predictions)
+            if all_classes:
+                a = 0
+                b = dl.nb_classes
+            else:
+                a = value
+                b = value + 1
+            for j in range(a, b):
+                try:
+                    outname = outpath + "/" + str(j) + '.tiff'
 
-                start_time = time.time()
-                # input_img, model, class_to_predict, layer_name, image_name=None):
-                heatmap = cam_generate_for_vgg16(
-                    input_img=predict_input[0],
-                    model=model,
-                    class_to_predict=j,
-                    output_generator=o_generator)
-                Image.fromarray(heatmap).save(outname)
-                print("got cams in", time.time() - start_time)
-                with open(outpath + '/resuts.json', 'w') as outfile:
-                    json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-            except Exception as e:
-                print("ERROR", e, "redoing...")
-                j -= 1
+                    start_time = time.time()
+                    # input_img, model, class_to_predict, layer_name, image_name=None):
+                    heatmap = cam_generate_tf_ops(
+                        input_img=predict_input[0],
+                        model=model,
+                        class_to_predict=j,
+                        output_generator=o_generator)
+                    Image.fromarray(heatmap).save(outname)
+                    # np.save(outname, heatmap)
+                    print("got cams in", time.time() - start_time)
+                    with open(outpath + '/resuts.json', 'w') as outfile:
+                        json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
+                except Exception as e:
+                    print("ERROR", e, "redoing...")
+                    j -= 1
 
 
 def main():
@@ -161,23 +166,15 @@ def main():
             if file_s[3] != 'resuts.json':
                 outpath = file_s[0] + "/" + file_s[1] + "/" + file_s[2] + "/" + file_s[3][-4:] + "_colored.jpg"
                 img = cv2.imread(file, cv2.IMREAD_UNCHANGED)
-                img *= 255
                 img = cv2.applyColorMap(np.uint8(img), cv2.COLORMAP_JET)
                 cv2.imwrite(outpath, img)
-
-    if argv[1] == '10':
-        dl = DatasetLoader(argv[2], 10000)
-        for i in range(0, dl.number_of_imgs):
-            outpath = dl.baseDirectory + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name + ".jpg"
-            img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                             dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-            cv2.imwrite(outpath, img)
 
 
 if __name__ == "__main__":
     main()
 # 1 4 mnist_png mnist.h5 thread mnist_maps_np
-# 1 101_resized caltech.h5 maps_test 1
+# 1 101_resized caltech.h5 maps_test 0
+# 9 maps_test
 
 """
 def create_cam(model, outname, viz_folder, layer_name):
