@@ -34,7 +34,7 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True, batc
     with K.get_session():
         o_generator = get_outputs_generator(model, 'CAM')
         # plot CAMs only for the validation data:
-        k = 1
+        k = 0
         img_arr = []
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
             if i == dl.number_of_imgs-1:
