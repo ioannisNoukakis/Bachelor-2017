@@ -21,7 +21,7 @@ sudo apt-get clean
 #!/usr/bin/env bash
 git clone https://github.com/Itseez/opencv.git
 cd opencv
-git checkout 3.0.0
+git checkout 3.0.0s
 mkdir release
 cd release
 # compile and install
