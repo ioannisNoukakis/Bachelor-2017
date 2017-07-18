@@ -20,11 +20,11 @@ def cam_generate_cv2(input_img, model, class_to_predict, output_generator, im_wi
     layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
     w = model.get_layer("W").get_weights()[0]
 
-    heatmap = cv2.resize(layer_outputs[:, :, 0], (im_width, im_width))
+    heatmap = cv2.resize(layer_outputs[:, :, 0], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
     heatmap *= w[0][class_to_predict]
 
     for z in range(1, layer_outputs.shape[2]):  # Iterate through the number of kernels
-        img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width))
+        img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
         heatmap += img * w[z][class_to_predict]
 
     return heatmap
