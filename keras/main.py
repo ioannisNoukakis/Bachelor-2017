@@ -36,9 +36,10 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True, mode
         # plot CAMs only for the validation data:
         k = 0
         img_arr = []
+        start_time = time.time()
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-            if k == dl.number_of_imgs:
-                break
+            if i == dl.number_of_imgs-1:
+                k = 9
             outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
 
             try:
@@ -49,15 +50,21 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True, mode
                              dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
             img_arr.append(img)
             k += 1
-            if k == 10:
+            if k == 9:
+                print("LOADED IMAGES", time.time() - start_time)
                 start_time = time.time()
                 predict_input = np.asarray(img_arr)
                 predict_input = predict_input.astype('float32')
                 predict_input = preprocess_input(predict_input)
                 predictions = model.predict(predict_input)
+                print("PREPROCESSING", time.time() - start_time)
+                start_time = time.time()
 
                 layer_outputs = o_generator(predict_input)
                 maps_arr = cam_generate_tf_ops(model, layer_outputs)
+
+                print("layer_outputs", time.time() - start_time)
+                start_time = time.time()
 
                 for l, prediction in enumerate(predictions):
                     value = argmax(prediction)
