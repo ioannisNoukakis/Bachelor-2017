@@ -19,6 +19,7 @@ import pyximport;
 pyximport.install()
 from heatmapgenerate import *
 
+
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
 # http://cnnlocalization.csail.mit.edu/
 # https://arxiv.org/pdf/1312.4400.pdf
@@ -29,56 +30,52 @@ from heatmapgenerate import *
 # https://github.com/fchollet/keras/issues/4446
 
 
-def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True, mode='cv2'):
+def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True, batch_size=10):
     with K.get_session():
         o_generator = get_outputs_generator(model, 'CAM')
         # plot CAMs only for the validation data:
+        k = 1
+        img_arr = []
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-            start_time = time.time()
+            if i == dl.number_of_imgs-1:
+                k = batch_size-1
             outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+
             try:
                 os.makedirs(outpath)
             except OSError:
                 continue
             img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
                              dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-            predict_input = np.expand_dims(img, axis=0)
-            predict_input = predict_input.astype('float32')
-            predict_input = preprocess_input(predict_input)
-            predictions = model.predict(predict_input)
-            value = argmax(predictions)
-            if all_classes:
-                a = 0
-                b = dl.nb_classes
-            else:
-                a = value
-                b = value + 1
-            for j in range(a, b):
-                try:
-                    outname = outpath + "/" + str(j) + '.tiff'
+            img_arr.append(img)
+            k += 1
+            if k == batch_size:
+                start_time = time.time()
+                predict_input = np.asarray(img_arr)
+                predict_input = predict_input.astype('float32')
+                predict_input = preprocess_input(predict_input)
+                predictions = model.predict(predict_input)
 
-                    if mode == 'cv2':
-                        heatmap = cam_generate_cv2(
-                            input_img=predict_input[0],
-                            model=model,
-                            class_to_predict=j,
-                            output_generator=o_generator)
-                    elif mode == 'tf':
-                        heatmap = cam_generate_tf_ops(
-                            input_img=predict_input[0],
-                            model=model,
-                            class_to_predict=j,
-                            output_generator=o_generator)
+                layer_outputs = o_generator(predict_input)
+                maps_arr = cam_generate_tf_ops(model, layer_outputs)
+
+                for l, prediction in enumerate(predictions):
+                    value = argmax(prediction)
+                    if all_classes:
+                        a = 0
+                        b = dl.nb_classes
                     else:
-                        print("ERROR! Mode must be either cv2 or tf.")
-                        assert False
-                    Image.fromarray(heatmap).save(outname)
-                    with open(outpath + '/resuts.json', 'w') as outfile:
-                        json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-                except Exception as e:
-                    print("ERROR", e, "redoing...")
-                    j -= 1
-            print("got cams in", time.time() - start_time)
+                        a = value
+                        b = value + 1
+                    for j in range(a, b):
+                        outname = outpath + "/" + str(j) + '.tiff'
+                        Image.fromarray(maps_arr[l, :, :, j]).save(outname)
+                        with open(outpath + '/resuts.json', 'w') as outfile:
+                            json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)},
+                                      outfile)
+                print("got cams in", time.time() - start_time)
+                k = 1
+                img_arr = []
 
 
 def main():
@@ -96,7 +93,7 @@ def main():
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
-        generate_maps(dl, model, argv[4], all_classes=bool(int(argv[5])))
+        generate_maps(dl, model, argv[4], all_classes=bool(int(argv[5])), batch_size=int(argv[6]))
 
     if argv[1] == '2':
         dl = DatasetLoader(argv[3], 10000)
