@@ -16,30 +16,18 @@ def cam_generate_tf_ops(input_img, model, class_to_predict, output_generator, im
 
 
 # To be fully confirmed but initials tests pass so ready for production.
-def cam_generate_for_vgg16(input_img, model, class_to_predict, output_generator, image_name=None, color=False):
+def cam_generate_cv2(input_img, model, class_to_predict, output_generator, im_width=256):
     layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
     w = model.get_layer("W").get_weights()[0]
 
-    heatmap = cv2.resize(layer_outputs[:, :, 0], (224, 224))
+    heatmap = cv2.resize(layer_outputs[:, :, 0], (im_width, im_width))
     heatmap *= w[0][class_to_predict]
 
     for z in range(1, layer_outputs.shape[2]):  # Iterate through the number of kernels
-        img = cv2.resize(layer_outputs[:, :, z], (224, 224))
+        img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width))
         heatmap += img * w[z][class_to_predict]
 
-    heatmap = MinMaxScaler((0.0, 1.0)).fit_transform(heatmap)
-
-    if color:
-        heatmap_colored = cv2.applyColorMap(np.uint8(heatmap), cv2.COLORMAP_JET)
-
-        if image_name is not None:
-            heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
-                                          (0, 0, 0),
-                                          2)
-        return heatmap_colored
-    else:
-        return heatmap
-
+    return heatmap
 
 
 """

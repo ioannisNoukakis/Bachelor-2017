@@ -18,7 +18,6 @@ import pyximport;
 
 pyximport.install()
 from heatmapgenerate import *
-from scipy.misc import toimage
 
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
@@ -31,7 +30,7 @@ from scipy.misc import toimage
 # https://github.com/fchollet/keras/issues/4446
 
 
-def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True):
+def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True, mode='cv2'):
     with K.get_session():
         o_generator = get_outputs_generator(model, 'CAM')
         # plot CAMs only for the validation data:
@@ -59,14 +58,22 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True):
                     outname = outpath + "/" + str(j) + '.tiff'
 
                     start_time = time.time()
-                    # input_img, model, class_to_predict, layer_name, image_name=None):
-                    heatmap = cam_generate_tf_ops(
-                        input_img=predict_input[0],
-                        model=model,
-                        class_to_predict=j,
-                        output_generator=o_generator)
+                    if mode == 'cv2':
+                        heatmap = cam_generate_cv2(
+                            input_img=predict_input[0],
+                            model=model,
+                            class_to_predict=j,
+                            output_generator=o_generator)
+                    elif mode == 'tf':
+                        heatmap = cam_generate_tf_ops(
+                            input_img=predict_input[0],
+                            model=model,
+                            class_to_predict=j,
+                            output_generator=o_generator)
+                    else:
+                        print("ERROR! Mode must be either cv2 or tf.")
+                        assert False
                     Image.fromarray(heatmap).save(outname)
-                    # np.save(outname, heatmap)
                     print("got cams in", time.time() - start_time)
                     with open(outpath + '/resuts.json', 'w') as outfile:
                         json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
