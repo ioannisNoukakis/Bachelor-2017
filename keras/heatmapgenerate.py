@@ -23,8 +23,7 @@ def cam_generate_tf_ops(session, input_img, model, class_to_predict, layer_name,
 
 
 # To be fully confirmed but initials tests pass so ready for production.
-def cam_generate_for_vgg16(input_img, model, class_to_predict, layer_name, image_name=None, color=False):
-    output_generator = get_outputs_generator(model, layer_name)
+def cam_generate_for_vgg16(input_img, model, class_to_predict, output_generator, image_name=None, color=False):
     layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
     w = model.get_layer("W").get_weights()[0]
 

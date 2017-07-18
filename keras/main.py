@@ -29,6 +29,7 @@ from heatmapgenerate import *
 
 
 def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True):
+    o_generator = get_outputs_generator(model, 'CAM')
     # plot CAMs only for the validation data:
     for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
         outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
@@ -43,7 +44,6 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True):
         predict_input = preprocess_input(predict_input)
         predictions = model.predict(predict_input)
         value = argmax(predictions)
-        a = b = 0
         if all_classes:
             a = 0
             b = dl.nb_classes
@@ -60,7 +60,7 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, all_classes=True):
                     input_img=predict_input[0],
                     model=model,
                     class_to_predict=j,
-                    layer_name='CAM')
+                    output_generator=o_generator)
                 Image.fromarray(heatmap).save(outname)
                 print("got cams in", time.time() - start_time)
                 with open(outpath + '/resuts.json', 'w') as outfile:
