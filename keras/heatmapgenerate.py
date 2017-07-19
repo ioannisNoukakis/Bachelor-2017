@@ -33,10 +33,10 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
         convert_place = tf.placeholder(tf.float32, [512, len(dl.directories)])
         first_func = o_resizer(in_place, size_place, ResizeMethod.BICUBIC)
         second_func = o_dot(in_place, convert_place)
+        graph.finalize()
 
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
             with graph.as_default() as gr:
-                # print(['TF WATCHER', 'running', len(graph.get_operations()), 'operations'])
                 if i == dl.number_of_imgs - 1:
                     k = batch_size - 1
                 rpath = dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
@@ -84,7 +84,9 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
                             if mode == 'cv2':
                                 Image.fromarray(maps_arr[l][j]).save(outname)
                             else:
-                                Image.fromarray(maps_arr[l, :, :, j]).save(outname)
+                                i_out = Image.fromarray(maps_arr[l, :, :, j])
+                                i_out.save(outname)
+                                i_out.close()
                             with open(outpath + '/resuts.json', 'w') as outfile:
                                 json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[inc].img_class)},
                                           outfile)
