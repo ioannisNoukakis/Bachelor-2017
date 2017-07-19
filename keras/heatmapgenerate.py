@@ -84,9 +84,7 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
                             if mode == 'cv2':
                                 Image.fromarray(maps_arr[l][j]).save(outname)
                             else:
-                                i_out = Image.fromarray(maps_arr[l, :, :, j])
-                                i_out.save(outname)
-                                i_out.close()
+                                Image.fromarray(maps_arr[l, :, :, j]).save(outname)
                             with open(outpath + '/resuts.json', 'w') as outfile:
                                 json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[inc].img_class)},
                                           outfile)
