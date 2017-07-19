@@ -88,6 +88,7 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
                             with open(outpath + '/resuts.json', 'w') as outfile:
                                 json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[inc].img_class)},
                                           outfile)
+                        print("cam(", inc, "/", dl.number_of_imgs_for_train, "completed")
                     print("got cams in", time.time() - start_time)
 
 

@@ -2,14 +2,16 @@ import json
 import sys
 from glob import glob
 
-from PIL import Image
+from PIL import Image, ImageOps
+from vis.utils import utils
 from keras.models import load_model
+from scipy.misc import toimage
 
 from VGG16_ft import VGG16FineTuned
 from bias_metric import compute_metric
 from img_processing import dataset_convertor
 from mnist_model import create_n_run_mnist
-from model_utils import get_outputs_generator
+from model_utils import get_outputs_generator, reduce_opacity
 from plant_village_custom_model import *
 from numpy import argmax
 from keras.applications.imagenet_utils import preprocess_input
@@ -26,6 +28,47 @@ from heatmapgenerate import *
 # https://arxiv.org/pdf/1512.03385.pdf
 # http://lcn.epfl.ch/tutorial/english/perceptron/html/learning.html
 # https://github.com/fchollet/keras/issues/4446
+
+
+def create_cam(dl: DatasetLoader, model, outname:str, im_width=256):
+    os.makedirs(outname)
+    heatmaps = []
+    for i in range(0, dl.number_of_imgs):
+        predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                                        dl.imgDataArray[i].name, cv2.IMREAD_COLOR))
+        base = Image.open(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
+                                        dl.imgDataArray[i].name)
+        predict_input = predict_input.astype('float32')
+        predict_input = np.expand_dims(predict_input, axis=0)
+        predict_input = preprocess_input(predict_input)
+
+        output_generator = get_outputs_generator(model, 'CAM')
+        layer_outputs = output_generator(predict_input)[0]
+
+        inputs = model.input
+        output_predict = model.get_layer('W').output
+        fn_predict = K.function([inputs], [output_predict])
+        prediction = fn_predict([predict_input])[0]
+        value = np.argmax(prediction)
+
+        w = model.get_layer("W").get_weights()[0]
+        heatmap = cv2.resize(layer_outputs[:, :, 0], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
+        heatmap *= w[0][value]
+        for z in range(1, layer_outputs.shape[2]):  # Iterate through the number of kernels
+            img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
+            heatmap += img * w[z][value]
+
+        heatmap = toimage(heatmap)
+        heatmap = cv2.applyColorMap(np.uint8(np.asarray(ImageOps.invert(heatmap))), cv2.COLORMAP_JET)
+        # heatmap = cv2.putText(heatmap, dl.imgDataArray[i].name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 2)
+        heatmap = toimage(heatmap)
+        heatmap = reduce_opacity(heatmap, 0.5)
+        base.paste(heatmap, (0, 0), heatmap)
+        base.save(outname + "/"+ dl.imgDataArray[i].name)
+        # base.show()
+        # heatmaps.append(np.asarray(ImageOps.invert(base)))
+
+    # cv2.imwrite(outname, utils.stitch_images(heatmaps))
 
 
 def main():
@@ -122,7 +165,11 @@ def main():
                 img = cv2.imread(file, cv2.IMREAD_UNCHANGED)
                 img = cv2.applyColorMap(np.uint8(img), cv2.COLORMAP_JET)
                 cv2.imwrite(outpath, img)
-
+    if argv[1] == '10':
+        model = load_model(argv[2])
+        create_cam(DatasetLoader('visual', 10000), model, argv[3] + "_normal", 260)
+        create_cam(DatasetLoader('visual_art', 10000), model, argv[3] + "_art", 260)
+        create_cam(DatasetLoader('visual_rand', 10000), model, argv[3] + "_rand", 260)
 
 if __name__ == "__main__":
     main()
