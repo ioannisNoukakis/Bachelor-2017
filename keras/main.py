@@ -40,6 +40,7 @@ def main():
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
     if argv[1] == "1":  # FIXME Cythonize - no need?
+        # 1 101_resized caltech.h5 maps_test_tf 1 2 tf
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)

@@ -17,78 +17,89 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
     # o_generator = get_outputs_generator(model, 'CAM')
     input = model.input
     output = model.get_layer('CAM').output
+    output_predict = model.get_layer('W').output
     output_fn = K.function([input], [output])
+    fn_predict = K.function([input], [output_predict])
 
     o_resizer = tf.image.resize_images
     o_dot = K.dot
-    o_predict = model.predict
 
-    with K.get_session():
+    # plot CAMs only for the validation data:
+    k = 0
+    img_arr = []
+    with K.get_session() as sess:
+        in_place = tf.placeholder(tf.float32, [None, None, None, 512])
+        size_place = tf.placeholder(tf.int32, [2])
+        convert_place = tf.placeholder(tf.float32, [512, len(dl.directories)])
+        first_func = o_resizer(in_place, size_place, ResizeMethod.BICUBIC)
+        second_func = o_dot(in_place, convert_place)
 
-        # graph.finalize() #make sure nothing new is added to graph
-        # plot CAMs only for the validation data:
-        k = 0
-        img_arr = []
         for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-            if i == dl.number_of_imgs-1:
-                k = batch_size-1
-            rpath = dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
-            img = cv2.imread(rpath, cv2.IMREAD_COLOR)
-            # print('!!!!!!!!debug', rpath, i)
-            img_arr.append(img)
-            k += 1
-            if k == batch_size:
-                start_time = time.time()
-                predict_input = np.asarray(img_arr,  dtype='float32')
-                predict_input = preprocess_input(predict_input)
+            with graph.as_default() as gr:
+                # print(['TF WATCHER', 'running', len(graph.get_operations()), 'operations'])
+                if i == dl.number_of_imgs - 1:
+                    k = batch_size - 1
+                rpath = dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
+                img = cv2.imread(rpath, cv2.IMREAD_COLOR)
+                # print('!!!!!!!!debug', rpath, i)
+                img_arr.append(img)
+                k += 1
+                if k == batch_size:
+                    start_time = time.time()
+                    predict_input = np.asarray(img_arr, dtype='float32')
+                    predict_input = preprocess_input(predict_input)
 
-                layer_outputs = output_fn([predict_input])[0]
+                    k = 0
+                    img_arr = []
 
-                predictions = o_predict(predict_input)
+                    layer_outputs = output_fn([predict_input])[0]
+                    predictions = fn_predict([predict_input])[0]
 
-                if mode == 'cv2': # model, layer_outputs, nb_classes, im_width=256):
-                    maps_arr = cam_generate_cv2(model, layer_outputs, dl.nb_classes)
-                else:
-                    maps_arr = cam_generate_tf_ops(model, layer_outputs, o_resizer, o_dot)
-
-                for l, prediction in enumerate(predictions):
-                    inc = i-batch_size+l+1
-                    outpath = map_out + "/" + dl.imgDataArray[inc].directory + "/" + dl.imgDataArray[inc].name
-                    # print('[DEBUG]', outpath, inc, i, batch_size, l)
-
-                    try:
-                        os.makedirs(outpath)
-                    except OSError:
-                        continue
-
-                    value = np.argmax(prediction)
-                    if all_classes:
-                        a = 0
-                        b = dl.nb_classes
+                    if mode == 'cv2':  # model, layer_outputs, nb_classes, im_width=256):
+                        maps_arr = cam_generate_cv2(model, layer_outputs, dl.nb_classes)
                     else:
-                        a = value
-                        b = value + 1
-                    for j in range(a, b):
-                        outname = outpath + "/" + str(j) + '.tiff'
-                        if mode == 'cv2':
-                            Image.fromarray(maps_arr[l][j]).save(outname)
+                        maps_arr = cam_generate_tf_ops(model, layer_outputs, sess, first_func, second_func, in_place,
+                                                       size_place,
+                                                       convert_place)
+
+                    for l, prediction in enumerate(predictions):
+                        inc = i - batch_size + l + 1
+                        outpath = map_out + "/" + dl.imgDataArray[inc].directory + "/" + dl.imgDataArray[inc].name
+                        # print('[DEBUG]', outpath, inc, i, batch_size, l)
+
+                        try:
+                            os.makedirs(outpath)
+                        except OSError:
+                            continue
+
+                        value = np.argmax(prediction)
+                        if all_classes:
+                            a = 0
+                            b = dl.nb_classes
                         else:
-                            Image.fromarray(maps_arr[l, :, :, j]).save(outname)
-                        with open(outpath + '/resuts.json', 'w') as outfile:
-                            json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)},
-                                      outfile)
-                print("got cams in", time.time() - start_time)
-                k = 0
-                img_arr = []
+                            a = value
+                            b = value + 1
+                        for j in range(a, b):
+                            outname = outpath + "/" + str(j) + '.tiff'
+                            if mode == 'cv2':
+                                Image.fromarray(maps_arr[l][j]).save(outname)
+                            else:
+                                Image.fromarray(maps_arr[l, :, :, j]).save(outname)
+                            with open(outpath + '/resuts.json', 'w') as outfile:
+                                json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[inc].img_class)},
+                                          outfile)
+                    print("got cams in", time.time() - start_time)
 
 
-def cam_generate_tf_ops(model, layer_outputs, resizer, dot, im_width=256):
+def cam_generate_tf_ops(model, layer_outputs, sess, first_func, second_func, in_place, size_place, convert_place,
+                        im_width=256):
+    # conv_resized = resizer(layer_outputs, [im_width, im_width], method=ResizeMethod.BICUBIC)
+    # maps = dot(conv_resized, tf.convert_to_tensor(w))
+    conv_resized = sess.run(first_func, feed_dict={in_place: layer_outputs, size_place: [im_width, im_width]})
+
     w = model.get_layer("W").get_weights()[0]
-
-    conv_resized = resizer(layer_outputs, [im_width, im_width], method=ResizeMethod.BICUBIC, )
-    maps = dot(conv_resized, tf.convert_to_tensor(w))
-    maps_arr = maps.eval()
-    return maps_arr
+    maps = sess.run(second_func, feed_dict={in_place: conv_resized, convert_place: w})
+    return maps
 
 
 def cam_generate_cv2(model, layer_outputs, nb_classes, im_width=256):
