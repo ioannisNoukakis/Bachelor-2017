@@ -3,7 +3,6 @@ import sys
 from glob import glob
 
 from PIL import Image, ImageOps
-from vis.utils import utils
 from keras.models import load_model
 from scipy.misc import toimage
 
