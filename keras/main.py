@@ -129,6 +129,7 @@ def main():
                                'score_true_label_nmin': score_true_label_nmin},
                               outfile)
             print(k, "/", number_of_files_to_process)
+            k += 1
     if argv[1] == "3":
         dataset_convertor('dataset_black_bg', 'dataset_rand', 'dataset_art')
     if argv[1] == "4":
