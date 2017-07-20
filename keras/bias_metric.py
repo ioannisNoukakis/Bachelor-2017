@@ -50,8 +50,8 @@ def compute_metric(cam: np.ndarray, mask: np.ndarray):
 
 def compute_bias(b_directory, file_p, i, modifier:str=""):
     splitted = file_p.split('/')
-    img_path = b_directory + '/' + splitted[1] + '/' + splitted[2] + '/' + i + '.tiff'
-    mask_path = 'dataset_black_bg/' + splitted[1] + '/' + splitted[2][:-4] + '_final_masked.jpg'
+    img_path = b_directory + '/' + splitted[-3] + '/' + splitted[-2] + '/' + i + '.tiff'
+    mask_path = 'dataset_black_bg/' + splitted[-3] + '/' + splitted[-2][:-4] + '_final_masked.jpg'
     cam = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
     if modifier == 'normalizer01':
         cam = MinMaxScaler((0., 1.)).fit_transform(cam)
