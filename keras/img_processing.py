@@ -107,57 +107,12 @@ def merge_images_mask(image, mask):
     return img1, img2
 
 
-"""# TODO: Test this function correctly
-def pixels_counter(image: Image, bound_upper, bound_lower):
-    
-    gives a ratio of number of pixels in bounds / total pixels
-
-    :param image: the image
-    :param bound_upper: the upper bound
-    :param bound_lower: the lower bound
-    :return: the score
-    
-    (r1, g1, b1) = bound_upper
-    (r2, g2, b2) = bound_lower
-
-    score = 0
-    n_pixels = 0
-    image = image.convert("RGBA")
-    for item in image.getdata():
-        if r1 >= item[0] >= r2 and g1 <= item[1] <= g2 and b1 <= item[2] <= b2:
-            score += 1
-        if item[3] != 0:
-            n_pixels += 1
-    if n_pixels == 0:
-        return 0
-    return score/n_pixels"""
-
-
 def v_from_hsv_extractor(r, g, b):
     r /= 255.
     g /= 255.
     b /= 255.
 
     return max([r, g, b])
-
-
-def pixels_attention_score(image: Image):
-    """
-    Returns a score of intensity / total.
-    Intensity is computed by turning an image in RGB colorspace into a monocrhome monospace by (R+G+B)/3
-    Then we get the original class activation mapping. So then all we have to do is taking the pixel's value /255
-    and compute a score.
-    :param image:
-    :return:
-    """
-    image = image.convert('L')
-    score = 0
-    n = 0
-    for item in image.getdata():
-        if item != 0:
-            score += item
-            n += 255
-    return score / n
 
 
 # This was a wrong good idea.

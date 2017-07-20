@@ -9,7 +9,6 @@ import tensorflow as tf
 import numpy as np
 from keras import backend as K
 
-from model_utils import get_outputs_generator
 from keras.applications.imagenet_utils import preprocess_input
 
 
