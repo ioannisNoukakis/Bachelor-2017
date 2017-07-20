@@ -93,12 +93,16 @@ def main():
 
     if argv[1] == '2':
         files_path = glob(argv[2] + "/*/*/*.json")
+        number_of_files_to_process = len(files_path)
+        print(number_of_files_to_process, "images to process")
+        k = 0
         for filep in files_path:
             with open(filep) as data_file:
                 data = json.load(data_file)
             if data['predicted'] == data['true_label']:
                 score = compute_bias(argv[2], filep, data['predicted'])
                 if score == -1:
+                    k += 1
                     continue
                 score_n01 = compute_bias(argv[2], filep, data['predicted'], 'normalizer01')
                 score_nmin = compute_bias(argv[2], filep, data['predicted'], 'normalizerMin')
@@ -108,6 +112,7 @@ def main():
             else:
                 score_predicted = compute_bias(argv[2], filep, data['predicted'])
                 if score_predicted == -1:
+                    k +=1
                     continue
                 score_predicted_n01 = compute_bias(argv[2], filep, data['predicted'], 'normalizer01')
                 score_predicted_nmin = compute_bias(argv[2], filep, data['predicted'], 'normalizerMin')
@@ -123,7 +128,7 @@ def main():
                                'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
                                'score_true_label_nmin': score_true_label_nmin},
                               outfile)
-
+            print(k, "/", number_of_files_to_process)
     if argv[1] == "3":
         dataset_convertor('dataset_black_bg', 'dataset_rand', 'dataset_art')
     if argv[1] == "4":
