@@ -7,7 +7,7 @@ from keras.models import load_model
 from scipy.misc import toimage
 
 from VGG16_ft import VGG16FineTuned
-from bias_metric import compute_metric
+from bias_metric import compute_metric, compute_bias
 from img_processing import dataset_convertor
 from mnist_model import create_n_run_mnist
 from model_utils import get_outputs_generator, reduce_opacity
@@ -15,7 +15,9 @@ from plant_village_custom_model import *
 from numpy import argmax
 from keras.applications.imagenet_utils import preprocess_input
 import time
-import pyximport; pyximport.install()
+import pyximport;
+
+pyximport.install()
 from heatmapgenerate import *
 
 
@@ -29,14 +31,14 @@ from heatmapgenerate import *
 # https://github.com/fchollet/keras/issues/4446
 
 
-def create_cam(dl: DatasetLoader, model, outname:str, im_width=256):
+def create_cam(dl: DatasetLoader, model, outname: str, im_width=256):
     os.makedirs(outname)
     heatmaps = []
     for i in range(0, dl.number_of_imgs):
         predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                        dl.imgDataArray[i].name, cv2.IMREAD_COLOR))
+                                    dl.imgDataArray[i].name, cv2.IMREAD_COLOR))
         base = Image.open(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                        dl.imgDataArray[i].name)
+                          dl.imgDataArray[i].name)
         predict_input = predict_input.astype('float32')
         predict_input = np.expand_dims(predict_input, axis=0)
         predict_input = preprocess_input(predict_input)
@@ -63,11 +65,11 @@ def create_cam(dl: DatasetLoader, model, outname:str, im_width=256):
         heatmap = toimage(heatmap)
         heatmap = reduce_opacity(heatmap, 0.5)
         base.paste(heatmap, (0, 0), heatmap)
-        base.save(outname + "/"+ dl.imgDataArray[i].name)
+        base.save(outname + "/" + dl.imgDataArray[i].name)
         # base.show()
         # heatmaps.append(np.asarray(ImageOps.invert(base)))
 
-    # cv2.imwrite(outname, utils.stitch_images(heatmaps))
+        # cv2.imwrite(outname, utils.stitch_images(heatmaps))
 
 
 def main():
@@ -86,34 +88,42 @@ def main():
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
-        generate_maps(dl, model, argv[4], tf.get_default_graph(), all_classes=bool(int(argv[5])), batch_size=int(argv[6]), mode=argv[7])
+        generate_maps(dl, model, argv[4], tf.get_default_graph(), all_classes=bool(int(argv[5])),
+                      batch_size=int(argv[6]), mode=argv[7])
 
     if argv[1] == '2':
-        dl = DatasetLoader(argv[3], 10000)
-        model = load_model(argv[2])
+        files_path = glob(argv[2] + "/*/*/*.json")
+        for filep in files_path:
+            with open(filep) as data_file:
+                data = json.load(data_file)
+            if data['predicted'] == data['true_label']:
+                score = compute_bias(argv[2], filep, data['predicted'])
+                if score == -1:
+                    continue
+                score_n01 = compute_bias(argv[2], filep, data['predicted'], 'normalizer01')
+                score_nmin = compute_bias(argv[2], filep, data['predicted'], 'normalizerMin')
+                with open(filep, 'w') as outfile:
+                    json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
+                               'score': score, 'score_n01': score_n01, 'score_nmin': score_nmin}, outfile)
+            else:
+                score_predicted = compute_bias(argv[2], filep, data['predicted'])
+                if score_predicted == -1:
+                    continue
+                score_predicted_n01 = compute_bias(argv[2], filep, data['predicted'], 'normalizer01')
+                score_predicted_nmin = compute_bias(argv[2], filep, data['predicted'], 'normalizerMin')
 
-        for i in range(dl.number_of_imgs_for_train, dl.number_of_imgs):
-            outpath = argv[3] + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
-            heatmap_path = outpath + "/" + str(dl.imgDataArray[i].img_class) + ".png"
+                score_true_label = compute_bias(argv[2], filep, data['true_label'])
+                score_true_label_n01 = compute_bias(argv[2], filep, data['true_label'], 'normalizer01')
+                score_true_label_nmin = compute_bias(argv[2], filep, data['true_label'], 'normalizerMin')
 
-            p_file = Path(heatmap_path)
-            if not p_file.exists():  # if segmented does not exists continue...
-                print("[ERROR][BIAS METRIC] -> does not exists:", heatmap_path)
-                continue
-            heatmap = Image.open(heatmap_path)
+                with open(filep, 'w') as outfile:
+                    json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
+                               'score_predicted': score_predicted, 'score_predicted_n01': score_predicted_n01,
+                               'score_predicted_nmin': score_predicted_nmin,
+                               'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
+                               'score_true_label_nmin': score_true_label_nmin},
+                              outfile)
 
-            tmp = heatmap_path[:-4]
-            tmp = tmp[len(argv[3]):]
-            tmp = "./dataset_black_bg" + tmp + "_final_masked.jpg"
-            print(tmp)
-
-            tmp_file = Path(tmp)
-            if not tmp_file.exists():  # if segmented does not exists continue...
-                print("[ERROR][BIAS METRIC] -> does not exists:", tmp)
-                continue
-            mask = Image.open(tmp)
-
-            compute_metric(heatmap, mask)
     if argv[1] == "3":
         dataset_convertor('dataset_black_bg', 'dataset_rand', 'dataset_art')
     if argv[1] == "4":
@@ -169,6 +179,32 @@ def main():
         create_cam(DatasetLoader('visual', 10000), model, argv[3] + "_normal", 260)
         create_cam(DatasetLoader('visual_art', 10000), model, argv[3] + "_art", 260)
         create_cam(DatasetLoader('visual_rand', 10000), model, argv[3] + "_rand", 260)
+    if argv[1] == '11':
+        results_correct_prediction = []
+        results_wrong_prediction = []
+        files_path = glob(argv[2] + "/*/*/*.json")
+        for filep in files_path:
+            with open(filep) as data_file:
+                data = json.load(data_file)
+            if data['predicted'] == data['true_label']:
+                a = [data['predicted'],
+                     data['true_label'],
+                     data['score'],
+                     data['score_n01'],
+                     data['score_nmin']]
+                results_correct_prediction.append(np.asarray(a))
+            else:
+                a = [data['predicted'],
+                     data['true_label'],
+                     data['score_predicted'],
+                     data['score_predicted_n01'],
+                     data['score_predicted_nmin'],
+                     data['score_true_label'],
+                     data['score_true_label_n01'],
+                     data['score_true_label_nmin']]
+                results_wrong_prediction.append(np.asarray(a))
+        np.save('results_correct_prediction', np.asarray(results_correct_prediction))
+        np.save('results_wrong_prediction', np.asarray(results_wrong_prediction))
 
 if __name__ == "__main__":
     main()

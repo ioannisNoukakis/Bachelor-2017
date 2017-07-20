@@ -9,7 +9,6 @@ import tensorflow as tf
 import numpy as np
 from keras import backend as K
 
-from model_utils import get_outputs_generator
 from keras.applications.imagenet_utils import preprocess_input
 
 
@@ -89,7 +88,7 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
                             with open(outpath + '/resuts.json', 'w') as outfile:
                                 json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[inc].img_class)},
                                           outfile)
-                        print("cam(", counter, "/", dl.number_of_imgs_for_train, "completed")
+                        print("cam(", counter, "/", dl.number_of_imgs_for_test, "completed")
                         counter += 1
                     print("got cams in", time.time() - start_time)
 
