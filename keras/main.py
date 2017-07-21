@@ -42,36 +42,39 @@ class BiasWorkerThread(Thread):
 
     def run(self):
         for i in range(self.a, self.b):
-            start_time = time.time()
-            with open(self.files_path[i]) as data_file:
-                data = json.load(data_file)
-            if data['predicted'] == data['true_label']:
-                score = compute_bias(self.base_d, self.files_path[i], data['predicted'])
-                if score == -1:
-                    continue
-                score_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizer01')
-                score_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizerMin')
-                with open(self.files_path[i], 'w') as outfile:
-                    json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
-                               'score': score, 'score_n01': score_n01, 'score_nmin': score_nmin}, outfile)
-            else:
-                score_predicted = compute_bias(self.base_d, self.files_path[i], data['predicted'])
-                if score_predicted == -1:
-                    continue
-                score_predicted_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizer01')
-                score_predicted_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizerMin')
+            try:
+                start_time = time.time()
+                with open(self.files_path[i]) as data_file:
+                    data = json.load(data_file)
+                if data['predicted'] == data['true_label']:
+                    score = compute_bias(self.base_d, self.files_path[i], data['predicted'])
+                    if score == -1:
+                        continue
+                    score_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizer01')
+                    score_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizerMin')
+                    with open(self.files_path[i], 'w') as outfile:
+                        json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
+                                   'score': score, 'score_n01': score_n01, 'score_nmin': score_nmin}, outfile)
+                else:
+                    score_predicted = compute_bias(self.base_d, self.files_path[i], data['predicted'])
+                    if score_predicted == -1:
+                        continue
+                    score_predicted_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizer01')
+                    score_predicted_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizerMin')
 
-                score_true_label = compute_bias(self.base_d, self.files_path[i], data['true_label'])
-                score_true_label_n01 = compute_bias(self.base_d, self.files_path[i], data['true_label'], 'normalizer01')
-                score_true_label_nmin = compute_bias(self.base_d, self.files_path[i], data['true_label'], 'normalizerMin')
+                    score_true_label = compute_bias(self.base_d, self.files_path[i], data['true_label'])
+                    score_true_label_n01 = compute_bias(self.base_d, self.files_path[i], data['true_label'], 'normalizer01')
+                    score_true_label_nmin = compute_bias(self.base_d, self.files_path[i], data['true_label'], 'normalizerMin')
 
-                with open(self.files_path[i], 'w') as outfile:
-                    json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
-                               'score_predicted': score_predicted, 'score_predicted_n01': score_predicted_n01,
-                               'score_predicted_nmin': score_predicted_nmin,
-                               'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
-                               'score_true_label_nmin': score_true_label_nmin},
-                              outfile)
+                    with open(self.files_path[i], 'w') as outfile:
+                        json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
+                                   'score_predicted': score_predicted, 'score_predicted_n01': score_predicted_n01,
+                                   'score_predicted_nmin': score_predicted_nmin,
+                                   'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
+                                   'score_true_label_nmin': score_true_label_nmin},
+                                  outfile)
+            except json.decoder.JSONDecodeError:
+                print('[USER WARNING]', 'Json was malformed. Pehaps you cam generation was interrupted?')
             print("ok(", time.time() - start_time, ") seconds")
 
 
@@ -212,26 +215,34 @@ def main():
         results_correct_prediction = []
         results_wrong_prediction = []
         files_path = glob(argv[2] + "/*/*/*.json")
+        total = 0
+
         for filep in files_path:
-            with open(filep) as data_file:
-                data = json.load(data_file)
-            if data['predicted'] == data['true_label']:
-                a = [data['predicted'],
-                     data['true_label'],
-                     data['score'],
-                     data['score_n01'],
-                     data['score_nmin']]
-                results_correct_prediction.append(np.asarray(a))
-            else:
-                a = [data['predicted'],
-                     data['true_label'],
-                     data['score_predicted'],
-                     data['score_predicted_n01'],
-                     data['score_predicted_nmin'],
-                     data['score_true_label'],
-                     data['score_true_label_n01'],
-                     data['score_true_label_nmin']]
-                results_wrong_prediction.append(np.asarray(a))
+            try:
+                with open(filep) as data_file:
+                    data = json.load(data_file)
+                if data['predicted'] == data['true_label']:
+                    a = [data['predicted'],
+                         data['true_label'],
+                         data['score'],
+                         data['score_n01'],
+                         data['score_nmin']]
+                    results_correct_prediction.append(np.asarray(a))
+                else:
+                    a = [data['predicted'],
+                         data['true_label'],
+                         data['score_predicted'],
+                         data['score_predicted_n01'],
+                         data['score_predicted_nmin'],
+                         data['score_true_label'],
+                         data['score_true_label_n01'],
+                         data['score_true_label_nmin']]
+                    results_wrong_prediction.append(np.asarray(a))
+            except json.decoder.JSONDecodeError:
+                total += 1
+        if total > 0:
+            print('[USER WARNING]', total, 'json files were not correctly formed. Did domething happend during the ' +
+                                           'first part of this procedure?')
         np.save('results_correct_prediction', np.asarray(results_correct_prediction))
         np.save('results_wrong_prediction', np.asarray(results_wrong_prediction))
 

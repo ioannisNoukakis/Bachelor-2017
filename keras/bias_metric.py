@@ -42,7 +42,7 @@ def compute_metric(cam: np.ndarray, mask: np.ndarray):
 
             if pixel >= 10:
                 inside += cam[i][j]
-            if pixel < 10:
+            else:
                 outside += cam[i][j]
 
     return outside/(inside + outside)
