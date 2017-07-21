@@ -1,6 +1,7 @@
 import json
 import sys
 from glob import glob
+from threading import Thread
 
 from PIL import Image, ImageOps
 from keras.models import load_model
@@ -30,6 +31,53 @@ from heatmapgenerate import *
 # http://lcn.epfl.ch/tutorial/english/perceptron/html/learning.html
 # https://github.com/fchollet/keras/issues/4446
 
+
+class BiasWorkerThread(Thread):
+    def __init__(self, a, b, base_d, files_path):
+        Thread.__init__(self)
+        self.a = a
+        self.b = b
+        self.files_path = files_path
+        self.base_d = base_d
+
+    def run(self):
+        for i in range(self.a, self.b):
+            try:
+                start_time = time.time()
+                with open(self.files_path[i]) as data_file:
+                    data = json.load(data_file)
+                if data['predicted'] == data['true_label']:
+                    print('correcty predicted')
+                    score = compute_bias(self.base_d, self.files_path[i], data['predicted'])
+                    if score == -1:
+                        continue
+                    score_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizer01')
+                    score_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizerMin')
+                    with open(self.files_path[i], 'w') as outfile:
+                        json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
+                                   'score': score, 'score_n01': score_n01, 'score_nmin': score_nmin}, outfile)
+                else:
+                    print('wrongly predicted')
+                    score_predicted = compute_bias(self.base_d, self.files_path[i], data['predicted'])
+                    if score_predicted == -1:
+                        continue
+                    score_predicted_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizer01')
+                    score_predicted_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizerMin')
+
+                    score_true_label = compute_bias(self.base_d, self.files_path[i], data['true_label'])
+                    score_true_label_n01 = compute_bias(self.base_d, self.files_path[i], data['true_label'], 'normalizer01')
+                    score_true_label_nmin = compute_bias(self.base_d, self.files_path[i], data['true_label'], 'normalizerMin')
+
+                    with open(self.files_path[i], 'w') as outfile:
+                        json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
+                                   'score_predicted': score_predicted, 'score_predicted_n01': score_predicted_n01,
+                                   'score_predicted_nmin': score_predicted_nmin,
+                                   'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
+                                   'score_true_label_nmin': score_true_label_nmin},
+                                   outfile)
+            except json.decoder.JSONDecodeError:
+                print('[USER WARNING]','Json was malformed. Pehaps you cam generation was interrupted?')
+            print("ok(", time.time() - start_time, ") seconds")
 
 def create_cam(dl: DatasetLoader, model, outname: str, im_width=256):
     os.makedirs(outname)
@@ -83,7 +131,7 @@ def main():
         vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6])), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
-    if argv[1] == "1":  # FIXME Cythonize - no need?
+    if argv[1] == "1":
         # 1 101_resized caltech.h5 maps_test_tf 1 2 tf
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
@@ -95,41 +143,20 @@ def main():
         files_path = glob(argv[2] + "/*/*/*.json")
         number_of_files_to_process = len(files_path)
         print(number_of_files_to_process, "images to process")
-        k = 0
-        for filep in files_path:
-            with open(filep) as data_file:
-                data = json.load(data_file)
-            if data['predicted'] == data['true_label']:
-                score = compute_bias(argv[2], filep, data['predicted'])
-                if score == -1:
-                    k += 1
-                    continue
-                score_n01 = compute_bias(argv[2], filep, data['predicted'], 'normalizer01')
-                score_nmin = compute_bias(argv[2], filep, data['predicted'], 'normalizerMin')
-                with open(filep, 'w') as outfile:
-                    json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
-                               'score': score, 'score_n01': score_n01, 'score_nmin': score_nmin}, outfile)
-            else:
-                score_predicted = compute_bias(argv[2], filep, data['predicted'])
-                if score_predicted == -1:
-                    k +=1
-                    continue
-                score_predicted_n01 = compute_bias(argv[2], filep, data['predicted'], 'normalizer01')
-                score_predicted_nmin = compute_bias(argv[2], filep, data['predicted'], 'normalizerMin')
-
-                score_true_label = compute_bias(argv[2], filep, data['true_label'])
-                score_true_label_n01 = compute_bias(argv[2], filep, data['true_label'], 'normalizer01')
-                score_true_label_nmin = compute_bias(argv[2], filep, data['true_label'], 'normalizerMin')
-
-                with open(filep, 'w') as outfile:
-                    json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
-                               'score_predicted': score_predicted, 'score_predicted_n01': score_predicted_n01,
-                               'score_predicted_nmin': score_predicted_nmin,
-                               'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
-                               'score_true_label_nmin': score_true_label_nmin},
-                              outfile)
-            print(k, "/", number_of_files_to_process)
-            k += 1
+        number_thread = int(argv[3])
+        inc = int(number_of_files_to_process/number_thread)
+        a = 0
+        b = inc
+        threads = []
+        print(number_thread, "worker will be used and each will process", inc, "images")
+        for i in range(0, number_thread):
+            t = BiasWorkerThread(a, b, argv[2], files_path)
+            threads.append(t)
+            t.start()
+            a = b
+            b += inc
+        for t in threads:
+            t.join()
     if argv[1] == "3":
         dataset_convertor('dataset_black_bg', 'dataset_rand', 'dataset_art')
     if argv[1] == "4":
