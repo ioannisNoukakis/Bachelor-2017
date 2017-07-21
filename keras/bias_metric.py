@@ -56,7 +56,7 @@ def compute_bias(b_directory, file_p, i, modifier:str=""):
     if modifier == 'normalizer01':
         cam = MinMaxScaler((0., 1.)).fit_transform(cam)
     if modifier == 'normalizerMin':
-        cam += cam.min()
+        cam -= cam.min()
     mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
     if mask is None:
         print('[USER WARNING]', 'dataset_black_bg/' + splitted[1] + '/' + splitted[2][:-4]

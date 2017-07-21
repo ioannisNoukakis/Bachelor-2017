@@ -6,3 +6,4 @@ keras/maps_normal/*
 keras/tmp/*
 keras/mnist_maps/*
 keras/mnist_maps_np/*
+keras/maps_test_tf/*
