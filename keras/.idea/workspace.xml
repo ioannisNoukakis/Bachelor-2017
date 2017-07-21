@@ -12,6 +12,8 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/keras$py_test_in_test_img_processing_pixels_counter_py.coverage" NAME="py.test in test_img_processing_pixels_counter.py Coverage Results" MODIFIED="1500210013762" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/keras$main__1_.coverage" NAME="main (1) Coverage Results" MODIFIED="1500551251325" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/keras$py_test_in_test_keras_py.coverage" NAME="py.test in keras_exampel.py Coverage Results" MODIFIED="1500626542529" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/keras$keras_exampel.coverage" NAME="keras_exampel Coverage Results" MODIFIED="1500627374837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/keras$main.coverage" NAME="main Coverage Results" MODIFIED="1500380501484" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/keras$mohanty.coverage" NAME="mohanty Coverage Results" MODIFIED="1500303691504" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/keras$combine_images.coverage" NAME="combine_images Coverage Results" MODIFIED="1500563758657" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -25,27 +27,15 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="460">
-              <caret line="247" column="0" lean-forward="true" selection-start-line="247" selection-start-column="0" selection-end-line="247" selection-end-column="0" />
+            <state relative-caret-position="275">
+              <caret line="232" column="37" lean-forward="false" selection-start-line="232" selection-start-column="37" selection-end-line="232" selection-end-column="37" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#3919#5865#0" expanded="false" />
-                <element signature="e#7488#7748#0" expanded="false" />
-                <element signature="e#7780#8116#0" expanded="false" />
-                <element signature="e#8148#8269#0" expanded="false" />
-                <element signature="e#8393#9055#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="combine_images.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/combine_images.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="429">
-              <caret line="31" column="18" lean-forward="false" selection-start-line="31" selection-start-column="18" selection-end-line="31" selection-end-column="18" />
-              <folding>
-                <element signature="e#187#224#0" expanded="true" />
+                <element signature="e#4143#6089#0" expanded="false" />
+                <element signature="e#7714#7974#0" expanded="false" />
+                <element signature="e#8006#8342#0" expanded="false" />
+                <element signature="e#8374#8495#0" expanded="false" />
+                <element signature="e#8619#9281#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -54,33 +44,11 @@
       <file leaf-file-name="bias_metric.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bias_metric.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="960">
-              <caret line="57" column="35" lean-forward="false" selection-start-line="57" selection-start-column="35" selection-end-line="57" selection-end-column="35" />
+            <state relative-caret-position="299">
+              <caret line="55" column="32" lean-forward="false" selection-start-line="55" selection-start-column="20" selection-end-line="55" selection-end-column="32" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="heatmapgenerate.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/heatmapgenerate.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1620">
-              <caret line="92" column="65" lean-forward="false" selection-start-line="92" selection-start-column="41" selection-end-line="92" selection-end-column="65" />
-              <folding>
-                <element signature="e#0#11#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="img_processing.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/img_processing.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1220">
-              <caret line="65" column="4" lean-forward="false" selection-start-line="65" selection-start-column="4" selection-end-line="65" selection-end-column="4" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -106,6 +74,7 @@
       <find>opac</find>
       <find>opa</find>
       <find>mkdir</find>
+      <find>arg</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -124,6 +93,8 @@
         <option value="$PROJECT_DIR$/img_processing.py" />
         <option value="$PROJECT_DIR$/bias_metric.py" />
         <option value="$PROJECT_DIR$/combine_images.py" />
+        <option value="$PROJECT_DIR$/test_keras.py" />
+        <option value="$PROJECT_DIR$/keras_exampel.py" />
         <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
@@ -192,43 +163,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.combine_images">
-    <configuration default="false" name="py.test in test_img_processing_pixels_counter.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="keras" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_img_processing_pixels_counter.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method />
-    </configuration>
-    <configuration default="false" name="mohanty" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="keras" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mohanty.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="Python.keras_exampel">
     <configuration default="false" name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -282,6 +217,42 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/combine_images.py" />
       <option name="PARAMETERS" value="cam_normal_normal" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="py.test in keras_exampel.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="keras" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/keras_exampel.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <configuration default="false" name="keras_exampel" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="keras" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/keras_exampel.py" />
+      <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
@@ -447,19 +418,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in test_img_processing_pixels_counter.py" />
-      <item index="1" class="java.lang.String" itemvalue="Python.mohanty" />
-      <item index="2" class="java.lang.String" itemvalue="Python.main" />
-      <item index="3" class="java.lang.String" itemvalue="Python.main (1)" />
-      <item index="4" class="java.lang.String" itemvalue="Python.combine_images" />
+      <item index="0" class="java.lang.String" itemvalue="Python.main" />
+      <item index="1" class="java.lang.String" itemvalue="Python.main (1)" />
+      <item index="2" class="java.lang.String" itemvalue="Python.combine_images" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in keras_exampel.py" />
+      <item index="4" class="java.lang.String" itemvalue="Python.keras_exampel" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.combine_images" />
-        <item index="1" class="java.lang.String" itemvalue="Python.main (1)" />
-        <item index="2" class="java.lang.String" itemvalue="Python.main" />
-        <item index="3" class="java.lang.String" itemvalue="Python.mohanty" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_img_processing_pixels_counter.py" />
+        <item index="0" class="java.lang.String" itemvalue="Python.keras_exampel" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in keras_exampel.py" />
+        <item index="2" class="java.lang.String" itemvalue="Python.combine_images" />
+        <item index="3" class="java.lang.String" itemvalue="Python.main (1)" />
+        <item index="4" class="java.lang.String" itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>
@@ -477,14 +448,8 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="py_test_in_test_img_processing_pixels_counter_py - 2017.07.16 at 14h 46m 27s.xml">
-      <configuration name="py.test in test_img_processing_pixels_counter.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_img_processing_pixels_counter_py - 2017.07.16 at 14h 50m 34s.xml">
-      <configuration name="py.test in test_img_processing_pixels_counter.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_img_processing_pixels_counter_py - 2017.07.16 at 14h 51m 20s.xml">
-      <configuration name="py.test in test_img_processing_pixels_counter.py" configurationId="tests" />
+    <history-entry file="py_test_in_keras_exampel_py - 2017.07.21 at 10h 42m 25s.xml">
+      <configuration name="py.test in keras_exampel.py" configurationId="tests" />
     </history-entry>
     <history-entry file="py_test_in_test_img_processing_pixels_counter_py - 2017.07.16 at 14h 55m 48s.xml">
       <configuration name="py.test in test_img_processing_pixels_counter.py" configurationId="tests" />
@@ -507,6 +472,12 @@
     <history-entry file="py_test_in_test_img_processing_pixels_counter_py - 2017.07.16 at 15h 13m 33s.xml">
       <configuration name="py.test in test_img_processing_pixels_counter.py" configurationId="tests" />
     </history-entry>
+    <history-entry file="py_test_in_test_keras_py - 2017.07.21 at 10h 41m 51s.xml">
+      <configuration name="py.test in test_keras.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_keras_py - 2017.07.21 at 10h 42m 06s.xml">
+      <configuration name="py.test in test_keras.py" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1366" height="741" extended-state="6" />
@@ -516,7 +487,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32854864" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22966507" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4449761" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -569,7 +540,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main.py</url>
-          <line>118</line>
+          <line>122</line>
           <option name="timeStamp" value="32" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -586,37 +557,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/model_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="10" column="4" lean-forward="false" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#3919#5865#0" expanded="false" />
-            <element signature="e#7488#7748#0" expanded="false" />
-            <element signature="e#7780#8116#0" expanded="false" />
-            <element signature="e#8148#8269#0" expanded="false" />
-            <element signature="e#8393#9055#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/VGG16_ft.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="22" column="27" lean-forward="false" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/model_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
@@ -667,11 +607,11 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#3919#5865#0" expanded="false" />
-            <element signature="e#7488#7748#0" expanded="false" />
-            <element signature="e#7780#8116#0" expanded="false" />
-            <element signature="e#8148#8269#0" expanded="false" />
-            <element signature="e#8393#9055#0" expanded="false" />
+            <element signature="e#4143#6089#0" expanded="false" />
+            <element signature="e#7714#7974#0" expanded="false" />
+            <element signature="e#8006#8342#0" expanded="false" />
+            <element signature="e#8374#8495#0" expanded="false" />
+            <element signature="e#8619#9281#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -786,14 +726,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mohanty.py" />
-    <entry file="file://$PROJECT_DIR$/VGG16_ft.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="28" column="92" lean-forward="false" selection-start-line="28" selection-start-column="92" selection-end-line="28" selection-end-column="92" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mini_deploy.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -834,6 +766,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-422">
           <caret line="688" column="4" lean-forward="false" selection-start-line="688" selection-start-column="4" selection-end-line="688" selection-end-column="4" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -934,26 +867,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/heatmapgenerate.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1620">
-          <caret line="92" column="65" lean-forward="false" selection-start-line="92" selection-start-column="41" selection-end-line="92" selection-end-column="65" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bias_metric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="960">
-          <caret line="57" column="35" lean-forward="false" selection-start-line="57" selection-start-column="35" selection-end-line="57" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/out.png" />
     <entry file="file://$PROJECT_DIR$/combine_images.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -965,17 +878,71 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
+    <entry file="file://$PROJECT_DIR$/VGG16_ft.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="460">
-          <caret line="247" column="0" lean-forward="true" selection-start-line="247" selection-start-column="0" selection-end-line="247" selection-end-column="0" />
+        <state relative-caret-position="160">
+          <caret line="24" column="101" lean-forward="true" selection-start-line="24" selection-start-column="12" selection-end-line="24" selection-end-column="101" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib64/python3.5/site-packages/keras/engine/topology.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="106">
+          <caret line="943" column="0" lean-forward="false" selection-start-line="943" selection-start-column="0" selection-end-line="943" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib64/python3.5/site-packages/keras/applications/vgg16.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="206">
+          <caret line="90" column="53" lean-forward="false" selection-start-line="90" selection-start-column="53" selection-end-line="90" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/keras_exampel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-51">
+          <caret line="23" column="111" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="111" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/heatmapgenerate.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1480">
+          <caret line="74" column="53" lean-forward="true" selection-start-line="74" selection-start-column="32" selection-end-line="74" selection-end-column="53" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#3919#5865#0" expanded="false" />
-            <element signature="e#7488#7748#0" expanded="false" />
-            <element signature="e#7780#8116#0" expanded="false" />
-            <element signature="e#8148#8269#0" expanded="false" />
-            <element signature="e#8393#9055#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bias_metric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="55" column="32" lean-forward="false" selection-start-line="55" selection-start-column="20" selection-end-line="55" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="275">
+          <caret line="232" column="37" lean-forward="false" selection-start-line="232" selection-start-column="37" selection-end-line="232" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#4143#6089#0" expanded="false" />
+            <element signature="e#7714#7974#0" expanded="false" />
+            <element signature="e#8006#8342#0" expanded="false" />
+            <element signature="e#8374#8495#0" expanded="false" />
+            <element signature="e#8619#9281#0" expanded="false" />
           </folding>
         </state>
       </provider>
