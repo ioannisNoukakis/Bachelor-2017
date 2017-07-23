@@ -155,6 +155,7 @@ def main():
             t = BiasWorkerThread(a, b, argv[2], files_path)
             threads.append(t)
             t.start()
+            print('thread', i, 'will take care of', a, 'to', b)
             a = b
             b += inc
         for t in threads:
