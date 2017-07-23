@@ -76,10 +76,11 @@ class BiasWorkerThread(Thread):
                                    'score_predicted_nmin': score_predicted_nmin,
                                    'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
                                    'score_true_label_nmin': score_true_label_nmin},
-                                    outfile)
+                                  outfile)
             except (KeyError, json.decoder.JSONDecodeError):
                 print('[USER WARNING]', 'Json was malformed. Pehaps you cam generation was interrupted?')
             print("ok(", time.time() - start_time, ") seconds")
+
 
 def create_cam(dl: DatasetLoader, model, outname: str, im_width=256):
     os.makedirs(outname)
@@ -130,7 +131,7 @@ def main():
     argv = sys.argv
     if argv[1] == "0":
         print("SEED IS", 123)
-        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6])), mode=argv[4])
+        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6]), force_resize=True), mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
     if argv[1] == "1":
@@ -261,7 +262,8 @@ def main():
                     data = json.load(data_file)
                 if data['predicted'] != data['true_label']:
                     splitted = file_p.split('/')
-                    img_path_true_label = argv[2] + '/' + splitted[-3] + '/' + splitted[-2] + '/' + data['true_label'] + '.tiff'
+                    img_path_true_label = argv[2] + '/' + splitted[-3] + '/' + splitted[-2] + '/' + data[
+                        'true_label'] + '.tiff'
 
                     cam_true_label = cv2.imread(img_path_true_label, cv2.IMREAD_UNCHANGED)
                     cam_true_label.astype('float32')
@@ -273,6 +275,7 @@ def main():
             print('[USER WARNING]', total, 'json files were not correctly formed. Did domething happend during the ' +
                   'first part of this procedure?')
         np.save('cams_total_pre_class', np.asarray(cams_total_pre_class))
+
 
 if __name__ == "__main__":
     main()

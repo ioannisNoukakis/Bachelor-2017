@@ -27,15 +27,31 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="268" column="0" lean-forward="true" selection-start-line="268" selection-start-column="0" selection-end-line="268" selection-end-column="0" />
+            <state relative-caret-position="140">
+              <caret line="133" column="100" lean-forward="false" selection-start-line="133" selection-start-column="100" selection-end-line="133" selection-end-column="100" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#7778#8038#0" expanded="false" />
-                <element signature="e#8070#8406#0" expanded="false" />
-                <element signature="e#8438#8559#0" expanded="false" />
-                <element signature="e#8683#9345#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="img_loader.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/img_loader.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="537">
+              <caret line="52" column="54" lean-forward="true" selection-start-line="52" selection-start-column="54" selection-end-line="52" selection-end-column="54" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="VGG16_ft.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/VGG16_ft.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="320">
+              <caret line="23" column="27" lean-forward="false" selection-start-line="23" selection-start-column="20" selection-end-line="23" selection-end-column="27" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -43,8 +59,8 @@
       <file leaf-file-name="bias_metric.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bias_metric.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="265">
-              <caret line="45" column="36" lean-forward="true" selection-start-line="39" selection-start-column="4" selection-end-line="45" selection-end-column="36" />
+            <state relative-caret-position="480">
+              <caret line="45" column="36" lean-forward="false" selection-start-line="39" selection-start-column="4" selection-end-line="45" selection-end-column="36" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -56,7 +72,7 @@
         <entry file="file://$PROJECT_DIR$/heatmapgenerate.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="125">
-              <caret line="86" column="83" lean-forward="true" selection-start-line="86" selection-start-column="32" selection-end-line="86" selection-end-column="83" />
+              <caret line="86" column="83" lean-forward="false" selection-start-line="86" selection-start-column="32" selection-end-line="86" selection-end-column="83" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -99,6 +115,9 @@
       <find>min</find>
       <find>max_queue_size</find>
       <find>model</find>
+      <find>to</find>
+      <find>dataset</find>
+      <find>resize</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -119,6 +138,7 @@
         <option value="$PROJECT_DIR$/keras_exampel.py" />
         <option value="$PROJECT_DIR$/bias_metric.py" />
         <option value="$PROJECT_DIR$/VGG16_ft.py" />
+        <option value="$PROJECT_DIR$/img_loader.py" />
         <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
@@ -625,10 +645,6 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#7778#8038#0" expanded="false" />
-            <element signature="e#8070#8406#0" expanded="false" />
-            <element signature="e#8438#8559#0" expanded="false" />
-            <element signature="e#8683#9345#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -790,13 +806,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cam_caltech_normal.png" />
-    <entry file="file://$PROJECT_DIR$/img_loader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="15" column="22" lean-forward="false" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/experiments_logs.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="178">
@@ -879,29 +888,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/VGG16_ft.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="25" column="25" lean-forward="false" selection-start-line="25" selection-start-column="25" selection-end-line="25" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib64/python3.5/site-packages/keras/models.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="20">
           <caret line="1028" column="36" lean-forward="false" selection-start-line="1028" selection-start-column="22" selection-end-line="1028" selection-end-column="36" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bias_metric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="265">
-          <caret line="45" column="36" lean-forward="true" selection-start-line="39" selection-start-column="4" selection-end-line="45" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -916,23 +907,45 @@
     <entry file="file://$PROJECT_DIR$/heatmapgenerate.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="125">
-          <caret line="86" column="83" lean-forward="true" selection-start-line="86" selection-start-column="32" selection-end-line="86" selection-end-column="83" />
+          <caret line="86" column="83" lean-forward="false" selection-start-line="86" selection-start-column="32" selection-end-line="86" selection-end-column="83" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/bias_metric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="45" column="36" lean-forward="false" selection-start-line="39" selection-start-column="4" selection-end-line="45" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/VGG16_ft.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="320">
+          <caret line="23" column="27" lean-forward="false" selection-start-line="23" selection-start-column="20" selection-end-line="23" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/img_loader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="537">
+          <caret line="52" column="54" lean-forward="true" selection-start-line="52" selection-start-column="54" selection-end-line="52" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="268" column="0" lean-forward="true" selection-start-line="268" selection-start-column="0" selection-end-line="268" selection-end-column="0" />
+        <state relative-caret-position="140">
+          <caret line="133" column="100" lean-forward="false" selection-start-line="133" selection-start-column="100" selection-end-line="133" selection-end-column="100" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#7778#8038#0" expanded="false" />
-            <element signature="e#8070#8406#0" expanded="false" />
-            <element signature="e#8438#8559#0" expanded="false" />
-            <element signature="e#8683#9345#0" expanded="false" />
           </folding>
         </state>
       </provider>

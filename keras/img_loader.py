@@ -28,7 +28,7 @@ class ImagePath:
 class DatasetLoader:
     """ Utility image loading class """
 
-    def __init__(self, base_directory, max_img_loaded, no_training_data=False):
+    def __init__(self, base_directory, max_img_loaded, no_training_data=False, force_resize=False):
         """
         This utility expects you to have the following folder pattern:
 
@@ -58,6 +58,7 @@ class DatasetLoader:
         self.i = 0  # iterator used when normal loading
 
         self.train_loaded = False
+        self.force_resize = force_resize
 
         info("DATASET LOADER]", "Discovering dataset...")
         directories = next(os.walk(self.baseDirectory))[1]
@@ -167,7 +168,7 @@ class DatasetLoader:
                 self.i = 0
                 break
             if j + 1 >= self.max_img_loaded:
-                info("DATASET LOADER]", "")
+                info("[DATASET LOADER]", "")
                 print("Max img loaded!", self.i, "/", self.number_of_imgs)
                 redo = True
                 break
@@ -176,7 +177,8 @@ class DatasetLoader:
                              self.imgDataArray[self.i].get_name(), cv2.IMREAD_COLOR)
             
             # print("IMAGE SHAPE", img.shape)
-            img = cv2.resize(img, (260, 260))
+            if self.force_resize:
+                img = cv2.resize(img, (256, 256))
             img = img.astype('float32')
             
             data_x.append(img)
@@ -184,6 +186,6 @@ class DatasetLoader:
             j += 1
             self.i += 1
 
-        info("DATASET LOADER]", "Loading completed!")
+        info("[DATASET LOADER]", "Loading completed!")
 
         return redo, np.asarray(data_x), np.asarray(data_y)
