@@ -254,16 +254,17 @@ def main():
         total = 0
 
         # for experiements. Add cams by class and total
-        cams_total_pre_class = np.zeros((3, 256, 256))
+        cams_total_pre_class = np.zeros((38, 256, 256), dtype=np.float)
         for file_p in files_path:
             try:
                 with open(file_p) as data_file:
                     data = json.load(data_file)
                 if data['predicted'] != data['true_label']:
                     splitted = file_p.split('/')
-                    img_path_true_label = 'dataset_black_bg/' + splitted[-3] + '/' + splitted[-2] + '/' + data['true_label'] + '.tiff'
+                    img_path_true_label = argv[2] + '/' + splitted[-3] + '/' + splitted[-2] + '/' + data['true_label'] + '.tiff'
 
                     cam_true_label = cv2.imread(img_path_true_label, cv2.IMREAD_UNCHANGED)
+                    cam_true_label.astype('float32')
                     cams_total_pre_class[int(data['true_label'])] += cam_true_label
 
             except json.decoder.JSONDecodeError:
