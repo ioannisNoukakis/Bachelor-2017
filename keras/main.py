@@ -13,6 +13,7 @@ from img_processing import dataset_convertor
 from mnist_model import create_n_run_mnist
 from model_utils import get_outputs_generator, reduce_opacity
 import pyximport;
+
 pyximport.install()
 from heatmapgenerate import *
 
@@ -77,14 +78,14 @@ class BiasWorkerThread(Thread):
             print("ok(", time.time() - start_time, ") seconds")
 
 
-def create_cam(dl: DatasetLoader, model, outname: str, im_width=256):
+def create_cam(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256):
     os.makedirs(outname)
     heatmaps = []
-    for i in range(0, dl.number_of_imgs):
-        predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                    dl.imgDataArray[i].name, cv2.IMREAD_COLOR))
-        base = Image.open(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                          dl.imgDataArray[i].name)
+    for _ in range(0, dl.nb_classes):
+        predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[0].directory + "/" +
+                                    dl.imgDataArray[0].name, cv2.IMREAD_COLOR))
+        base = Image.open(dl.baseDirectory + "/" + dl.imgDataArray[0].directory + "/" +
+                          dl.imgDataArray[0].name)
         predict_input = predict_input.astype('float32')
         predict_input = np.expand_dims(predict_input, axis=0)
         predict_input = preprocess_input(predict_input)
@@ -110,6 +111,16 @@ def create_cam(dl: DatasetLoader, model, outname: str, im_width=256):
         heatmap = reduce_opacity(heatmap, 0.5)
         base.paste(heatmap, (0, 0), heatmap)
         heatmaps.append(base)
+
+    result = Image.new("RGB", (n * s, (len(heatmaps) // n + 1) * s))
+    for index, img in enumerate(heatmaps):
+        x = index % n * 256
+        y = index // n * 256
+        w, h = img.size
+        print('pos {0},{1} size {2},{3}'.format(x, y, w, h))
+        result.paste(img, (x, y, x + w, y + h))
+
+    result.save(outname)
 
 
 def main():
@@ -265,6 +276,7 @@ def main():
             print('[USER WARNING]', total, 'json files were not correctly formed. Did domething happend during the ' +
                   'first part of this procedure?')
         np.save('cams_total_pre_class', np.asarray(cams_total_pre_class))
+
 
 if __name__ == "__main__":
     main()
