@@ -216,7 +216,7 @@ def main():
         create_cam(DatasetLoader('visual', 10000), model, argv[3] + "_normal", 260)
         create_cam(DatasetLoader('visual_art', 10000), model, argv[3] + "_art", 260)
         create_cam(DatasetLoader('visual_rand', 10000), model, argv[3] + "_rand", 260)
-        create_cam(DatasetLoader('visual_black', 10000), model, argv[3] + "_rand", 260)
+        create_cam(DatasetLoader('visual_black', 10000), model, argv[3] + "_black", 260)
     if argv[1] == '11':
         results_correct_prediction = []
         results_wrong_prediction = []
@@ -256,19 +256,27 @@ def main():
         total = 0
 
         # for experiements. Add cams by class and total
-        cams_total_pre_class = np.zeros((38, 256, 256), dtype=np.float)
+        cams_total_pre_class = np.zeros((2, 38, 256, 256), dtype=np.float)
         for file_p in files_path:
             try:
                 with open(file_p) as data_file:
                     data = json.load(data_file)
                 if data['predicted'] != data['true_label']:
                     splitted = file_p.split('/')
+                    img_path_predicted = argv[2] + '/' + splitted[-3] + '/' + splitted[-2] + '/' + data[
+                        'predicted'] + '.tiff'
+
+                    cam_predicted = cv2.imread(img_path_predicted, cv2.IMREAD_UNCHANGED)
+                    cam_predicted.astype('float32')
+
                     img_path_true_label = argv[2] + '/' + splitted[-3] + '/' + splitted[-2] + '/' + data[
                         'true_label'] + '.tiff'
 
                     cam_true_label = cv2.imread(img_path_true_label, cv2.IMREAD_UNCHANGED)
                     cam_true_label.astype('float32')
-                    cams_total_pre_class[int(data['true_label'])] += cam_true_label
+
+                    cams_total_pre_class[0][int(data['predicted'])] += cam_predicted
+                    cams_total_pre_class[1][int(data['true_label'])] += cam_true_label
 
             except json.decoder.JSONDecodeError:
                 total += 1
