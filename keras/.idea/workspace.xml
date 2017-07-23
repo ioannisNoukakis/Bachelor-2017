@@ -27,11 +27,31 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="133" column="100" lean-forward="false" selection-start-line="133" selection-start-column="100" selection-end-line="133" selection-end-column="100" />
+            <state relative-caret-position="371">
+              <caret line="162" column="22" lean-forward="false" selection-start-line="162" selection-start-column="22" selection-end-line="162" selection-end-column="22" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mini_deploy.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mini_deploy.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="make_env.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/make_env.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="400">
+              <caret line="29" column="17" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="29" selection-end-column="17" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -59,8 +79,8 @@
       <file leaf-file-name="bias_metric.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bias_metric.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="45" column="36" lean-forward="false" selection-start-line="39" selection-start-column="4" selection-end-line="45" selection-end-column="36" />
+            <state relative-caret-position="605">
+              <caret line="56" column="55" lean-forward="true" selection-start-line="56" selection-start-column="14" selection-end-line="56" selection-end-column="55" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -116,8 +136,9 @@
       <find>max_queue_size</find>
       <find>model</find>
       <find>to</find>
-      <find>dataset</find>
       <find>resize</find>
+      <find>dataset</find>
+      <find>minx</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -741,20 +762,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mohanty.py" />
-    <entry file="file://$PROJECT_DIR$/mini_deploy.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/make_env.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="5" column="49" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="58" selection-end-column="226" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python3.5/site-packages/tensorflow/python/framework/ops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="178">
@@ -914,16 +921,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bias_metric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="45" column="36" lean-forward="false" selection-start-line="39" selection-start-column="4" selection-end-line="45" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/VGG16_ft.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="320">
@@ -940,10 +937,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mini_deploy.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/make_env.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="29" column="17" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="29" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bias_metric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="605">
+          <caret line="56" column="55" lean-forward="true" selection-start-line="56" selection-start-column="14" selection-end-line="56" selection-end-column="55" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="133" column="100" lean-forward="false" selection-start-line="133" selection-start-column="100" selection-end-line="133" selection-end-column="100" />
+        <state relative-caret-position="371">
+          <caret line="162" column="22" lean-forward="false" selection-start-line="162" selection-start-column="22" selection-end-line="162" selection-end-column="22" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>

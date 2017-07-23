@@ -159,8 +159,8 @@ def main():
             print('thread', i, 'will take care of', a, 'to', b)
             a = b
             b += inc
-        for t in threads:
-            t.join()
+        for j in range(0, number_thread):
+            threads[j].join()
     if argv[1] == "3":
         dataset_convertor('dataset_black_bg', 'dataset_rand', 'dataset_art')
     if argv[1] == "4":
