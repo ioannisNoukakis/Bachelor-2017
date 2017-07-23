@@ -250,7 +250,29 @@ def main():
                   'first part of this procedure?')
         np.save('results_correct_prediction', np.asarray(results_correct_prediction))
         np.save('results_wrong_prediction', np.asarray(results_wrong_prediction))
+    if argv[1] == '12':
+        files_path = glob(argv[2] + "/*/*/*.json")
+        total = 0
 
+        # for experiements. Add cams by class and total
+        cams_total_pre_class = np.zeros((3, 256, 256))
+        for file_p in files_path:
+            try:
+                with open(file_p) as data_file:
+                    data = json.load(data_file)
+                if data['predicted'] != data['true_label']:
+                    splitted = file_p.split('/')
+                    img_path_true_label = 'dataset_black_bg/' + splitted[-3] + '/' + splitted[-2] + '/' + data['true_label'] + '.tiff'
+
+                    cam_true_label = cv2.imread(img_path_true_label, cv2.IMREAD_UNCHANGED)
+                    cams_total_pre_class[int(data['true_label'])] += cam_true_label
+
+            except json.decoder.JSONDecodeError:
+                total += 1
+        if total > 0:
+            print('[USER WARNING]', total, 'json files were not correctly formed. Did domething happend during the ' +
+                  'first part of this procedure?')
+        np.save('cams_total_pre_class', np.asarray(cams_total_pre_class))
 
 if __name__ == "__main__":
     main()
