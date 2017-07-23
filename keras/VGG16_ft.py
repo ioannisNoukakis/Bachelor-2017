@@ -23,7 +23,7 @@ class VGG16FineTuned:
         self.img_u = dataset_loader
         if mode == 'GAP_CAM':
             self.model = Sequential(applications.VGG16(weights='imagenet', include_top=False).layers)
-
+            self.model.fit_generator
             self.model.add(Convolution2D(512, 3, 3, activation='relu', border_mode="same", name="CAM"))
             self.model.add(GlobalAveragePooling2D(name="GAP"))
             self.model.add(Dense(dataset_loader.nb_classes, activation='softmax', name='W'))
