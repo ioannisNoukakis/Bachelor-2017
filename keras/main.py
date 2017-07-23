@@ -12,12 +12,7 @@ from bias_metric import compute_metric, compute_bias
 from img_processing import dataset_convertor
 from mnist_model import create_n_run_mnist
 from model_utils import get_outputs_generator, reduce_opacity
-from plant_village_custom_model import *
-from numpy import argmax
-from keras.applications.imagenet_utils import preprocess_input
-import time
 import pyximport;
-
 pyximport.install()
 from heatmapgenerate import *
 
@@ -42,8 +37,8 @@ class BiasWorkerThread(Thread):
 
     def run(self):
         for i in range(self.a, self.b):
+            start_time = time.time()
             try:
-                start_time = time.time()
                 with open(self.files_path[i]) as data_file:
                     data = json.load(data_file)
                 if data['predicted'] == data['true_label']:
@@ -110,17 +105,11 @@ def create_cam(dl: DatasetLoader, model, outname: str, im_width=256):
             img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
             heatmap += img * w[z][value]
 
-        heatmap = toimage(heatmap)
-        heatmap = cv2.applyColorMap(np.uint8(np.asarray(ImageOps.invert(heatmap))), cv2.COLORMAP_JET)
-        # heatmap = cv2.putText(heatmap, dl.imgDataArray[i].name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 2)
+        heatmap = cv2.applyColorMap(np.uint8(np.asarray(heatmap)), cv2.COLORMAP_JET)
         heatmap = toimage(heatmap)
         heatmap = reduce_opacity(heatmap, 0.5)
         base.paste(heatmap, (0, 0), heatmap)
-        base.save(outname + "/" + dl.imgDataArray[i].name)
-        # base.show()
-        # heatmaps.append(np.asarray(ImageOps.invert(base)))
-
-        # cv2.imwrite(outname, utils.stitch_images(heatmaps))
+        heatmaps.append(base)
 
 
 def main():
@@ -216,6 +205,7 @@ def main():
         create_cam(DatasetLoader('visual', 10000), model, argv[3] + "_normal", 260)
         create_cam(DatasetLoader('visual_art', 10000), model, argv[3] + "_art", 260)
         create_cam(DatasetLoader('visual_rand', 10000), model, argv[3] + "_rand", 260)
+        create_cam(DatasetLoader('visual_black', 10000), model, argv[3] + "_rand", 260)
     if argv[1] == '11':
         results_correct_prediction = []
         results_wrong_prediction = []
@@ -276,97 +266,5 @@ def main():
                   'first part of this procedure?')
         np.save('cams_total_pre_class', np.asarray(cams_total_pre_class))
 
-
 if __name__ == "__main__":
     main()
-# 1 4 mnist_png mnist.h5 thread mnist_maps_np
-# 9 maps_test
-
-"""
-def create_cam(model, outname, viz_folder, layer_name):
-
-    heatmaps = []
-    for path in next(os.walk(viz_folder))[2]:
-        # Predict the corresponding class for use in `visualize_saliency`.
-        seed_img = utils.load_img(viz_folder + '/' + path, target_size=(256, 256))
-
-        # Here we are asking it to show attention such that prob of `pred_class` is maximized.
-        heatmap = img_processing.heatmap_generate.heatmap_generate(seed_img, model, layer_name, None, True)
-        heatmaps.append(heatmap)
-
-    cv2.imwrite(outname, utils.stitch_images(heatmaps))
-
-
-def make_simple_bias_metrics(dataset_name: str, shampeling_rate: int):
-
-    info("[INFO][MAIN]", "Loading...")
-    dataset_loader = DatasetLoader(dataset_name, 10000)
-
-    info("[INFO][MAIN]", "Compiling model...")
-    vgg16 = VGG16FineTuned(dataset_loader)
-    graph_context = tf.get_default_graph()
-
-    bias_metric = BiasMetric(graph_context)
-    mc = MonoMetricCallBack(bias_metric=bias_metric,
-                            shampleing_rate=shampeling_rate,
-                            current_loader=dataset_loader)
-
-    info("[INFO][MAIN]", "Starting training...")
-    vgg16.train(10, False, [mc])
-
-    info("[INFO][MAIN]", "Training completed!")"""
-
-"""
-def generate_maps_threaded(context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int, number: int):
-    with context.as_default():
-        # plot CAMs only for the validation data:
-        for i in range(begining_index, end_index):
-            outpath = map_out + "/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
-            try:
-                os.makedirs(outpath)
-            except OSError:
-                continue
-            for j in range(0, dl.nb_classes):
-                try:
-                    outname = outpath + "/" + str(j) + ".tiff"
-
-                    img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                     dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-                    predict_input = np.expand_dims(img, axis=0)
-                    predict_input = predict_input.astype('float32')
-                    predict_input = preprocess_input(predict_input)
-                    predictions = model.predict(predict_input)
-                    value = argmax(predictions)
-                    start_time = time.time()
-                    # input_img, model, class_to_predict, layer_name, image_name=None):
-                    heatmap = cam_generate_for_vgg16(
-                        input_img=predict_input[0],
-                        model=model,
-                        class_to_predict=j,
-                        layer_name='CAM')
-                    Image.fromarray(heatmap).save(outname)
-                    print("got cams in", time.time() - start_time)
-                    with open(outpath + '/resuts.json', 'w') as outfile:
-                        json.dump({'predicted': str(value), "true_label": str(dl.imgDataArray[i].img_class)}, outfile)
-                except Exception as e:
-                    print("ERROR IN THREAD", number, "error is", e, "redoing...")
-                    j -= 1
-
-class MapWorker(Thread):
-    def __init__(self, context, dl: DatasetLoader, model, map_out: str, begining_index: int, end_index: int,
-                 number: int):
-        super().__init__()
-        self.context = context
-        self.dl = dl
-        self.model = model
-        self.map_out = map_out
-        self.begining_index = begining_index
-        self.end_index = end_index
-        self.number = number
-
-    def run(self):
-        with self.context.as_default():
-            print("Thread", self.number, "started...")
-            generate_maps_threaded(self.context, self.dl, self.model, self.map_out, self.begining_index, self.end_index,
-                          self.number)
-"""
