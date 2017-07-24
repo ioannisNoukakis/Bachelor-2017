@@ -74,8 +74,30 @@ class BiasWorkerThread(Thread):
                                    'score_true_label_nmin': score_true_label_nmin},
                                   outfile)
             except (KeyError, json.decoder.JSONDecodeError):
-                print('[USER WARNING]', 'Json was malformed. Pehaps you cam generation was interrupted?')
+                print('[USER WARNING]', 'Json was malformed. Perhaps you cam generation was interrupted?')
             print("ok(", time.time() - start_time, ") seconds")
+
+
+class BiasWorkerThreadAll(Thread):
+    def __init__(self, a, b, base_d, files_path):
+        Thread.__init__(self)
+        self.a = a
+        self.b = b
+        self.files_path = files_path
+        self.base_d = base_d
+
+    def run(self):
+        total_score = []
+        for i in range(self.a, self.b):
+            start_time = time.time()
+            score = []
+            for j in range(0, 38):
+                score.append(compute_bias(self.base_d, self.files_path[i], str(j)))
+                if score == -1:
+                    continue
+            total_score.append(np.asarray(score))
+            print("ok(", time.time() - start_time, ") seconds")
+        return total_score
 
 
 def create_cam(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256):
@@ -106,7 +128,8 @@ def create_cam(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256)
             heatmap += img * w[z][value]
 
         heatmap = cv2.applyColorMap(np.uint8(np.asarray(ImageOps.invert(toimage(heatmap)))), cv2.COLORMAP_JET)
-        heatmap = cv2.putText(heatmap, str(dl.picker[i].img_class), (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 2)
+        heatmap = cv2.putText(heatmap, str(dl.picker[i].img_class), (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
+                              2)
         heatmap = toimage(heatmap)
         heatmap = reduce_opacity(heatmap, 0.5)
         base.paste(heatmap, (0, 0), heatmap)
@@ -180,11 +203,31 @@ def main():
                     j += 1
             if argv[3] == "csv":
                 print(i, ",", j)
+            if argv[3] == "tab":
+                print(j, ',')
             else:
                 print("Class", i, "has", j, "shamples")
     if argv[1] == "6":
-        import subprocess  # threads, dataset, model
-        bashCommand = "1" + argv[2] + argv[3] + argv[4] + "thread" + argv[5]
+        files_path = glob(argv[2] + "/*/*/*.json")
+        number_of_files_to_process = len(files_path)
+        print(number_of_files_to_process, "images to process")
+        number_thread = int(argv[3])
+        inc = int(number_of_files_to_process / number_thread)
+        a = 0
+        b = inc
+        threads = []
+        print(number_thread, "worker will be used and each will process", inc, "images")
+        for i in range(0, number_thread):
+            t = BiasWorkerThreadAll(a, b, argv[2], files_path)
+            threads.append(t)
+            t.start()
+            print('thread', i, 'will take care of', a, 'to', b)
+            a = b
+            b += inc
+        score = []
+        for j in range(0, number_thread):
+            score = zip(score, threads[j].join())
+        np.save('bias_metric_all_classes', np.asarray(score))
     if argv[1] == "7":
         create_n_run_mnist(DatasetLoader(argv[2], int(argv[3])), 10)
     if argv[1] == "8":
