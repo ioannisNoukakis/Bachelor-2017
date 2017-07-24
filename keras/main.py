@@ -106,6 +106,7 @@ def create_cam(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256)
             heatmap += img * w[z][value]
 
         heatmap = cv2.applyColorMap(np.uint8(np.asarray(ImageOps.invert(toimage(heatmap)))), cv2.COLORMAP_JET)
+        heatmap = cv2.putText(heatmap, str(dl.picker[i].img_class), (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 2)
         heatmap = toimage(heatmap)
         heatmap = reduce_opacity(heatmap, 0.5)
         base.paste(heatmap, (0, 0), heatmap)
