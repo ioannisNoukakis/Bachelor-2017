@@ -79,13 +79,12 @@ class BiasWorkerThread(Thread):
 
 
 def create_cam(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256):
-    os.makedirs(outname)
     heatmaps = []
-    for _ in range(0, dl.nb_classes):
-        predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[0].directory + "/" +
-                                    dl.imgDataArray[0].name, cv2.IMREAD_COLOR))
-        base = Image.open(dl.baseDirectory + "/" + dl.imgDataArray[0].directory + "/" +
-                          dl.imgDataArray[0].name)
+    for i in range(0, dl.nb_classes):
+        predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.picker[i].directory + "/" +
+                                    dl.picker[i].name, cv2.IMREAD_COLOR))
+        base = Image.open(dl.baseDirectory + "/" + dl.picker[i].directory + "/" +
+                          dl.picker[i].name)
         predict_input = predict_input.astype('float32')
         predict_input = np.expand_dims(predict_input, axis=0)
         predict_input = preprocess_input(predict_input)
@@ -106,7 +105,7 @@ def create_cam(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256)
             img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
             heatmap += img * w[z][value]
 
-        heatmap = cv2.applyColorMap(np.uint8(np.asarray(heatmap)), cv2.COLORMAP_JET)
+        heatmap = cv2.applyColorMap(np.uint8(np.asarray(ImageOps.invert(toimage(heatmap)))), cv2.COLORMAP_JET)
         heatmap = toimage(heatmap)
         heatmap = reduce_opacity(heatmap, 0.5)
         base.paste(heatmap, (0, 0), heatmap)
@@ -213,10 +212,10 @@ def main():
                 cv2.imwrite(outpath, img)
     if argv[1] == '10':
         model = load_model(argv[2])
-        create_cam(DatasetLoader('visual', 10000), model, argv[3] + "_normal", 260)
-        create_cam(DatasetLoader('visual_art', 10000), model, argv[3] + "_art", 260)
-        create_cam(DatasetLoader('visual_rand', 10000), model, argv[3] + "_rand", 260)
-        create_cam(DatasetLoader('visual_black', 10000), model, argv[3] + "_black", 260)
+        create_cam(DatasetLoader('dataset', 10000), model, argv[3] + "_normal.png")
+        create_cam(DatasetLoader('dataset_art', 10000), model, argv[3] + "_art.png")
+        create_cam(DatasetLoader('dataset_rand', 10000), model, argv[3] + "_rand.png")
+        create_cam(DatasetLoader('dataset_black_bg', 10000), model, argv[3] + "_black.png")
     if argv[1] == '11':
         results_correct_prediction = []
         results_wrong_prediction = []

@@ -10,6 +10,7 @@ class ImagePath:
     """
     Container for image name and path and class.
     """
+
     def __init__(self, name, directory, img_class):
         self.name = name
         self.directory = directory
@@ -60,16 +61,23 @@ class DatasetLoader:
         self.train_loaded = False
         self.force_resize = force_resize
 
+        self.picker = []  # only has the first shamples of a class
+
         info("DATASET LOADER]", "Discovering dataset...")
         directories = next(os.walk(self.baseDirectory))[1]
         directories = sorted(directories)
 
         i = 0
+        first = True
         for directory in directories:
             for file_name in next(os.walk(self.baseDirectory + "/" + directory))[2]:
+                if first:
+                    self.picker.append(ImagePath(file_name, directory, i))
+                    first = False
                 self.imgDataArray.append(ImagePath(file_name, directory, i))
                 self.number_of_imgs += 1
             self.directories.append((directory, i))
+            first = True
             i += 1
 
         info("DATASET LOADER]", "")
@@ -175,12 +183,12 @@ class DatasetLoader:
 
             img = cv2.imread(self.baseDirectory + "/" + self.imgDataArray[self.i].get_directory() + "/" +
                              self.imgDataArray[self.i].get_name(), cv2.IMREAD_COLOR)
-            
+
             # print("IMAGE SHAPE", img.shape)
             if self.force_resize:
                 img = cv2.resize(img, (256, 256))
             img = img.astype('float32')
-            
+
             data_x.append(img)
             data_y.append(self.imgDataArray[self.i].get_img_class())
             j += 1
