@@ -57,10 +57,10 @@ def image_splitter(foreground, filename, outfolder_random, outfolder_art, the_cl
         os.makedirs(outfolder_art + "/" + the_class)
 
     background.paste(foreground, (0, 0), foreground)
-    background.save(outfolder_random + "/" + the_class + "/" + "rand_" + filename, "JPEG")
+    background.save(outfolder_random + "/" + the_class + "/" + filename, "JPEG")
 
     background2.paste(foreground, (0, 0), foreground)
-    background2.save(outfolder_art + "/" + the_class + "/" + "art_" + filename, "JPEG")
+    background2.save(outfolder_art + "/" + the_class + "/" + filename, "JPEG")
 
 
 def filter_img(img, new_img, f):

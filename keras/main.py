@@ -3,6 +3,7 @@ import sys
 from glob import glob
 from threading import Thread
 
+import PIL
 from PIL import Image, ImageOps
 from keras.models import load_model
 from scipy.misc import toimage
@@ -327,7 +328,26 @@ def main():
             print('[USER WARNING]', total, 'json files were not correctly formed. Did domething happend during the ' +
                   'first part of this procedure?')
         np.save('cams_total_pre_class', np.asarray(cams_total_pre_class))
-
-
+    if argv[1] == '13':
+        try:
+            os.makedirs('cats_n_dogs_color/cat')
+            os.makedirs('cats_n_dogs_color/dog')
+        except FileExistsError:
+            pass
+        files_path = glob(argv[2] + "/*.jpg")
+        size =(200, 200)
+        im1 = reduce_opacity(Image.new('RGB', size, color=(255, 0, 0)), 0.5)
+        im2 = reduce_opacity(Image.new('RGB', size, color=(0, 0, 255)), 0.5)
+        for path in files_path:
+            split = path.split('/')
+            img = Image.open(path)
+            img = img.resize(size, PIL.Image.ANTIALIAS)
+            if split[-1][:3] == 'cat':
+                img.paste(im1, (0, 0), im1)
+                img.save('cats_n_dogs_color/cat/' + split[-1])
+            else:
+                img.paste(im2, (0, 0), im2)
+                img.save('cats_n_dogs_color/dog/' + split[-1])
+            img.save(path)
 if __name__ == "__main__":
     main()
