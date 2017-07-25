@@ -351,3 +351,5 @@ def main():
             img.save(path)
 if __name__ == "__main__":
     main()
+
+'''python3 main.py 1 dataset_rand vgg16_ft_cam_normal.h5 /media/lstorage/dev/tb/maps_normal_rand 1 4 tf && python3 main.py 2 /media/lstorage/dev/tb/maps_normal_rand 6 && python3 main.py 11 /media/lstorage/dev/tb/maps_normal_rand && python3 main.py 10 vgg16_ft_cam_normal.h5 repport/normal && python3 main.py 10 vgg16_ft_art.h5 repport/art && python3 main.py 10 vgg16_ft_rand.h5 repport/rand && python3 main.py 10 vgg16_tf_black.h5 repport/black '''
