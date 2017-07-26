@@ -5,9 +5,6 @@ from PIL import ImageEnhance
 from keras.models import Model
 import numpy as np
 
-from logger import info
-
-
 def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks=None, batch_size=10):
     """
     Trains a model. At the end of each epochs evaluates it.
@@ -18,7 +15,7 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks=None, 
     :return: The trained model and its score
     """
     score = []
-    info("[MODEL-UTILS] Starting...", "")
+    print("[MODEL-UTILS] Starting...", "")
     for i in range(0, n_epochs):
         print("[MODEL-UTILS] epoch", i, "/", n_epochs)
         while True:
@@ -64,21 +61,6 @@ def evaluate_model(model, dataset_loader: DatasetLoader, score):
         # Evaluate model on test data
         score.append(model.evaluate(x_test, y_test_2, batch_size=10, verbose=1))
     return score
-
-
-def reduce_opacity(im, opacity):
-    """
-    Returns an image with reduced opacity.
-    Taken from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/362879
-    """
-    if im.mode != 'RGBA':
-        im = im.convert('RGBA')
-    else:
-        im = im.copy()
-    alpha = im.split()[3]
-    alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
-    im.putalpha(alpha)
-    return im
 
 
 def get_outputs_generator(model, layer_name):

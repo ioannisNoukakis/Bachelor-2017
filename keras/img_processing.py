@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageEnhance
 import numpy
 import os
 
@@ -57,10 +57,11 @@ def image_splitter(foreground, filename, outfolder_random, outfolder_art, the_cl
         os.makedirs(outfolder_art + "/" + the_class)
 
     background.paste(foreground, (0, 0), foreground)
-    background.save(outfolder_random + "/" + the_class + "/" + filename[-17:] + "jpg", "JPEG")
+    new_name = filename[:-17]
+    background.save(outfolder_random + "/" + the_class + "/" + new_name + "jpg", "JPEG")
 
     background2.paste(foreground, (0, 0), foreground)
-    background2.save(outfolder_art + "/" + the_class + "/" + filename[-17:] + 'jpg', "JPEG")
+    background2.save(outfolder_art + "/" + the_class + "/" + new_name + 'jpg', "JPEG")
 
 
 def filter_img(img, new_img, f):
@@ -107,39 +108,19 @@ def merge_images_mask(image, mask):
     return img1, img2
 
 
-def v_from_hsv_extractor(r, g, b):
-    r /= 255.
-    g /= 255.
-    b /= 255.
-
-    return max([r, g, b])
-
-
-# This was a wrong good idea.
-def pixels_counter_RGB(image: Image):
+def reduce_opacity(im, opacity):
     """
-    Returns the error rate in the image. The error is the how much of red doesnt cover the picture.
-    :param image:
-    :return:
+    Returns an image with reduced opacity.
+    Taken from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/362879
     """
-    score_r = 0
-    score_g = 0
-    n = 0
-    for item in image.getdata():
-        # RED
-        v1 = v_from_hsv_extractor(item[0], 0, 0)
-        v2 = v_from_hsv_extractor(0, item[1], 0)
-        if v1 > 0.:
-            score_r += 2 * v1
-        elif v2 > 0.:
-            score_g += 1 * v2
-        # Blue gives always 0
-
-        if item[3] != 0:
-            n += 2
-    if n == 0.:
-        return 0.
-    return (n - score_r - score_g) / n
+    if im.mode != 'RGBA':
+        im = im.convert('RGBA')
+    else:
+        im = im.copy()
+    alpha = im.split()[3]
+    alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
+    im.putalpha(alpha)
+    return im
 
 
 def main():

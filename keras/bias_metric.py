@@ -14,27 +14,6 @@ from heatmapgenerate import *
 import numpy as np
 
 
-def save_to_csv(l: float, e: float, outname: str):
-    """
-    Save the experiments results on a csv file.
-    :return:-
-    """
-
-    with open(outname, 'a') as f:
-        writer = csv.writer(f)
-        writer.writerow([l, e])
-        f.close()
-
-
-def get_mem_usage():
-    """
-    Get the current memory usage of this device.
-    :return: the memory info.
-    """
-    process = psutil.Process(os.getpid())
-    return process.memory_info()
-
-
 def compute_metric(cam: np.ndarray, mask: np.ndarray):
     inside = outside = 0.
     for i, row in enumerate(mask):
@@ -59,7 +38,6 @@ def compute_bias(b_directory, file_p, i, modifier:str=""):
         cam -= cam.min()
     mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
     if mask is None:
-        print('[USER WARNING]', 'dataset_black_bg/' + splitted[1] + '/' + splitted[2][:-4]
-              + '_final_masked.jpg', 'was not found. Check your file\'s names')
+        print('[USER WARNING]', mask_path, 'was not found. Check your file\'s names')
         return -1
     return compute_metric(cam, mask)
