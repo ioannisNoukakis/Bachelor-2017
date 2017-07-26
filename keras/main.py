@@ -160,7 +160,6 @@ def main():
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
     if argv[1] == "1":
-        # 1 101_resized caltech.h5 maps_test_tf 1 2 tf
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
@@ -294,8 +293,8 @@ def main():
         if total > 0:
             print('[USER WARNING]', total, 'json files were not correctly formed. Did domething happend during the ' +
                   'first part of this procedure?')
-        np.save('results_correct_prediction', np.asarray(results_correct_prediction))
-        np.save('results_wrong_prediction', np.asarray(results_wrong_prediction))
+        np.save(argv[3], np.asarray(results_correct_prediction))
+        np.save(argv[4], np.asarray(results_wrong_prediction))
     if argv[1] == '12':
         files_path = glob(argv[2] + "/*/*/*.json")
         total = 0
@@ -344,10 +343,10 @@ def main():
             img = Image.open(path)
             img = img.resize(size, PIL.Image.ANTIALIAS)
             if split[-1][:3] == 'cat':
-                img.paste(im1, (0, 0), im1)
+                img.paste(im2, (0, 0), im2)
                 img.save('cats_n_dogs_color/cat/' + split[-1])
             else:
-                img.paste(im2, (0, 0), im2)
+                img.paste(im1, (0, 0), im1)
                 img.save('cats_n_dogs_color/dog/' + split[-1])
             img.save(path)
 if __name__ == "__main__":

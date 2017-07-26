@@ -1,3 +1,4 @@
+from keras import optimizers
 from keras.models import Sequential
 from keras.layers import *
 from img_loader import *
@@ -47,7 +48,8 @@ def train_custom_model(dataset_loader: DatasetLoader, mode="dense", N_EPOCHS=5):
     model.add(Dense(nb_classes, activation='softmax', name='W'))
 
     # Compile model
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0.9, nesterov=True)
+    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
     model.summary()
 
     model, the_true_score = train_model(model, dataset_loader, N_EPOCHS)

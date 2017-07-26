@@ -16,7 +16,7 @@ sudo python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/
 sudo apt-get -qq install libopencv-dev build-essential checkinstall cmake pkg-config yasm libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python-dev python-numpy libtbb-dev libqt4-dev libgtk2.0-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils -y
 sudo apt-get install python3.5-dev -y
 sudo apt-get clean
-# download opencv-2.4.11
+# download opencv2
 git clone https://github.com/Itseez/opencv.git
 cd opencv
 git checkout 3.0.0s
