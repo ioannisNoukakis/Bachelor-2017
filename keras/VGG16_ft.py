@@ -1,11 +1,8 @@
-import keras
 from keras import applications, optimizers
 from keras.layers import *
 from keras.models import Sequential
 
-from logger import info
 from plant_village_custom_model import train_model, DatasetLoader
-from keras.models import load_model
 
 
 class VGG16FineTuned:
@@ -52,9 +49,9 @@ class VGG16FineTuned:
         """
         if weights_in is None:
             self.model, score = train_model(self.model, self.img_u, nb_epochs, callbacks)
-            info("[VGG16_FT]", score)
+            print("[VGG16_FT]", score)
 
         if weights_out is not None:
             self.model.save(weights_out)
 
-        info("[VGG16_FT]", "Training completed!")
+        print("[VGG16_FT]", "Training completed!")

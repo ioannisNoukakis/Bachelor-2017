@@ -95,8 +95,6 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
 
 def cam_generate_tf_ops(model, layer_outputs, sess, first_func, second_func, in_place, size_place, convert_place,
                         im_width=256):
-    # conv_resized = resizer(layer_outputs, [im_width, im_width], method=ResizeMethod.BICUBIC)
-    # maps = dot(conv_resized, tf.convert_to_tensor(w))
     conv_resized = sess.run(first_func, feed_dict={in_place: layer_outputs, size_place: [im_width, im_width]})
 
     w = model.get_layer("W").get_weights()[0]

@@ -10,13 +10,14 @@ from scipy.misc import toimage
 
 from VGG16_ft import VGG16FineTuned
 from bias_metric import compute_metric, compute_bias
-from img_processing import dataset_convertor
-from mnist_model import create_n_run_mnist
-from model_utils import get_outputs_generator, reduce_opacity
+from img_processing import dataset_convertor, reduce_opacity
+from model_utils import get_outputs_generator
 import pyximport;
 
+from plant_village_custom_model import train_custom_model
+
 pyximport.install()
-from heatmapgenerate import *
+from heatmap_generate import *
 
 
 # https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
@@ -230,7 +231,7 @@ def main():
             score = zip(score, threads[j].join())
         np.save('bias_metric_all_classes', np.asarray(score))
     if argv[1] == "7":
-        create_n_run_mnist(DatasetLoader(argv[2], int(argv[3])), 10)
+        train_custom_model(DatasetLoader('dataset', 10000))
     if argv[1] == "8":
         dl = DatasetLoader(argv[2], 10000)
         for i in range(0, dl.number_of_imgs):

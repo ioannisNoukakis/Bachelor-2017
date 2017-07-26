@@ -3,7 +3,6 @@ import random
 import cv2
 import numpy as np
 import math
-from logger import info
 
 
 class ImagePath:
@@ -63,7 +62,7 @@ class DatasetLoader:
 
         self.picker = []  # only has the first shamples of a class
 
-        info("DATASET LOADER]", "Discovering dataset...")
+        print("DATASET LOADER]", "Discovering dataset...")
         directories = next(os.walk(self.baseDirectory))[1]
         directories = sorted(directories)
 
@@ -80,16 +79,16 @@ class DatasetLoader:
             first = True
             i += 1
 
-        info("DATASET LOADER]", "")
+        print("DATASET LOADER]", "")
         print(len(directories), "classes found.\n", self.number_of_imgs, "images found.")
 
-        info("DATASET LOADER]", "Shuffling order...")
+        print("DATASET LOADER]", "Shuffling order...")
         random.shuffle(self.imgDataArray)
 
         self.number_of_imgs_for_train = math.floor((self.number_of_imgs / 4) * 3)
         self.number_of_imgs_for_test = math.floor(self.number_of_imgs / 4)
 
-        info("DATASET LOADER]", "")
+        print("DATASET LOADER]", "")
         print("Ready for loading!\n", self.number_of_imgs_for_train, "for training and", self.number_of_imgs_for_test,
               "for testing")
         self.nb_classes = len(directories)
@@ -159,24 +158,24 @@ class DatasetLoader:
         while True:
             if not self.train_loaded and self.i == self.number_of_imgs_for_train:
                 if self.no_training_data:
-                    info("DATASET LOADER]", "Loaded all imgs for training.")
+                    print("DATASET LOADER]", "Loaded all imgs for training.")
                     self.train_loaded = False
                     self.i = 0
                     redo = False
                     break
                 else:
-                    info("DATASET LOADER]", "Loaded all imgs for training. Next call will load test data...")
+                    print("DATASET LOADER]", "Loaded all imgs for training. Next call will load test data...")
                     redo = False
                     self.train_loaded = True
                     break
             if self.i == self.number_of_imgs:
-                info("DATASET LOADER]", "Loaded all imgs for test. Done! Next call will load train data")
+                print("DATASET LOADER]", "Loaded all imgs for test. Done! Next call will load train data")
                 redo = False
                 self.train_loaded = False
                 self.i = 0
                 break
             if j + 1 >= self.max_img_loaded:
-                info("[DATASET LOADER]", "")
+                print("[DATASET LOADER]", "")
                 print("Max img loaded!", self.i, "/", self.number_of_imgs)
                 redo = True
                 break
@@ -194,6 +193,6 @@ class DatasetLoader:
             j += 1
             self.i += 1
 
-        info("[DATASET LOADER]", "Loading completed!")
+        print("[DATASET LOADER]", "Loading completed!")
 
         return redo, np.asarray(data_x), np.asarray(data_y)

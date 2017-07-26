@@ -127,7 +127,8 @@ def main():
     im1, im2 = merge_images_mask(
         Image.open('./dataset/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510.JPG'),
         Image.open(
-            './dataset_black_bg/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab 3510_final_masked.jpg')
+            './dataset_black_bg/Apple___Apple_scab/fcd4d0fd-30c9-4b05-b0ea-ca74fd3cad72___FREC_Scab '
+            '3510_final_masked.jpg')
     )
 
     im1.show()

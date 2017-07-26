@@ -1,9 +1,8 @@
 from keras.applications.imagenet_utils import preprocess_input
 from keras.utils import np_utils
 from img_loader import *
-from PIL import ImageEnhance
 from keras.models import Model
-import numpy as np
+
 
 def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks=None, batch_size=10):
     """
@@ -29,7 +28,8 @@ def train_model(model, dataset_loader: DatasetLoader, n_epochs, callbacks=None, 
 
             # Fit model on training data
             if callbacks:
-                model.fit(x_train, y_train, batch_size=batch_size, epochs=1, verbose=1, callbacks=callbacks, show_accuracy=True)
+                model.fit(x_train, y_train, batch_size=batch_size, epochs=1, verbose=1, callbacks=callbacks,
+                          show_accuracy=True)
             else:
                 model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=1, verbose=1)
 

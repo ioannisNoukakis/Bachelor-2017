@@ -1,14 +1,11 @@
 from keras.models import Sequential
 from keras.layers import *
-from pathlib import Path
 from img_loader import *
 import time
-
-from logger import info
 from model_utils import train_model
 
 
-def get_custom_model(dataset_loader: DatasetLoader, mode, N_EPOCHS=5, random=False, save=None):
+def train_custom_model(dataset_loader: DatasetLoader, mode="dense", N_EPOCHS=5):
     """
     Creates and compile the custom model.
 
@@ -21,7 +18,6 @@ def get_custom_model(dataset_loader: DatasetLoader, mode, N_EPOCHS=5, random=Fal
     :return: the model and its score
     """
     start = time.strftime("%c")
-    the_true_score = []
     nb_classes = dataset_loader.get_nb_classes()
 
     # Define model architecture
@@ -40,6 +36,8 @@ def get_custom_model(dataset_loader: DatasetLoader, mode, N_EPOCHS=5, random=Fal
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
+    print("[CUSTOM MODEL]", mode, "selected.")
+
     if mode == "GAP":
         model.add(GlobalAveragePooling2D(name="GAP"))
     elif mode == "dense":
@@ -50,28 +48,15 @@ def get_custom_model(dataset_loader: DatasetLoader, mode, N_EPOCHS=5, random=Fal
 
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    if save is not None:
-        w_file = Path(save + ".h5")
-    else:
-        w_file = Path("")
     model.summary()
 
-    if random:
-        return model
+    model, the_true_score = train_model(model, dataset_loader, N_EPOCHS)
 
-    if w_file.is_file():
-        model.load_weights(save + ".h5")
-        return model
-    else:
-        model, the_true_score = train_model(model, dataset_loader, N_EPOCHS, None)
-
-        info("[CUSTOM MODEL] Model:", "")
-        model.summary()
-        info("[CUSTOM MODEL] Obtained the score:", the_true_score)
-        info("[CUSTOM MODEL] Training started at:", start)
-        info("[CUSTOM MODEL] Training ended at:", time.strftime("%c"))
-        info("[CUSTOM MODEL] Classes:", nb_classes)
-        info("[CUSTOM MODEL] Nb_epoch:", 10)
-        if save is not None:
-            model.save_weights("./"+save + ".h5")
-        return model
+    print("[CUSTOM MODEL] Model:", "")
+    model.summary()
+    print("[CUSTOM MODEL] Obtained the score:", the_true_score)
+    print("[CUSTOM MODEL] Training started at:", start)
+    print("[CUSTOM MODEL] Training ended at:", time.strftime("%c"))
+    print("[CUSTOM MODEL] Classes:", nb_classes)
+    print("[CUSTOM MODEL] Nb_epoch:", 10)
+    model.save("custom_model.h5")
