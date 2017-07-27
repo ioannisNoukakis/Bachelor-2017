@@ -24,7 +24,8 @@ cp deploy_part1.sh /mnt/deploy_part1.sh
 cp deploy_part2.sh /home/ubuntu/deploy_part2.sh
 chmod +x /mnt/deploy_part1.sh
 chmod +x /home/ubuntu/deploy_part2.sh
-/mnt/deploy_part1.sh
+cd /mnt
+./deploy_part1.sh
 ```
 Now go to https://developer.nvidia.com/cudnn and download cuDNN v5.1 for CUDA 8.0 into /home/ubuntu. You'll have to 
 create an account at nvidia's site in order to make this download. Once it's done run the following commands: 
