@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-sudo apt-get update && apt-get upgrade -y
 sudo apt-get install gcc -y
 sudo apt-get install git -y
 sudo apt-get install make -y
@@ -12,7 +11,6 @@ sudo apt-get update
 sudo apt-get install cuda -y
 sudo apt-get install python3-pip python3-dev -y
 sudo python3 -m pip install --upgrade pip
-sudo python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.2.0-cp34-cp34m-linux_x86_64.whl
 sudo apt-get -qq install libopencv-dev build-essential checkinstall cmake pkg-config yasm libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python-dev python-numpy libtbb-dev libqt4-dev libgtk2.0-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils -y
 sudo apt-get install python3.5-dev -y
 sudo apt-get clean
@@ -35,19 +33,7 @@ sudo apt-get install python3-skimage -y
 sudo python3 -m pip install pyyaml
 sudo python3 -m pip install git+git://github.com/jakebian/quiver.git
 sudo python3 -m pip install keras
-cd /mnt/Bachelor-2017/keras
 sudo python3 -m pip install scikit-learn
 sudo python3 -m pip install h5py
 sudo python3 -m pip install psutil
-
-##After cudnn installation
-
-sudo tar -xzvf cudnn-8.0-linux-x64-v5.1.tgz
-sudo cp cuda/include/cudnn.h /usr/local/cuda/include
-sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
-sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
-export CUDA_HOME=/usr/local/cuda
-sudo rm /etc/ld.so.conf.d/cuda-8-0.conf
-sudo touch /etc/ld.so.conf.d/cuda-8-0.conf
-sudo /usr/local/cuda/lib64 \/usr/local/cuda/extras/CUPTI/lib64 >> /etc/ld.so.conf.d/cuda-8-0.conf
-sudo ldconfig
+sudo python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.2.0-cp34-cp34m-linux_x86_64.whl
