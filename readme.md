@@ -33,6 +33,11 @@ cd /home/ubuntu
 ./deploy_part2.sh
 chown -R ubuntu /mnt
 ```
+Finally, add these lines at the end of your .bashrc file that is located under /home/ubuntu
+```
+export CUDA_HOME=/usr/local/cuda
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/
+```
 Now you should be set to run the experiment. 
 
 ## Command line tool user guide
