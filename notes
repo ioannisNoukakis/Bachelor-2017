@@ -1,4 +1,0 @@
-BOn ce qu'il faut faire maintenant
-
-Pour chaque époch je dois sortir les CAM d'un réseau fine tuned qui s'entraine et d'un réseau from scratch qui s'entraine pas avec des poids initialisé au hasard. Ensuite je compare ces cams avec deux masques de feuille. un avec la feuille et un avec le background. ça va me donner 4 courbes:
-Deux pour le réseau fine tunes et deux pour le scratch. Et la différence entre CAM_FT_A et CAM_SK_A me donne le progrès d'apprentissage sur le temps et CAM_FT_B et CAM_SK_B me donnent le biais de cette classe. Je fais ça a chaque itération pour les 38 classes. Et je fais la moyenne de tout ça pour un point globale.

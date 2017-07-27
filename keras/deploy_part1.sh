@@ -21,7 +21,7 @@ git checkout 3.0.0s
 mkdir release
 cd release
 # compile and install
-cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/mnt/opencvlib -D PYTHON2_EXECUTABLE=/usr/bin/python3 -D WITH_CUDA=OFF ..
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/mnt/opencvlib -D PYTHON2_EXECUTABLE=/usr/bin/python3 -D PYTHON_INCLUDE_DIR=/usr/include/python3.4 -D WITH_CUDA=OFF ..
 make all -j4 # 4 cores
 sudo make install
 cd /usr/local/lib/python3.4/dist-packages
@@ -36,4 +36,5 @@ sudo python3 -m pip install keras
 sudo python3 -m pip install scikit-learn
 sudo python3 -m pip install h5py
 sudo python3 -m pip install psutil
+sudo python3 -m pip install cython
 sudo python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.2.0-cp34-cp34m-linux_x86_64.whl

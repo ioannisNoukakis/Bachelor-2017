@@ -13,7 +13,7 @@ def dataset_convertor(dataset_directory, outfolder_random, outfolder_art):
     :param dataset_directory:
     :param outfolder_random:
     :param outfolder_art:
-    :return:
+    :return: -
     """
     print("converting dataset...")
     directories = next(os.walk(dataset_directory))[1]

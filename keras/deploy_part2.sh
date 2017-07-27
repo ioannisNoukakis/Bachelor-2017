@@ -9,3 +9,4 @@ sudo rm /etc/ld.so.conf.d/cuda-8-0.conf
 sudo touch /etc/ld.so.conf.d/cuda-8-0.conf
 sudo /usr/local/cuda/lib64 \/usr/local/cuda/extras/CUPTI/lib64 >> /etc/ld.so.conf.d/cuda-8-0.conf
 sudo ldconfig
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/

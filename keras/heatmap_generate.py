@@ -1,18 +1,37 @@
 import time
 
 import json
-from PIL import Image
+from PIL import Image, ImageOps
 from tensorflow.python.ops.image_ops_impl import ResizeMethod
 
 from img_loader import *
 import tensorflow as tf
 import numpy as np
 from keras import backend as K
-
+from scipy.misc import toimage
 from keras.applications.imagenet_utils import preprocess_input
+
+from img_processing import reduce_opacity
+from model_utils import get_outputs_generator
 
 
 def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=True, batch_size=10, mode='cv2'):
+    """
+    Generates class activation mappings for the test part of a data set. For example, if you have 38 classes and 13000
+    samples on your test data set this will generate 38*13000 new images. It is recommended to have at least 500 GB free
+    disk space to perform this operation.
+
+    :param dl: The dataset loader (input)
+    :param model: The model that will be used to draw CAMs.
+    :param map_out: the out folder to save the generated heatmaps (500BG free recommended).
+    :param graph: The current Tensorflow graph. In any doubt, just call tf.get_default_graph() for this parameter.
+    :param all_classes: if true, will generate CAMs for every classes for every sample. If false will only generate the
+    CAM for the predicted class.
+    :param batch_size: umber of images to load into the GPU (if any). If on GPU recommended to load only GPU memory * 2 + 1
+    :param mode: Here you can choose witch implementation of the CAM algorithm to use. If cv2 will use opencv. Else will use
+    Tensorflow.
+    :return: -
+    """
     # o_generator = get_outputs_generator(model, 'CAM')
     input = model.input
     output = model.get_layer('CAM').output
@@ -95,6 +114,19 @@ def generate_maps(dl: DatasetLoader, model, map_out: str, graph, all_classes=Tru
 
 def cam_generate_tf_ops(model, layer_outputs, sess, first_func, second_func, in_place, size_place, convert_place,
                         im_width=256):
+    """
+    Generates heatmaps in the Tensorflow computation graph.
+    :param model: the model.
+    :param layer_outputs: the activated kernels of the model.
+    :param sess: the Tensorflow session.
+    :param first_func: tf.image.resize_images
+    :param second_func: K.dot
+    :param in_place: Tensorflow placeholder for layer_outputs
+    :param size_place: Tensorflow placeholder for resize parameter.
+    :param convert_place: Tensorflow placeholder for GAP weights.
+    :param im_width: size of the image (size to resize).
+    :return: the generated heatmaps.
+    """
     conv_resized = sess.run(first_func, feed_dict={in_place: layer_outputs, size_place: [im_width, im_width]})
 
     w = model.get_layer("W").get_weights()[0]
@@ -103,6 +135,14 @@ def cam_generate_tf_ops(model, layer_outputs, sess, first_func, second_func, in_
 
 
 def cam_generate_cv2(model, layer_outputs, nb_classes, im_width=256):
+    """
+    Generates heatmaps.
+    :param model: the model.
+    :param layer_outputs: the activated kernels of the model.
+    :param nb_classes: the number of classes in the model.
+    :param im_width: size of the image (size to resize).
+    :return: the generated heatmaps.
+    """
     w = model.get_layer("W").get_weights()[0]
     maps_arr = []
     for i in range(0, layer_outputs.shape[0]):
@@ -119,41 +159,60 @@ def cam_generate_cv2(model, layer_outputs, nb_classes, im_width=256):
     return np.asarray(maps_arr, dtype='float32')
 
 
-"""
-def heatmap_generate(input_img, model, class_to_predict, layer_name, image_name=None, tmp_name='tmp.png'):
+def create_cam_colored(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256):
+    """
+    Creates a nice colored printing of class activation mappings for every first sample of dataset and a model. Generates
+    one image out of all the computed CAMs.
 
-    Generate a heatmap for the bias metrics.
+    :param dl: the dataset
+    :param model: the model
+    :param outname: the path for saving the result.
+    :param im_width: size of the image (size to resize).
+    :param n: n columns
+    :param s: size of the image.
+    :return: -
+    """
 
-    :param tmp_name:
-    :param class_to_predict: The class for the heatmap to be generated
-    :param graph_context: the tensorflow context.
-    :param input_img: the image to generate heatmap.
-    :param model: the model.
-    :param layer_name: The layer name that will be used to generate the heatmap.
-    :param image_name: print a text on the image.
-    :return:the heatmap or None if an error occured.
+    heatmaps = []
+    for i in range(0, dl.nb_classes):
+        predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.picker[i].directory + "/" +
+                                    dl.picker[i].name, cv2.IMREAD_COLOR))
+        base = Image.open(dl.baseDirectory + "/" + dl.picker[i].directory + "/" +
+                          dl.picker[i].name)
+        predict_input = predict_input.astype('float32')
+        predict_input = np.expand_dims(predict_input, axis=0)
+        predict_input = preprocess_input(predict_input)
 
-    output_generator = get_outputs_generator(model, layer_name)
-    layer_outputs = output_generator(np.expand_dims(input_img, axis=0))[0]
-    heatmap = Image.new("RGBA", (224, 224), color=0)
-    # Normalize input on weights
-    w = MinMaxScaler((0.0, 1.0)).fit_transform(model.get_layer("W").get_weights()[0])
+        output_generator = get_outputs_generator(model, 'CAM')
+        layer_outputs = output_generator(predict_input)[0]
 
-    for z in range(0, layer_outputs.shape[2]):  # Iterate through the number of kernels
-        img = layer_outputs[:, :, z]
+        inputs = model.input
+        output_predict = model.get_layer('W').output
+        fn_predict = K.function([inputs], [output_predict])
+        prediction = fn_predict([predict_input])[0]
+        value = np.argmax(prediction)
 
-        deprocessed = scipy.misc.toimage(cv2.resize(img, (224, 224))).convert("RGBA")
-        deprocessed = reduce_opacity(deprocessed, w[z][class_to_predict])
-        heatmap.paste(deprocessed, (0, 0), deprocessed)
-    # heatmap = image.img_to_array(ImageOps.invert(heatmap.convert("RGB")).convert("RGBA"))
-    # ImageOps.invert(heatmap.convert("RGB")).convert("RGBA").save("TMP.png", "PNG")
-    heatmap.save('tmp/' + tmp_name, "PNG")
-    heatmap = cv2.imread('tmp/' + tmp_name, cv2.CV_8UC3)  # FIXME: remove tmp file
+        w = model.get_layer("W").get_weights()[0]
+        heatmap = cv2.resize(layer_outputs[:, :, 0], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
+        heatmap *= w[0][value]
+        for z in range(1, layer_outputs.shape[2]):  # Iterate through the number of kernels
+            img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
+            heatmap += img * w[z][value]
 
-    heatmap_colored = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
+        heatmap = cv2.applyColorMap(np.uint8(np.asarray(ImageOps.invert(toimage(heatmap)))), cv2.COLORMAP_JET)
+        heatmap = cv2.putText(heatmap, str(dl.picker[i].img_class), (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
+                              2)
+        heatmap = toimage(heatmap)
+        heatmap = reduce_opacity(heatmap, 0.5)
+        base.paste(heatmap, (0, 0), heatmap)
+        heatmaps.append(base)
 
-    if image_name is not None:
-        heatmap_colored = cv2.putText(heatmap_colored, image_name, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
-                                      2)
-    return Image.fromarray(cv2.resize(heatmap_colored, (224, 224)))
-"""
+    result = Image.new("RGB", (n * s, (len(heatmaps) // n + 1) * s))
+    for index, img in enumerate(heatmaps):
+        x = index % n * 256
+        y = index // n * 256
+        w, h = img.size
+        print('pos {0},{1} size {2},{3}'.format(x, y, w, h))
+        result.paste(img, (x, y, x + w, y + h))
+
+    result.save(outname)

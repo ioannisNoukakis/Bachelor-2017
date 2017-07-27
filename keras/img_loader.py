@@ -28,7 +28,7 @@ class ImagePath:
 class DatasetLoader:
     """ Utility image loading class """
 
-    def __init__(self, base_directory, max_img_loaded, no_training_data=False, force_resize=False):
+    def __init__(self, base_directory, max_img_loaded, force_resize=False, no_training_data=False):
         """
         This utility expects you to have the following folder pattern:
 
@@ -39,12 +39,15 @@ class DatasetLoader:
         |__Class2
 
         Sometimes the data is too big to fit in memory. So this utility will split it
-        and you'ill have to call load_dataset as longs as it returns True as it first
+        and you'll have to call load_dataset as longs as it returns True as it first
         return var.
 
         :param base_directory: The base directory
         :param max_img_loaded: The number of maximum images the utility can load at the same time..
+        :param force_resize: Forces the image to be resized to the size of 256 x256 if true.
+        :param no_training_data: If true load_dataset will only loop over the training data.
         """
+
         self.baseDirectory = base_directory
         self.max_img_loaded = max_img_loaded
         self.no_training_data = no_training_data

@@ -6,146 +6,14 @@ from threading import Thread
 import PIL
 from PIL import Image, ImageOps
 from keras.models import load_model
-from scipy.misc import toimage
+
 
 from VGG16_ft import VGG16FineTuned
-from bias_metric import compute_metric, compute_bias
-from img_processing import dataset_convertor, reduce_opacity
-from model_utils import get_outputs_generator
-import pyximport;
+from bias_metric import BiasWorkerThread
+from img_processing import dataset_convertor
 
 from plant_village_custom_model import train_custom_model
-
-pyximport.install()
 from heatmap_generate import *
-
-
-# https://elitedatascience.com/keras-tutorial-deep-learning-in-python#step-1
-# http://cnnlocalization.csail.mit.edu/
-# https://arxiv.org/pdf/1312.4400.pdf
-# https://www.quora.com/What-is-global-average-pooling
-# https://arxiv.org/pdf/1512.04150.pdf
-# https://arxiv.org/pdf/1512.03385.pdf
-# http://lcn.epfl.ch/tutorial/english/perceptron/html/learning.html
-# https://github.com/fchollet/keras/issues/4446
-
-
-class BiasWorkerThread(Thread):
-    def __init__(self, a, b, base_d, files_path):
-        Thread.__init__(self)
-        self.a = a
-        self.b = b
-        self.files_path = files_path
-        self.base_d = base_d
-
-    def run(self):
-        for i in range(self.a, self.b):
-            start_time = time.time()
-            try:
-                with open(self.files_path[i]) as data_file:
-                    data = json.load(data_file)
-                if data['predicted'] == data['true_label']:
-                    score = compute_bias(self.base_d, self.files_path[i], data['predicted'])
-                    if score == -1:
-                        continue
-                    score_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizer01')
-                    score_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'], 'normalizerMin')
-                    with open(self.files_path[i], 'w') as outfile:
-                        json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
-                                   'score': score, 'score_n01': score_n01, 'score_nmin': score_nmin}, outfile)
-                else:
-                    score_predicted = compute_bias(self.base_d, self.files_path[i], data['predicted'])
-                    if score_predicted == -1:
-                        continue
-                    score_predicted_n01 = compute_bias(self.base_d, self.files_path[i], data['predicted'],
-                                                       'normalizer01')
-                    score_predicted_nmin = compute_bias(self.base_d, self.files_path[i], data['predicted'],
-                                                        'normalizerMin')
-
-                    score_true_label = compute_bias(self.base_d, self.files_path[i], data['true_label'])
-                    score_true_label_n01 = compute_bias(self.base_d, self.files_path[i], data['true_label'],
-                                                        'normalizer01')
-                    score_true_label_nmin = compute_bias(self.base_d, self.files_path[i], data['true_label'],
-                                                         'normalizerMin')
-
-                    with open(self.files_path[i], 'w') as outfile:
-                        json.dump({'predicted': data['predicted'], "true_label": data['true_label'],
-                                   'score_predicted': score_predicted, 'score_predicted_n01': score_predicted_n01,
-                                   'score_predicted_nmin': score_predicted_nmin,
-                                   'score_true_label': score_true_label, 'score_true_label_n01': score_true_label_n01,
-                                   'score_true_label_nmin': score_true_label_nmin},
-                                  outfile)
-            except (KeyError, json.decoder.JSONDecodeError):
-                print('[USER WARNING]', 'Json was malformed. Perhaps you cam generation was interrupted?')
-            print("ok(", time.time() - start_time, ") seconds")
-
-
-class BiasWorkerThreadAll(Thread):
-    def __init__(self, a, b, base_d, files_path):
-        Thread.__init__(self)
-        self.a = a
-        self.b = b
-        self.files_path = files_path
-        self.base_d = base_d
-
-    def run(self):
-        total_score = []
-        for i in range(self.a, self.b):
-            start_time = time.time()
-            score = []
-            for j in range(0, 38):
-                score.append(compute_bias(self.base_d, self.files_path[i], str(j)))
-                if score == -1:
-                    continue
-            total_score.append(np.asarray(score))
-            print("ok(", time.time() - start_time, ") seconds")
-        return total_score
-
-
-def create_cam(dl: DatasetLoader, model, outname: str, im_width=256, n=8, s=256):
-    heatmaps = []
-    for i in range(0, dl.nb_classes):
-        predict_input = (cv2.imread(dl.baseDirectory + "/" + dl.picker[i].directory + "/" +
-                                    dl.picker[i].name, cv2.IMREAD_COLOR))
-        base = Image.open(dl.baseDirectory + "/" + dl.picker[i].directory + "/" +
-                          dl.picker[i].name)
-        predict_input = predict_input.astype('float32')
-        predict_input = np.expand_dims(predict_input, axis=0)
-        predict_input = preprocess_input(predict_input)
-
-        output_generator = get_outputs_generator(model, 'CAM')
-        layer_outputs = output_generator(predict_input)[0]
-
-        inputs = model.input
-        output_predict = model.get_layer('W').output
-        fn_predict = K.function([inputs], [output_predict])
-        prediction = fn_predict([predict_input])[0]
-        value = np.argmax(prediction)
-
-        w = model.get_layer("W").get_weights()[0]
-        heatmap = cv2.resize(layer_outputs[:, :, 0], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
-        heatmap *= w[0][value]
-        for z in range(1, layer_outputs.shape[2]):  # Iterate through the number of kernels
-            img = cv2.resize(layer_outputs[:, :, z], (im_width, im_width), interpolation=cv2.INTER_CUBIC)
-            heatmap += img * w[z][value]
-
-        heatmap = cv2.applyColorMap(np.uint8(np.asarray(ImageOps.invert(toimage(heatmap)))), cv2.COLORMAP_JET)
-        heatmap = cv2.putText(heatmap, str(dl.picker[i].img_class), (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0),
-                              2)
-        heatmap = toimage(heatmap)
-        heatmap = reduce_opacity(heatmap, 0.5)
-        base.paste(heatmap, (0, 0), heatmap)
-        heatmaps.append(base)
-
-    result = Image.new("RGB", (n * s, (len(heatmaps) // n + 1) * s))
-    for index, img in enumerate(heatmaps):
-        x = index % n * 256
-        y = index // n * 256
-        w, h = img.size
-        print('pos {0},{1} size {2},{3}'.format(x, y, w, h))
-        result.paste(img, (x, y, x + w, y + h))
-
-    result.save(outname)
 
 
 def main():
@@ -155,18 +23,20 @@ def main():
 
     argv = sys.argv
     if argv[1] == "0":
+        dataset_convertor('dataset_black_bg', 'dataset_rand', 'dataset_art')
+    if argv[1] == "1":
         print("SEED IS", 123)
-        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6]), force_resize=True), mode=argv[4])
+        vggft = VGG16FineTuned(dataset_loader=DatasetLoader(argv[2], int(argv[6]), force_resize=bool(int(argv[7]))),
+                               mode=argv[4])
         vggft.train(int(argv[5]), weights_out=argv[3])
     # ==================================================================================================
-    if argv[1] == "1":
+    if argv[1] == "2":
         dl = DatasetLoader(argv[2], 10000)
         model = load_model(argv[3])
         print("images to process:", dl.number_of_imgs_for_test)
         generate_maps(dl, model, argv[4], tf.get_default_graph(), all_classes=bool(int(argv[5])),
                       batch_size=int(argv[6]), mode=argv[7])
-
-    if argv[1] == '2':
+    if argv[1] == '3':
         files_path = glob(argv[2] + "/*/*/*.json")
         number_of_files_to_process = len(files_path)
         print(number_of_files_to_process, "images to process")
@@ -185,17 +55,7 @@ def main():
             b += inc
         for j in range(0, number_thread):
             threads[j].join()
-    if argv[1] == "3":
-        dataset_convertor('dataset_black_bg', 'dataset_rand', 'dataset_art')
     if argv[1] == "4":
-        directories = next(os.walk(argv[2]))[1]
-        directories = sorted(directories)
-        i = 0
-        for directory in directories:
-            for _ in next(os.walk(argv[2] + "/" + directory))[1]:
-                i += 1
-        print(i, "images processed.")
-    if argv[1] == "5":
         dl = DatasetLoader(argv[2], 10000)
         for i in range(0, dl.nb_classes):
             j = 0
@@ -208,60 +68,15 @@ def main():
                 print(j, ',')
             else:
                 print("Class", i, "has", j, "shamples")
-    if argv[1] == "6":
-        files_path = glob(argv[2] + "/*/*/*.json")
-        number_of_files_to_process = len(files_path)
-        print(number_of_files_to_process, "images to process")
-        number_thread = int(argv[3])
-        inc = int(number_of_files_to_process / number_thread)
-        a = 0
-        b = inc
-        threads = []
-        print(number_thread, "worker will be used and each will process", inc, "images")
-        for i in range(0, number_thread):
-            t = BiasWorkerThreadAll(a, b, argv[2], files_path)
-            threads.append(t)
-            t.start()
-            print('thread', i, 'will take care of', a, 'to', b)
-            a = b
-            b += inc
-        score = []
-        for j in range(0, number_thread):
-            score = zip(score, threads[j].join())
-        np.save('bias_metric_all_classes', np.asarray(score))
-    if argv[1] == "7":
-        train_custom_model(DatasetLoader('dataset', 10000))
-    if argv[1] == "8":
-        dl = DatasetLoader(argv[2], 10000)
-        for i in range(0, dl.number_of_imgs):
-            try:
-                outpath = "101_resized/" + dl.imgDataArray[i].directory + "/" + dl.imgDataArray[i].name
-                try:
-                    os.makedirs("101_resized/" + dl.imgDataArray[i].directory)
-                except OSError:
-                    pass
-                img = cv2.imread(dl.baseDirectory + "/" + dl.imgDataArray[i].directory + "/" +
-                                 dl.imgDataArray[i].name, cv2.IMREAD_COLOR)
-                img = cv2.resize(img, (260, 260))
-                cv2.imwrite(outpath, img)
-            except:
-                pass
-    if argv[1] == '9':
-        files = glob(argv[2] + "/*/*/*")
-        for i, file in enumerate(files):
-            file_s = file.split('/')
-            if file_s[3] != 'resuts.json':
-                outpath = file_s[0] + "/" + file_s[1] + "/" + file_s[2] + "/" + file_s[3] + "_colored.jpg"
-                img = cv2.imread(file, cv2.IMREAD_UNCHANGED)
-                img = cv2.applyColorMap(np.uint8(img), cv2.COLORMAP_JET)
-                cv2.imwrite(outpath, img)
-    if argv[1] == '10':
+    if argv[1] == "5":
+        train_custom_model(DatasetLoader(argv[2], int(argv[3])))
+    if argv[1] == '6':
         model = load_model(argv[2])
-        create_cam(DatasetLoader('dataset', 10000), model, argv[3] + "_normal.png")
-        create_cam(DatasetLoader('dataset_art', 10000), model, argv[3] + "_art.png")
-        create_cam(DatasetLoader('dataset_rand', 10000), model, argv[3] + "_rand.png")
-        create_cam(DatasetLoader('dataset_black_bg', 10000), model, argv[3] + "_black.png")
-    if argv[1] == '11':
+        create_cam_colored(DatasetLoader('dataset', 10000), model, argv[3] + "_normal.png")
+        create_cam_colored(DatasetLoader('dataset_art', 10000), model, argv[3] + "_art.png")
+        create_cam_colored(DatasetLoader('dataset_rand', 10000), model, argv[3] + "_rand.png")
+        create_cam_colored(DatasetLoader('dataset_black_bg', 10000), model, argv[3] + "_black.png")
+    if argv[1] == '7':
         results_correct_prediction = []
         results_wrong_prediction = []
         files_path = glob(argv[2] + "/*/*/*.json")
@@ -295,61 +110,7 @@ def main():
                   'first part of this procedure?')
         np.save(argv[3], np.asarray(results_correct_prediction))
         np.save(argv[4], np.asarray(results_wrong_prediction))
-    if argv[1] == '12':
-        files_path = glob(argv[2] + "/*/*/*.json")
-        total = 0
 
-        # for experiements. Add cams by class and total
-        cams_total_pre_class = np.zeros((2, 38, 256, 256), dtype=np.float)
-        for file_p in files_path:
-            try:
-                with open(file_p) as data_file:
-                    data = json.load(data_file)
-                if data['predicted'] != data['true_label']:
-                    splitted = file_p.split('/')
-                    img_path_predicted = argv[2] + '/' + splitted[-3] + '/' + splitted[-2] + '/' + data[
-                        'predicted'] + '.tiff'
 
-                    cam_predicted = cv2.imread(img_path_predicted, cv2.IMREAD_UNCHANGED)
-                    cam_predicted.astype('float32')
-
-                    img_path_true_label = argv[2] + '/' + splitted[-3] + '/' + splitted[-2] + '/' + data[
-                        'true_label'] + '.tiff'
-
-                    cam_true_label = cv2.imread(img_path_true_label, cv2.IMREAD_UNCHANGED)
-                    cam_true_label.astype('float32')
-
-                    cams_total_pre_class[0][int(data['predicted'])] += cam_predicted
-                    cams_total_pre_class[1][int(data['true_label'])] += cam_true_label
-
-            except json.decoder.JSONDecodeError:
-                total += 1
-        if total > 0:
-            print('[USER WARNING]', total, 'json files were not correctly formed. Did domething happend during the ' +
-                  'first part of this procedure?')
-        np.save('cams_total_pre_class', np.asarray(cams_total_pre_class))
-    if argv[1] == '13':
-        try:
-            os.makedirs('cats_n_dogs_color/cat')
-            os.makedirs('cats_n_dogs_color/dog')
-        except FileExistsError:
-            pass
-        files_path = glob(argv[2] + "/*.jpg")
-        size =(200, 200)
-        im1 = reduce_opacity(Image.new('RGB', size, color=(255, 0, 0)), 0.5)
-        im2 = reduce_opacity(Image.new('RGB', size, color=(0, 0, 255)), 0.5)
-        for path in files_path:
-            split = path.split('/')
-            img = Image.open(path)
-            img = img.resize(size, PIL.Image.ANTIALIAS)
-            if split[-1][:3] == 'cat':
-                img.paste(im2, (0, 0), im2)
-                img.save('cats_n_dogs_color/cat/' + split[-1])
-            else:
-                img.paste(im1, (0, 0), im1)
-                img.save('cats_n_dogs_color/dog/' + split[-1])
-            img.save(path)
 if __name__ == "__main__":
     main()
-
-'''python3 main.py 1 dataset_rand vgg16_ft_cam_normal.h5 /media/lstorage/dev/tb/maps_normal_rand 1 4 tf && python3 main.py 2 /media/lstorage/dev/tb/maps_normal_rand 6 && python3 main.py 11 /media/lstorage/dev/tb/maps_normal_rand && python3 main.py 10 vgg16_ft_cam_normal.h5 repport/normal && python3 main.py 10 vgg16_ft_art.h5 repport/art && python3 main.py 10 vgg16_ft_rand.h5 repport/rand && python3 main.py 10 vgg16_tf_black.h5 repport/black '''

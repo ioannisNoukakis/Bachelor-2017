@@ -7,8 +7,7 @@ from plant_village_custom_model import train_model, DatasetLoader
 
 class VGG16FineTuned:
     """
-    VGG16 fine tuned with a global average pooling layer instead of the traditional
-    fully connected layer.
+    VGG16 fine tuned.
     """
 
     def __init__(self, dataset_loader: DatasetLoader, mode: str):
@@ -40,7 +39,6 @@ class VGG16FineTuned:
     def train(self, nb_epochs, weights_in=None, weights_out=None, callbacks=None):
         """
         Trains the custom VGG16 model.
-
         :param weights_in:
         :param nb_epochs: the number of iterations over the data.
         :param weights_out: if the weights of the custom models should be saved.
