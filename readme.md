@@ -19,7 +19,7 @@ cd /mnt
 apt update && apt upgrade -y
 apt install git -y
 git clone https://github.com/ioannisNoukakis/Bachelor-2017.git
-cd /Bachelor-2017/keras
+cd /mnt/Bachelor-2017/keras
 cp deploy_part1.sh /mnt/deploy_part1.sh
 cp deploy_part2.sh /home/ubuntu/deploy_part2.sh
 chmod +x /mnt/deploy_part1.sh
