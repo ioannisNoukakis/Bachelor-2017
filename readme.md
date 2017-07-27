@@ -44,7 +44,7 @@ Now you should be set to run the experiment.
 Each argument is separated by a comma.
 + 0 : generates the art background data set and the random background data set.
 
-+1 [args] : Fine-tunes VGG16 with the following arguments: *data set's path, path to save the trained model, 
++ 1 [args] : Fine-tunes VGG16 with the following arguments: *data set's path, path to save the trained model, 
 'GAP_CAM' for a model with a global average pooling layer or 'DENSE' of a fully connected layer, 
 number of epochs, max images that the program can load into memory (recommended 5'000), 
 '1' to force image resizing to a 256 x 256 shape. '0' to leave images unchanged.*
