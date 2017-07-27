@@ -1,8 +1,8 @@
 # Keras Bias v1.0
 ## Introduction
-This tool is for drawing classs activation mapp on a large scale and perform class a bias metric on these heatmaps
+This tool is for computing class activation mappings on a large scale and perform a bias metric on these heatmaps
 as described in the .pdf. In order to use it effectively, it was designed in two modules: The folder 'keras' contains
-everything needed to run heavy CAMs and bias metric task on any GPU capable device. 
+everything needed to run the heavy CAMs and bias metric task on any GPU capable device. 
 The folder 'notebook' contains a notebook called 'DataExploration' that allows one to see its model performance in terms
 of (background attention) bias. It is recommended to run the main file of 'keras' with the following arguments: 0, 1, 2,
 3 and 7 in order to get a bias metric result. Once you have the two saved numpy saved array files, transfer them
